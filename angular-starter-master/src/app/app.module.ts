@@ -7,6 +7,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { TranslocoRootModule } from './transloco-root.module';
 
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatInputModule } from '@angular/material/input';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -18,8 +20,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     HttpClientModule,
     TranslocoRootModule,
     MatSlideToggleModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
-  providers: [],
+  providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
+
   bootstrap: [AppComponent]
 })
 export class AppModule { }
