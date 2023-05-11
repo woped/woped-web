@@ -256,6 +256,13 @@ svg#clouds {
     width: 1920px;
 }
 
+.tabGroup {
+    font-weight: bold;
+}
+
+#text-input {
+    width: 80vw;
+}
 
 /* Responsive Styles */
 @media screen and (max-width: 767px) {

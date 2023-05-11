@@ -11,6 +11,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatInputModule } from '@angular/material/input';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/material/form-field';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatStepperModule} from '@angular/material/stepper';
+// import {StepperOverviewExample} from './app.stepper';
+import {TextFieldModule} from '@angular/cdk/text-field';
 
 
 @NgModule({
@@ -25,7 +28,10 @@ import {MatTabsModule} from '@angular/material/tabs';
     MatSlideToggleModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule
+    MatTabsModule,
+    MatStepperModule,
+    TextFieldModule
+  
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
 
