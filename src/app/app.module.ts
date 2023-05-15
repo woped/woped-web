@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
 import { T2PComponent } from './t2p/t2p.component';
 import { HomeComponent } from './home/home.component';
+import { P2tComponent } from './p2t/p2t.component';
 
 
 const routes: Routes = [
@@ -20,7 +21,10 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    T2PComponent,
+    HomeComponent,
+    P2tComponent,
   ],
   
   imports: [

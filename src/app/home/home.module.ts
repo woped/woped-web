@@ -15,6 +15,7 @@ import {TextFieldModule} from '@angular/cdk/text-field';
 import { HomeComponent } from './home.component';
 import { T2PComponent } from '../t2p/t2p.component';
 import { T2PModule} from '../t2p/t2p.module';
+import { P2tComponent } from '../p2t/p2t.component';
 
 
  @NgModule({
@@ -34,6 +35,7 @@ import { T2PModule} from '../t2p/t2p.module';
     TextFieldModule,
     T2PComponent,
     T2PModule,
+    P2tComponent
   
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
