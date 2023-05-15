@@ -26,7 +26,7 @@ jobs:
     - name: Install node Package Manager yarn
       run: yarn install
     - name: Check Codestyle with eslint
-      uses: icrawl/action-eslint@v1
+      run: npm run ng lint
     - name: Run Jest Unit Tests
       run: npm run test
 
