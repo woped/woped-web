@@ -1,1 +1,27 @@
-<p>hello</p>
+<div>
+    <mat-stepper orientation="vertical" #stepper>
+        <mat-step>
+            <form>
+                <ng-template matStepLabel>Text</ng-template>
+                <mat-form-field appearance="fill" [style.width.%]=80>
+                    <mat-label>Enter Text to Transform</mat-label>
+                    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100"
+                        id="text-input"></textarea>
+                </mat-form-field>
+                <div>
+                    <button mat-button matStepperNext>Convert</button>
+                </div>
+            </form>
+        </mat-step>
+
+        <mat-step>
+            <ng-template matStepLabel>Process (Done)</ng-template>
+            <p>You are now done.</p>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button (click)="stepper.reset()">Reset</button>
+                <button mat-button>Download Process as .png</button>
+            </div>
+        </mat-step>
+    </mat-stepper>
+</div>

@@ -10,7 +10,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { T2PComponent } from './t2p/t2p.component';
 import { HomeComponent } from './home/home.component';
 import { P2tComponent } from './p2t/p2t.component';
-
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -32,8 +35,12 @@ const routes: Routes = [
     BrowserAnimationsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,  
+    MatTabsModule,
+    MatStepperModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
-
+  providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
