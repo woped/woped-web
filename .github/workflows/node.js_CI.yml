@@ -23,8 +23,6 @@ jobs:
         node-version: 18
     - name: Install npm dependencies
       run: npm ci
-    - name: Install node Package Manager yarn
-      run: yarn install
     - name: Check Codestyle with eslint
       run: npm run lint
     - name: Run Jest Unit Tests
