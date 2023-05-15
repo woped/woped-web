@@ -21,8 +21,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
-    - name: yarn install
+    - name: Install node Package Manager yarn
       run: yarn install
-    - name: eslint
+    - name: Check Codestyle with eslint
       uses: icrawl/action-eslint@v1
 
