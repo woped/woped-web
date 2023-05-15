@@ -7,14 +7,7 @@ import { Component, OnInit } from '@angular/core';
   
 })
 
-export class T2PComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-
-    
-  }
+export class T2PComponent {
 
 }
 

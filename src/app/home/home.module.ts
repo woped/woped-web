@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -11,16 +11,17 @@ import { MatInputModule } from '@angular/material/input';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/material/form-field';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatStepperModule} from '@angular/material/stepper';
-// import {StepperOverviewExample} from './app.stepper';
 import {TextFieldModule} from '@angular/cdk/text-field';
-import { T2PComponent } from './t2p.component';
+import { HomeComponent } from './home.component';
+import { T2PComponent } from '../t2p/t2p.component';
+import { T2PModule} from '../t2p/t2p.module';
 
 
  @NgModule({
   declarations: [
-    T2PComponent
+    HomeComponent
   ],
-  exports: [T2PComponent], 
+  
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -30,12 +31,13 @@ import { T2PComponent } from './t2p.component';
     MatInputModule,
     MatTabsModule,
     MatStepperModule,
-    TextFieldModule
+    TextFieldModule,
+    T2PComponent,
+    T2PModule,
   
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
 
-  bootstrap: [T2PComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  bootstrap: [HomeComponent]
 })
-export class T2PModule { }
+export class HomeModule { }
