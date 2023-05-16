@@ -58,7 +58,7 @@
   </mat-stepper>
 </div> -->
 
-<mat-vertical-stepper [linear]="false" #stepper [animationDuration]="2000">
+<mat-vertical-stepper [linear]="false" #stepper [animationDuration]="200">
   <mat-step>
     <form>
       <ng-template matStepLabel>Insert your Text</ng-template>
@@ -68,18 +68,14 @@
           <mat-form-field appearance="fill" [style.width.%]="80">
             <mat-label>Enter Text to Transform</mat-label>
             <div>
-              <textarea
-                matInput
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="4"
-                cdkAutosizeMaxRows="100"
-                id="text-input"
-                required
-              ></textarea>
+              <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
+                required></textarea>
             </div>
           </mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1">
           <div>
-            <input type="file" accept=".doc,.docx,.txt,.rtf,.md"/>
+            <input type="file" accept=".doc,.docx,.txt,.rtf,.md" />
           </div>
         </mat-grid-tile>
       </mat-grid-list>
@@ -90,7 +86,7 @@
       </div>
     </form>
   </mat-step>
-  <mat-step >
+  <mat-step>
 
     <form>
       <ng-template matStepLabel>Select your type of Output</ng-template>
@@ -101,9 +97,9 @@
         <mat-option value="Petri-Netz">Petri-Netz</mat-option>
       </mat-select>
 
-        <div>
-          <input type="file" accept=".doc,.docx,.txt,.rtf,.md" required  />
-        </div>
+      <div>
+        <input type="file" accept=".doc,.docx,.txt,.rtf,.md" required />
+      </div>
       <div>
         <button mat-button matStepperPrevious class="card">Back</button>
         <button mat-button matStepperNext class="card">Next</button>
@@ -118,7 +114,7 @@
       <div>
         <button mat-button matStepperPrevious class="card">Back</button>
         <button mat-button class="card">Reset</button>
-        <button mat-button class ="card">Download Process as .png</button>
+        <button mat-button class="card">Download Process as .png</button>
       </div>
     </form>
   </mat-step>
