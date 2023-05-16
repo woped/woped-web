@@ -2,14 +2,24 @@
     <mat-stepper orientation="vertical" #stepper>
         <mat-step>
             <form>
-                <ng-template matStepLabel>Text</ng-template>
-                <mat-form-field appearance="fill" [style.width.%]=80>
-                    <mat-label>Enter Text to Transform</mat-label>
-                    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100"
-                        id="text-input"></textarea>
-                </mat-form-field>
-                <div>
-                    <button mat-button matStepperNext>Convert</button>
+
+                <mat-grid-list cols="4" rowHeight="2:1">
+                    <mat-grid-tile colspan="3">
+                        <ng-template matStepLabel>Text</ng-template>
+                        <mat-form-field appearance="fill" [style.width.%]=80>
+                            <mat-label>Enter Text to Transform</mat-label>
+                            <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100"
+                                id="text-input"></textarea>
+                        </mat-form-field>
+
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="1">
+                        <input type="file" accept=".doc,.docx,.txt,.rtf,.md">
+                    </mat-grid-tile>
+
+                </mat-grid-list>
+                <div class="center">
+                    <button class="card card-small green" mat-button matStepperNext>Convert</button>
                 </div>
             </form>
         </mat-step>

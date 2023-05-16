@@ -14,6 +14,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -38,7 +39,8 @@ const routes: Routes = [
     MatTabsModule,
     MatStepperModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatGridListModule
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
   bootstrap: [AppComponent]
