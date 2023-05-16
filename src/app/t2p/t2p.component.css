@@ -275,6 +275,9 @@ svg#clouds {
 .white {
     background-color: #e2e2e2;
 }
+.text-box{
+  width: 200px;
+}
 
 /* Responsive Styles */
 @media screen and (max-width: 767px) {
