@@ -21,8 +21,10 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
-    - name: Install node Package Manager yarn
-      run: yarn install
+    - name: Install npm dependencies
+      run: npm ci
     - name: Check Codestyle with eslint
-      uses: icrawl/action-eslint@v1
+      run: npm run lint
+    - name: Run Jest Unit Tests
+      run: npm run test
 

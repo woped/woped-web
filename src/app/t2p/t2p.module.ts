@@ -14,13 +14,14 @@ import {MatStepperModule} from '@angular/material/stepper';
 // import {StepperOverviewExample} from './app.stepper';
 import {TextFieldModule} from '@angular/cdk/text-field';
 import { T2PComponent } from './t2p.component';
+import {MatSelectModule} from '@angular/material/select';
 
 
  @NgModule({
   declarations: [
     T2PComponent
   ],
-  exports: [T2PComponent], 
+  exports: [T2PComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -30,8 +31,9 @@ import { T2PComponent } from './t2p.component';
     MatInputModule,
     MatTabsModule,
     MatStepperModule,
-    TextFieldModule
-  
+    TextFieldModule,
+    MatSelectModule
+
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
 
