@@ -68,15 +68,19 @@
           <mat-form-field appearance="fill" [style.width.%]="80">
             <mat-label>Enter Text to Transform</mat-label>
             <div>
-              <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
-                required></textarea>
+              <textarea
+                matInput
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="4"
+                cdkAutosizeMaxRows="100"
+                id="text-input"
+                required
+              ></textarea>
             </div>
           </mat-form-field>
         </mat-grid-tile>
         <mat-grid-tile colspan="1">
-          <div>
-            <input type="file" accept=".doc,.docx,.txt,.rtf,.md" />
-          </div>
+          <input type="file" accept=".doc,.docx,.txt,.rtf,.md" />
         </mat-grid-tile>
       </mat-grid-list>
       <div>
@@ -86,7 +90,7 @@
       </div>
     </form>
   </mat-step>
-  <mat-step>
+  <!-- <mat-step>
 
     <form>
       <ng-template matStepLabel>Select your type of Output</ng-template>
@@ -100,6 +104,34 @@
       <div>
         <input type="file" accept=".doc,.docx,.txt,.rtf,.md" required />
       </div>
+      <div>
+        <button mat-button matStepperPrevious class="card">Back</button>
+        <button mat-button matStepperNext class="card">Next</button>
+      </div>
+    </form>
+  </mat-step> -->
+
+  <mat-step>
+    <form>
+      <ng-template matStepLabel>Fill out your name</ng-template>
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <!-- <input> -->
+
+        <input
+          matInput
+          placeholder="Last name, First name"
+          formControlName="firstCtrl"
+          required
+        />
+        <select matInput formControlName="firstCtrl" required>
+          <option value="" disabled selected>
+            Please enter the kind of Model
+          </option>
+          <option value="bpmn">BPMN</option>
+          <option value="petri-net">Petri-Netz</option>
+        </select>
+      </mat-form-field>
       <div>
         <button mat-button matStepperPrevious class="card">Back</button>
         <button mat-button matStepperNext class="card">Next</button>
