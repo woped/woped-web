@@ -23,5 +23,5 @@ jobs:
           deploy_branch: gh-pages # The branch the action should deploy to.
           angular_dist_build_folder: ./ # The folder where your project is supposed to be after running ng build by the action.
 
- permissions:
+permissions:
   contents: write # Allow write permission to GITHUB_TOKEN to commit to deploy branch.
