@@ -61,6 +61,24 @@
 <mat-vertical-stepper [linear]="false" #stepper [animationDuration]="200">
   <mat-step>
     <form>
+      <ng-template matStepLabel>Explenation</ng-template>
+      <p>
+        <b>What is T2P?</b> <br />
+        The process-to-text approach in the context of Business Process
+        Management (BPM) and Natural Language Processing (NLP) refers to the
+        automatic generation of text descriptions or documentations of business
+        processes. Using BPM techniques and NLP algorithms, process models can
+        be analyzed and translated into natural language. This allows the
+        creation of detailed descriptions of processes that can be used for
+        various purposes, such as training documentation, user documentation, or
+        compliance reports.
+      </p>
+
+    </form>
+    <button mat-button matStepperNext class="card">Next</button>
+  </mat-step>
+  <mat-step>
+    <form>
       <ng-template matStepLabel>Insert your Text</ng-template>
       <mat-grid-list cols="4" rowHeight="2:1">
         <mat-grid-tile colspan="3">
@@ -87,6 +105,7 @@
         <button mat-button matStepperNext class="card card-small green">
           Next
         </button>
+        <button mat-button matStepperPrevious class="card">Back</button>
       </div>
     </form>
   </mat-step>
