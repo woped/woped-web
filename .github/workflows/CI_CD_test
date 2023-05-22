@@ -1,0 +1,27 @@
+name: CI_CD_test
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Test Deployment Github Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set-up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - run: npm ci
+      - name: Deploy
+        uses: AhsanAyaz/angular-deploy-gh-pages-actions@v1 ## replace by latest version without it you will see Expected format {org}/{repo}[/path]@ref. Actual 'AhsanAyaz/angular-deploy-gh-pages-actions',Input string was not in a correct format.
+        with:
+          github_access_token: ${{ secrets.REPO_TOKEN }} # see the Configuration section for how you can create secrets
+          build_configuration: prod # The build environment for the app. please look configurations in your angular.json
+          base_href: /woped-frontend/  # make sure this corresponds to https://<your_username>.github.io/<base_href>/
+          deploy_branch: gh-pages # The branch the action should deploy to.
+          angular_dist_build_folder: ./ # The folder where your project is supposed to be after running ng build by the action.
+
+ permissions:
+  contents: write # Allow write permission to GITHUB_TOKEN to commit to deploy branch.
