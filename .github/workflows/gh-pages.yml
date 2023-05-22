@@ -17,12 +17,11 @@ jobs:
         with:
           node-version: "18"
       - run: npm ci
-      - run: npm run build
+      #- run: npm run build
       #- run: npm test
       - name: Deploy
         uses: crazy-max/ghaction-github-pages@v1
         with:
-          target_branch: gh-pages
           build_dir: ./
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
