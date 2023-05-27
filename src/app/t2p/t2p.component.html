@@ -73,7 +73,6 @@
         various purposes, such as training documentation, user documentation, or
         compliance reports.
       </p>
-
     </form>
     <button mat-button matStepperNext class="card">Next</button>
   </mat-step>
@@ -170,3 +169,16 @@
     </form>
   </mat-step>
 </mat-vertical-stepper>
+<iframe
+  [src]="iFrameURL"
+  *ngIf="displayIframe"
+  style="
+    height: 80%;
+    width: 80%;
+    z-index: 20;
+    position: absolute;
+    background: white;
+  "
+  id="loginFrame"
+></iframe>
+<button (click)="onOpenIFrame()">Open Iframe</button>
