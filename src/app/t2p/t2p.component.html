@@ -92,7 +92,8 @@
                 cdkAutosizeMaxRows="100"
                 id="text-input"
                 required
-              >{{text}}</textarea>
+                >{{ text }}</textarea
+              >
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -101,7 +102,12 @@
         </mat-grid-tile>
       </mat-grid-list>
       <div>
-        <button mat-button matStepperNext class="card card-small green" (click)="onCLickButtonToFillOutName()">
+        <button
+          mat-button
+          matStepperNext
+          class="card card-small green"
+          (click)="onCLickButtonToFillOutName()"
+        >
           Next
         </button>
         <button mat-button matStepperPrevious class="card">Back</button>
@@ -165,6 +171,17 @@
         <button mat-button matStepperPrevious class="card">Back</button>
         <button mat-button class="card">Reset</button>
         <button mat-button class="card">Download Process as .png</button>
+      </div>
+      <div>
+        <label>An overview above the input and output</label>
+        <br>
+        <label>Your entry</label>
+        <br>
+        <label>{{text}}</label>
+        <br>
+        <label>Your result</label>
+        <br>
+        <label>Hier Variable2</label>
       </div>
     </form>
   </mat-step>
