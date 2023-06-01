@@ -92,7 +92,7 @@
                 cdkAutosizeMaxRows="100"
                 id="text-input"
                 required
-              ></textarea>
+              >{{text}}</textarea>
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -101,7 +101,7 @@
         </mat-grid-tile>
       </mat-grid-list>
       <div>
-        <button mat-button matStepperNext class="card card-small green">
+        <button mat-button matStepperNext class="card card-small green" (click)="onCLickButtonToFillOutName()">
           Next
         </button>
         <button mat-button matStepperPrevious class="card">Back</button>
@@ -182,3 +182,13 @@
   id="loginFrame"
 ></iframe>
 <button (click)="onOpenIFrame()">Open Iframe</button>
+<!--
+<script>
+  const viewer = new BpmnJS({ container: 'body' });
+
+  try {
+    await viewer.importXML(bpmnXML);
+  } catch (err) {
+    console.error('error loading BPMN 2.0 XML', err);
+  }
+</script> -->
