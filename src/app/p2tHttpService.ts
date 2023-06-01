@@ -5,7 +5,7 @@ import { throwError } from 'rxjs';
 
 
 const httpOptions= {headers: new HttpHeaders({
-  'Content-Type':  'application/json',
+  'Content-Type':  'text/plain',
   // Authorization: 'my-auth-token'
 })
 };
@@ -13,14 +13,15 @@ const httpOptions= {headers: new HttpHeaders({
 @Injectable({
   providedIn: 'root'
 })
+
 export class p2tHttpService {
-  // private url= 'localhost:8080/p2t/generateText'
-  private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
+  private url= 'localhost:8080/p2t/generateText'
+  // private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
 
   constructor(private p2thttp: HttpClient) {
 
-   }
 
+   }
    postP2T(text: string){
       return this.p2thttp.post<string>(this.url, text, httpOptions).subscribe((response:any) =>{
         const body = response.body;
@@ -60,3 +61,4 @@ export class p2tHttpService {
   //   this.config = { ...resp.body! };
   // })
 }
+
