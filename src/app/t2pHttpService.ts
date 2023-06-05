@@ -10,7 +10,7 @@ const httpOptions = {
     'Accept': '*/*',
     'Content-Type': 'application/json', // We send Text
   }),
-  // responseType: 'text' as 'json', // We accept plain text as response.
+   responseType: 'text' as 'json', // We accept plain text as response.
 };
 
 @Injectable({

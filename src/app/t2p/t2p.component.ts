@@ -46,7 +46,7 @@ export class T2PComponent {
   generateProcess(){
     
     console.log("Generate Process")
-    const text= `Der Manager öffnet Outlook. Anschließend schaut er, ob neue E-Mails eingetroffen sind.`
+    const text= `Der Manager oeffnet Outlook. Anschliessend schaut er, ob neue E-Mails eingetroffen sind.`
 
     this.http.postt2p(text)
   }
