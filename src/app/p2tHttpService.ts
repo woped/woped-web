@@ -4,16 +4,23 @@ import {catchError, retry} from 'rxjs/operators'
 import { throwError } from 'rxjs';
 
 
-const httpOptions= {headers: new HttpHeaders({
-  'Content-Type':  'text/plain',
-  // Authorization: 'my-auth-token'
-  // 'Accept-Encoding': 'gzip, deflate, br',
-  // 'Accept': '*/*',
-  // 'Connection': 'keep-alive',
-  // 'User-Agent': 'Mozilla/5.0',
-})
-};
+// const httpOptions= {headers: new HttpHeaders({
+//   // 'Content-Type':  'text/plain',
+//   // Authorization: 'my-auth-token'
+//   // 'Accept-Encoding': 'gzip, deflate, br',
+//   // 'Accept': '*/*',
+//   // 'Connection': 'keep-alive',
+//   // 'User-Agent': 'Mozilla/5.0',
+// }
+// {responseType: 'text'})};
 
+const httpOptions = {
+      headers: new HttpHeaders({
+      'Accept': 'text/plain, */*',
+      'Content-Type':  'text/plain', // We send Text
+      }),
+      responseType: 'text' as 'json'  // We accept plain text as response.
+    };
 @Injectable({
   providedIn: 'root'
 })
@@ -22,18 +29,15 @@ export class p2tHttpService {
   private url= 'http://localhost:8080/p2t/generateText'
   //private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
 
-  constructor(private p2thttp: HttpClient) {
+  constructor(private http: HttpClient) {
 
 
    }
+   getDummy(text: string){
+     return this.http.get("https://dummyjson.com/products/1").subscribe(data => console.log(data));
+   }
    postP2T(text: string){
-      return this.p2thttp.post<string>(this.url, text, httpOptions).subscribe((response:any) =>{
-        const body = response.body;
-        console.log (body);
-      },
-      (error:any)=>{
-
-      });
+      return this.http.post<string>(this.url, text, httpOptions).subscribe(data => console.log(data));
       //.pipe(catchError(this.handleError('0')))
       //@felixschempfTODO
 
