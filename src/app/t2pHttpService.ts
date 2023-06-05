@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import {
   HttpClient,
   HttpErrorResponse,
@@ -7,17 +8,19 @@ import {
 
 const httpOptions = {
   headers: new HttpHeaders({
-    Accept: 'text/plain, */*',
-    'Content-Type': 'text/plain', // We send Text
+    'Accept': '*/*',
+    'Content-Type': 'application/json', // We send Text
   }),
-  responseType: 'text' as 'json', // We accept plain text as response.
+   responseType: 'text' as 'json', // We accept plain text as response.
 };
 
 @Injectable({
   providedIn: 'root',
 })
 export class t2pHttpService {
-  private url = 'http://localhost:8080/p2t/generateText';
+  private url = 'http://localhost:8081/t2p/generateBPMNv2';
+
+
   // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
   //private text: string;
   constructor(private t2phttpClient: HttpClient) {}
@@ -26,12 +29,23 @@ export class t2pHttpService {
       .post<string>(this.url, text, httpOptions)
       .subscribe(
         (response: any) => {
-          const body = response.body;
-          console.log(body);
+          console.log(response);
+          // Call Method to Display the BPMN Model.
+          this.displayBPMNModel(response);
         },
         (error: any) => {
           console.log(error);
         }
       );
   }
+  async displayBPMNModel(modelAsBPMN: string) {
+    const viewer = new BpmnJS({ container: '#model-container' });
+    console.log(viewer)
+  try {
+    await viewer.importXML(modelAsBPMN);
+    // viewer.get('#model-container').zoom('fit-viewport');
+  } catch (err) {
+    console.error('error loading BPMN 2.0 XML', err);
+  }
+}
 }
