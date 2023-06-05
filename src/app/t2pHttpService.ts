@@ -39,10 +39,11 @@ export class t2pHttpService {
       );
   }
   async displayBPMNModel(modelAsBPMN: string) {
-    const viewer = new BpmnJS({ container: 'body' });
+    const viewer = new BpmnJS({ container: '#model-container' });
     console.log(viewer)
   try {
     await viewer.importXML(modelAsBPMN);
+    // viewer.get('#model-container').zoom('fit-viewport');
   } catch (err) {
     console.error('error loading BPMN 2.0 XML', err);
   }
