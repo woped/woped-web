@@ -44,6 +44,7 @@ export class T2PComponent {
     console.log('Eingabe in Textfeld:' + this.text);
   }
   generateProcess(){
+    
     console.log("Generate Process")
     const text= `<?xml version="1.0" encoding="UTF-8"?>
     <pnml xmlns="pnml.woped.org">

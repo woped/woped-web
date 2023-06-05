@@ -146,17 +146,17 @@
       </mat-form-field> -->
       <mat-form-field>
 
-        <!-- <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required /> -->
+        <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required />
         <mat-label>Please enter the kind of Model</mat-label>
         <select matNativeControl required>
-          <input matInput  required />
+          <input matInput required />
           <option value="bpmn">BPMN</option>
           <option value="petri-net">Petri-Netz</option>
         </select>
       </mat-form-field>
       <div>
-        <button mat-button matStepperPrevious class="card">Back</button>
-        <button mat-button matStepperNext class="card" (click)="generateProcess()">Next</button>
+        <button type="button" mat-button matStepperPrevious class="card">Back</button>
+        <button type="button" mat-button matStepperNext class="card" (click)='generateProcess()' clickable>Next</button>
       </div>
     </form>
   </mat-step>
