@@ -37,11 +37,11 @@ export class p2tHttpService {
      return this.http.get("https://dummyjson.com/products/1").subscribe(data => console.log(data));
    }
    postP2T(text: string){
-      return this.http.post<string>(this.url, text, httpOptions).subscribe(data => console.log(data));
+    return this.http.post<string>(this.url, text, httpOptions);
       //.pipe(catchError(this.handleError('0')))
       //@felixschempfTODO
-
    }
+
    private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.

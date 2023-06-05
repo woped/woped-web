@@ -171,9 +171,8 @@ export class P2tComponent {
         </toolspecific>
     </net>
 </pnml>`;
-    this.response = this.p2tHttpService.postP2T(postmanRequest);
 
-    this.test = this.response.toString();
-    console.log(this.response);
+        this.response = this.p2tHttpService.postP2T(postmanRequest);
+        this.response.subscribe((data) => this.response = data);
   }
 }
