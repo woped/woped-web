@@ -61,7 +61,7 @@
 <mat-vertical-stepper [linear]="false" #stepper [animationDuration]="200">
   <mat-step>
     <form>
-      <ng-template matStepLabel>Explenation</ng-template>
+      <ng-template matStepLabel>Explanation</ng-template>
       <p>
         <b>What is T2P?</b> <br />
         The process-to-text approach in the context of Business Process
@@ -85,15 +85,8 @@
           <mat-form-field appearance="fill" [style.width.%]="80">
             <mat-label>Enter Text to Transform</mat-label>
             <div>
-              <textarea
-                matInput
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="4"
-                cdkAutosizeMaxRows="100"
-                id="text-input"
-                required
-                >{{ text }}</textarea
-              >
+              <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
+                required>{{ text }}</textarea>
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -102,12 +95,7 @@
         </mat-grid-tile>
       </mat-grid-list>
       <div>
-        <button
-          mat-button
-          matStepperNext
-          class="card card-small green"
-          (click)="onCLickButtonToFillOutName()"
-        >
+        <button mat-button matStepperNext class="card card-small green" (click)="onCLickButtonToFillOutName()">
           Next
         </button>
         <button mat-button matStepperPrevious class="card">Back</button>
@@ -137,21 +125,30 @@
 
   <mat-step>
     <form>
-      <ng-template matStepLabel>Fill out your name</ng-template>
-      <mat-form-field>
+      <ng-template matStepLabel>Choose Your Model</ng-template>
+      <!-- <mat-form-field>
         <mat-label>Name</mat-label>
-        <!-- <input> -->
+         <input> -->
 
-        <input
+      <!-- <input
           matInput
           placeholder="Last name, First name"
           formControlName="firstCtrl"
           required
-        />
+        /> 
         <select matInput formControlName="firstCtrl" required>
           <option value="" disabled selected>
             Please enter the kind of Model
           </option>
+          <option value="bpmn">BPMN</option>
+          <option value="petri-net">Petri-Netz</option>
+        </select>
+      </mat-form-field> -->
+      <mat-form-field>
+
+        <!-- <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required /> -->
+        <mat-label>Please enter the kind of Model</mat-label>
+        <select matNativeControl required>
           <option value="bpmn">BPMN</option>
           <option value="petri-net">Petri-Netz</option>
         </select>
@@ -186,18 +183,13 @@
     </form>
   </mat-step>
 </mat-vertical-stepper>
-<iframe
-  [src]="iFrameURL"
-  *ngIf="displayIframe"
-  style="
+<iframe [src]="iFrameURL" *ngIf="displayIframe" style="
     height: 80%;
     width: 80%;
     z-index: 20;
     position: absolute;
     background: white;
-  "
-  id="loginFrame"
-></iframe>
+  " id="loginFrame"></iframe>
 <button (click)="onOpenIFrame()">Open Iframe</button>
 <!--
 <script>

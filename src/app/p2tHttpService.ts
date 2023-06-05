@@ -7,6 +7,10 @@ import { throwError } from 'rxjs';
 const httpOptions= {headers: new HttpHeaders({
   'Content-Type':  'text/plain',
   // Authorization: 'my-auth-token'
+  // 'Accept-Encoding': 'gzip, deflate, br',
+  // 'Accept': '*/*',
+  // 'Connection': 'keep-alive',
+  // 'User-Agent': 'Mozilla/5.0',
 })
 };
 
@@ -15,8 +19,8 @@ const httpOptions= {headers: new HttpHeaders({
 })
 
 export class p2tHttpService {
-  private url= 'localhost:8080/p2t/generateText'
-  // private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
+  private url= 'http://localhost:8080/p2t/generateText'
+  //private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
 
   constructor(private p2thttp: HttpClient) {
 

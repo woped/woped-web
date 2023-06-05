@@ -16,8 +16,8 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class t2pHttpService {
-  // private url= 'localhost:8080/p2t/generateText'
-  private url = 'https://woped.dhbw-karlsruhe.de/p2t/generateText';
+  private url= 'http://localhost:8080/t2p/generateText'
+  // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
   private text: string;
   constructor(private t2phttpClient: HttpClient) {}
   postt2p() {
