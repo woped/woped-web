@@ -49,9 +49,9 @@
 
         <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required />
         <mat-label>Please enter the kind of Model</mat-label>
-        <select matNativeControl required #diagram (change) = "onSelectedDiagram(diagram.value)">
+        <select matNativeControl required #diagram  (click)="onSelectedDiagram($event)" >
           <input matInput required />
-          <option value="bpmn">BPMN</option>
+          <option value="bpmn" default>BPMN</option>
           <option value="petri-net">Petri-Netz</option>
         </select>
       </mat-form-field>

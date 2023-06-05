@@ -14,7 +14,8 @@ export class T2PComponent {
   iFrameURL: SafeResourceUrl;
   displayIframe = false;
   protected text: string = '';
-  protected selectedDiagram = '';
+  protected selectedDiagram = "bpmn";
+  protected kindOfDiagram = '';
 
   constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
 
@@ -44,25 +45,38 @@ export class T2PComponent {
   onCLickButtonToFillOutName() {
     console.log('Eingabe in Textfeld:' + this.text);
   }
-  generateProcess(inputText:string){
+  generateProcess(inputText: string) {
     let text = inputText;
     text = this.replaceUmlaut(text);
-    if(this.selectedDiagram="bpmn"){
-    this.http.postt2pBPMN(text);
-    this.replaceUmlaut("Der Manager öffnet sein Outlook und überlegt sich ob alles passt");
-    console.log("Methode für bpmn wird ausgeführt")}
-    if(this.selectedDiagram = "petri-net")
-    {this.http.postt2pPetriNet(text)
-    console.log("Methode für petri netz wird ausgeführt")
+    if (this.selectedDiagram === "bpmn") {
+      this.http.postt2pBPMN(text);
+      this.replaceUmlaut(
+        'Der Manager öffnet sein Outlook und überlegt sich ob alles passt'
+      );
+      console.log('Methode für bpmn wird ausgeführt');
     }
-
+    if (this.selectedDiagram === "petri-net") {
+      this.http.postt2pPetriNet(text);
+      console.log('Methode für petri netz wird ausgeführt');
+    }
   }
-   replaceUmlaut(text :string){
-
-    return text.replace("ä","ae").replace("ö","oe").replace("ü","ue").replace("ß","ss").replace("Ä","Ae").replace("Ö","Oe").replace("Ü","Ue");
-
+  replaceUmlaut(text: string) {
+    return text
+      .replace('ä', 'ae')
+      .replace('ö', 'oe')
+      .replace('ü', 'ue')
+      .replace('ß', 'ss')
+      .replace('Ä', 'Ae')
+      .replace('Ö', 'Oe')
+      .replace('Ü', 'Ue');
   }
-  onSelectedDiagram(value:string){
-    this.selectedDiagram = value;
+  onSelectedDiagram(event: any) {
+    switch (event.target.value) {
+      case 'bpmn':
+        this.selectedDiagram = 'bpmn';
+        break;
+      case 'petri-net':
+        this.selectedDiagram = 'petri-net';
+    }
   }
 }

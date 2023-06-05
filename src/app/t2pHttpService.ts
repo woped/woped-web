@@ -52,7 +52,7 @@ export class t2pHttpService {
 postt2pPetriNet(text:string){
   console.log("postt2pPetriNet");
   return this.t2phttpClient
-      .post<string>(this.urlBPMN, text, httpOptions)
+      .post<string>(this.urlPetriNet, text, httpOptions)
       .subscribe(
         (response: any) => {
           console.log(response);
