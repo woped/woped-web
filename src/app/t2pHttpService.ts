@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import {
   HttpClient,
   HttpErrorResponse,
@@ -18,6 +19,8 @@ const httpOptions = {
 })
 export class t2pHttpService {
   private url = 'http://localhost:8081/t2p/generateBPMNv2';
+
+
   // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
   //private text: string;
   constructor(private t2phttpClient: HttpClient) {}
@@ -26,12 +29,22 @@ export class t2pHttpService {
       .post<string>(this.url, text, httpOptions)
       .subscribe(
         (response: any) => {
-          const body = response;
-          console.log(body);
+          console.log(response);
+          // Call Method to Display the BPMN Model.
+          this.displayBPMNModel(response);
         },
         (error: any) => {
           console.log(error);
         }
       );
   }
+  async displayBPMNModel(modelAsBPMN: string) {
+    const viewer = new BpmnJS({ container: 'body' });
+    console.log(viewer)
+  try {
+    await viewer.importXML(modelAsBPMN);
+  } catch (err) {
+    console.error('error loading BPMN 2.0 XML', err);
+  }
+}
 }

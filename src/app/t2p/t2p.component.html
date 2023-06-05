@@ -86,7 +86,7 @@
             <mat-label>Enter Text to Transform</mat-label>
             <div>
               <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
-                required>{{ text }}</textarea>
+                #modelInput required>{{ text }}</textarea>
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -156,7 +156,8 @@
       </mat-form-field>
       <div>
         <button type="button" mat-button matStepperPrevious class="card">Back</button>
-        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess()">Next</button>
+        <button type="button" mat-button matStepperNext class="card"
+          (click)="generateProcess(modelInput.value)">Next</button>
       </div>
     </form>
   </mat-step>
@@ -192,6 +193,7 @@
     background: white;
   " id="loginFrame"></iframe>
 <button (click)="onOpenIFrame()">Open Iframe</button>
+<div class="model-container"></div>
 <!--
 <script>
   const viewer = new BpmnJS({ container: 'body' });

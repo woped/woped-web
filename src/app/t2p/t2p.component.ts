@@ -43,11 +43,8 @@ export class T2PComponent {
   onCLickButtonToFillOutName() {
     console.log('Eingabe in Textfeld:' + this.text);
   }
-  generateProcess(){
-    
-    console.log("Generate Process")
-    const text= `Der Manager oeffnet Outlook. Anschliessend schaut er, ob neue E-Mails eingetroffen sind.`
-
+  generateProcess(inputText:string){
+    const text = inputText;
     this.http.postt2p(text)
   }
 }

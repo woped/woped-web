@@ -67,6 +67,7 @@
     "@angular/router": "^16.0.0",
     "@ngneat/transloco": "^4.2.6",
     "angular": "^1.8.3",
+    "bpmn-js": "^13.1.0",
     "rxjs": "~7.8.1",
     "tslib": "^2.5.0",
     "zone.js": "~0.13.0"
