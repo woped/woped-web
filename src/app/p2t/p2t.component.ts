@@ -10,12 +10,15 @@ import { HttpResponse } from '@angular/common/http';
 })
 
 export class P2tComponent {
+    response: any; 
+    test: String; 
  // p2tHttpService: any;
   constructor(private p2tHttpService: p2tHttpService){
   //  p2tHttpService=p2tHttpService
   }
   generateText(){
     console.log("ich bin hier")
+     
     let xmlString: string = `<?xml version="1.0" encoding="UTF-8"?>
     <pnml xmlns="pnml.woped.org">
       <net type="http://www.informatik.hu-berlin.de/top/pntd/ptNetb" id="noID">
@@ -168,11 +171,9 @@ export class P2tComponent {
         </toolspecific>
     </net>
 </pnml>`;
-    // let response: HttpResponse<any>;
+    this.response = this.p2tHttpService.postP2T(postmanRequest);
 
-     let response= this.p2tHttpService.postP2T(postmanRequest);
-
-    console.log(response);
+    this.test = this.response.toString();
+    console.log(this.response);
   }
-
 }

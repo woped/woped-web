@@ -46,11 +46,16 @@
                 <!-- <button mat-button matStepperNext(click)="generateText()">Generate</button> -->
                 <!--<button mat-button matStepperNext>Generate</button> -->
             </mat-step>
-
             <mat-step>
                 <ng-template matStepLabel>Text (Done)</ng-template>
                 <div>
-                    <p>Hier steht dann unsere Ausgabe</p>
+                    <div *ngIf = "response">
+                        <p>{{ response.toString() }}</p>
+                      <!-- <div [innerHTML]="response"></div> -->
+                    </div>
+                    <div *ngIf = "!response">
+                        <p>Noch keine response</p>
+                    </div>
                     <button mat-button matStepperPrevious>Back</button>
                     <button mat-button (click)="stepper.reset()">Reset</button>
                     <button mat-button>Download Text as .txt</button>
