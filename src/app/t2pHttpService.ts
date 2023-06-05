@@ -49,4 +49,18 @@ export class t2pHttpService {
     console.error('error loading BPMN 2.0 XML', err);
   }
 }
+postt2pPetriNet(text:string){
+  console.log("postt2pPetriNet");
+  return this.t2phttpClient
+      .post<string>(this.urlBPMN, text, httpOptions)
+      .subscribe(
+        (response: any) => {
+          console.log(response);
+          // Call Method to Display the BPMN Model.
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+}
 }
