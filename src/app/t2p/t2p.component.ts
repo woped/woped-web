@@ -16,6 +16,7 @@ export class T2PComponent {
   protected text: string = '';
   protected selectedDiagram = "bpmn";
   protected kindOfDiagram = '';
+  protected fileContent="";
 
   constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
 
@@ -29,7 +30,7 @@ export class T2PComponent {
   //   return new Promise<string>((resolve, reject) => {
   //     const reader = new FileReader();
 
-  //     reader.onload = (event: any) => {
+  //      reader.onload = (event: any) => {
   //       const fileContent = event.target.result;
   //       resolve(fileContent);
   //     };
@@ -38,8 +39,17 @@ export class T2PComponent {
   //       reject(event.target.error);
   //     };
 
-  //     reader.readAsText(file);
+  //  console.log( reader.readAsText(file))  ;
   //   });
+  // const file: File = event.target.files[0];
+  //   const reader = new FileReader();
+
+  //   reader.onload = (e) => {
+  //     this.fileContent = reader.result as string;
+  //   };
+
+  //   reader.readAsText(file);
+  // }
   // }
 
   onCLickButtonToFillOutName() {
@@ -79,4 +89,7 @@ export class T2PComponent {
         this.selectedDiagram = 'petri-net';
     }
   }
+  // setTextFromFile(){
+  //   this.text = this.readUploadedFile(file);
+  // }
 }
