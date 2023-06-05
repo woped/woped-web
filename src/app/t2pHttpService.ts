@@ -7,17 +7,17 @@ import {
 
 const httpOptions = {
   headers: new HttpHeaders({
-    Accept: 'text/plain, */*',
-    'Content-Type': 'text/plain', // We send Text
+    'Accept': '*/*',
+    'Content-Type': 'application/json', // We send Text
   }),
-  responseType: 'text' as 'json', // We accept plain text as response.
+  // responseType: 'text' as 'json', // We accept plain text as response.
 };
 
 @Injectable({
   providedIn: 'root',
 })
 export class t2pHttpService {
-  private url = 'http://localhost:8080/p2t/generateText';
+  private url = 'http://localhost:8081/t2p/generateBPMNv2';
   // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
   //private text: string;
   constructor(private t2phttpClient: HttpClient) {}
@@ -26,7 +26,7 @@ export class t2pHttpService {
       .post<string>(this.url, text, httpOptions)
       .subscribe(
         (response: any) => {
-          const body = response.body;
+          const body = response;
           console.log(body);
         },
         (error: any) => {
