@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {catchError, retry} from 'rxjs/operators'
 import { throwError } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 
 
 // const httpOptions= {headers: new HttpHeaders({
@@ -25,9 +26,16 @@ const httpOptions = {
   providedIn: 'root'
 })
 
+@Component({
+  selector: 'app-my-component',
+  template: `
+    <div>{{ asyncText }}</div>`,
+})
+
 export class p2tHttpService {
   private url= 'http://localhost:8080/p2t/generateText'
   //private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
+  asyncText: String;
 
   constructor(private http: HttpClient) {
 
@@ -37,9 +45,32 @@ export class p2tHttpService {
      return this.http.get("https://dummyjson.com/products/1").subscribe(data => console.log(data));
    }
    postP2T(text: string){
-    return this.http.post<string>(this.url, text, httpOptions);
-      //.pipe(catchError(this.handleError('0')))
-      //@felixschempfTODO
+      return this.http.post<string>(this.url, text, httpOptions)
+      .subscribe((response: any) => {
+        console.log(response);
+        // Call Method to Display the BPMN Model.
+        this.displayText(response);
+      },
+      (error: any) => {
+        console.log(error);
+      }
+      );
+   }
+
+   async displayText(response: any){
+      try {
+        const paragraph = document.createElement('p');
+
+        const text = document.createTextNode(response);
+        paragraph.appendChild(text);
+
+        const container = document.getElementById('result');
+        container.appendChild(paragraph);
+
+        // viewer.get('#model-container').zoom('fit-viewport');
+      } catch (err) {
+        console.error('error loading BPMN 2.0 XML', err);
+      }
    }
 
    private handleError(error: HttpErrorResponse) {

@@ -49,13 +49,8 @@
             <mat-step>
                 <ng-template matStepLabel>Text (Done)</ng-template>
                 <div>
-                    <div *ngIf = "response">
-                        <p>{{ response }}</p>
-                      <!-- <div [innerHTML]="response"></div> -->
-                    </div>
-                    <div *ngIf = "!response">
-                        <p>Noch keine response</p>
-                    </div>
+                    <div id = "result"></div>
+
                     <button mat-button matStepperPrevious>Back</button>
                     <button mat-button (click)="stepper.reset()">Reset</button>
                     <button mat-button>Download Text as .txt</button>

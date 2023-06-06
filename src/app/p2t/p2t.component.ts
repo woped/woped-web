@@ -172,7 +172,7 @@ export class P2tComponent {
     </net>
 </pnml>`;
 
-        this.response = this.p2tHttpService.postP2T(postmanRequest);
-        this.response.subscribe((data) => this.response = data);
+    this.p2tHttpService.postP2T(postmanRequest);
+
   }
 }
