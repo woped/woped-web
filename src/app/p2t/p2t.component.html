@@ -34,13 +34,13 @@
                         <div class="mehrspaltig">
                             <div class="Upload from explorer" style="margin-top: 2em">
                                 <p>
-                                    <input name="datei" type="file" size="50" accept="text/*">
+                                    <input id="fileInput" type="file" size="50">
                                     <br>(*.txt, *.html)
                                 </p>
                             </div>
                             <div class="dropzone">Leider habe ich noch keine Ahnung wie das mit dem Drag&Drop geht...
                             </div>
-                        </div>
+            </div>
                     </form>
                 </form>
                 <!-- <button mat-button matStepperNext(click)="generateText()">Generate</button> -->
@@ -58,6 +58,7 @@
             </mat-step>
         </mat-stepper>
     </div>
+    <button (click)="sendText()">Upload</button>
     <button (click)="generateText()">Generate</button>
 </body>
 

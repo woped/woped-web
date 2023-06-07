@@ -13,6 +13,7 @@ import { Component, OnInit } from '@angular/core';
 //   // 'Connection': 'keep-alive',
 //   // 'User-Agent': 'Mozilla/5.0',
 // }
+
 // {responseType: 'text'})};
 
 const httpOptions = {
@@ -66,10 +67,9 @@ export class p2tHttpService {
 
         const container = document.getElementById('result');
         container.appendChild(paragraph);
-
-        // viewer.get('#model-container').zoom('fit-viewport');
+        
       } catch (err) {
-        console.error('error loading BPMN 2.0 XML', err);
+        console.error('error', err);
       }
    }
 
