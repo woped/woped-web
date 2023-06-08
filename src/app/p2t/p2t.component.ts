@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { p2tHttpService } from '../p2tHttpService';
+import { MatStepper } from '@angular/material/stepper';
 import { HttpResponse } from '@angular/common/http';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+
 
 declare global {
     interface Window {
@@ -15,11 +18,25 @@ declare global {
   template: `'<p>p2t works!</p>'`
 })
 
-
-
 export class P2tComponent {
     response: any; 
     test: String; 
+    @ViewChild('stepperRef') stepper!: MatStepper;
+
+    onDrop(event: DragEvent) {
+    event.preventDefault();
+    const fileList = event.dataTransfer?.files;
+    if (fileList) {
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList.item(i);
+        // Dateiverarbeitungslogik hier
+      }
+    }
+}
+onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
     
 
   constructor(private p2tHttpService: p2tHttpService){
@@ -38,6 +55,7 @@ export class P2tComponent {
           };
           reader.readAsText(file);
         }
+        event.preventDefault();
   }
 
 
@@ -152,6 +170,8 @@ export class P2tComponent {
     else{
         this.p2tHttpService.displayText("Keine Datei hochgeladen");
     }
+    event.preventDefault();
+    this.stepper.next();
   }
 
 

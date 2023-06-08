@@ -6,7 +6,7 @@
 
 <body>
     <div>
-        <mat-stepper orientation="vertical" #stepper>
+        <mat-stepper orientation="vertical" #stepperRef>
             <mat-step>
                 <form>
                     <ng-template matStepLabel>Explanation</ng-template>
@@ -23,7 +23,6 @@
                 </form>
             </mat-step>
 
-
             <mat-step>
                 <form>
                     <ng-template matStepLabel>Model</ng-template>
@@ -38,19 +37,20 @@
                                     <br>(*.txt, *.html)
                                 </p>
                             </div>
-                            <div class="dropzone">Leider habe ich noch keine Ahnung wie das mit dem Drag&Drop geht...
+                            <div class="dropzone">
+                                Drop files here
                             </div>
-            </div>
+                        </div>
                     </form>
+                    <button (click)="sendText()">Upload</button>
+                    <button (click)="generateText()">Generate</button>
                 </form>
-                <!-- <button mat-button matStepperNext(click)="generateText()">Generate</button> -->
-                <!--<button mat-button matStepperNext>Generate</button> -->
             </mat-step>
+
             <mat-step>
                 <ng-template matStepLabel>Text (Done)</ng-template>
                 <div>
-                    <div id = "result"></div>
-
+                    <div id="result"></div>
                     <button mat-button matStepperPrevious>Back</button>
                     <button mat-button (click)="stepper.reset()">Reset</button>
                     <button mat-button>Download Text as .txt</button>
@@ -58,8 +58,7 @@
             </mat-step>
         </mat-stepper>
     </div>
-    <button (click)="sendText()">Upload</button>
-    <button (click)="generateText()">Generate</button>
+    
 </body>
 
 </html>
