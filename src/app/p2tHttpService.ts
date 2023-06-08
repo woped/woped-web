@@ -49,7 +49,6 @@ export class p2tHttpService {
       return this.http.post<string>(this.url, text, httpOptions)
       .subscribe((response: any) => {
         console.log(response);
-        // Call Method to Display the BPMN Model.
         this.displayText(response);
       },
       (error: any) => {
@@ -58,8 +57,14 @@ export class p2tHttpService {
       );
    }
 
+   formText(text: string):string{
+    text = text.replace(/<[^>]+>/g, '');
+    return text; 
+  }
+
    async displayText(response: any){
       try {
+        response = this.formText(response);
         const paragraph = document.createElement('p');
 
         const text = document.createTextNode(response);

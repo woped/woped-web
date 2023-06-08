@@ -143,8 +143,6 @@ export class P2tComponent {
     </net>
 </pnml>`;
 
-//console.log(window.fileContent.length);
-
     if (window.fileContent !== undefined){
         console.log("postman Request " + postmanRequest);
         console.log("file Content " + window.fileContent);
@@ -154,8 +152,11 @@ export class P2tComponent {
     else{
         this.p2tHttpService.displayText("Keine Datei hochgeladen");
     }
-
-    
-
   }
+
+
+
+
+
+
 }
