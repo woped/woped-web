@@ -37,8 +37,9 @@
                                     <br>(*.txt, *.html)
                                 </p>
                             </div>
-                            <div class="dropzone">
-                                Drop files here
+                            <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+                                <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }} </span>
+                                <span *ngIf="!isFiledDropped">Dateien per Drag and Drop hochladen</span>
                             </div>
                         </div>
                     </form>

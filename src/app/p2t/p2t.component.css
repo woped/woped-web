@@ -1,4 +1,19 @@
 .mehrspaltig {
-    column-width: 16em;
-    max-width: 40em; 
-  }
+  display: flex;
+}
+
+.Upload.from.explorer {
+  margin-top: 2em;
+}
+
+.dropzone {
+  border: 1px dashed black;
+  height: 200px;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+}
+
+.dropzone span {
+  margin: auto 0;
+}

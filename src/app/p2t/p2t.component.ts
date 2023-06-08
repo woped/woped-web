@@ -1,13 +1,15 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { p2tHttpService } from '../p2tHttpService';
 import { MatStepper } from '@angular/material/stepper';
 import { HttpResponse } from '@angular/common/http';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, windowWhen } from 'rxjs';
 
 
 declare global {
     interface Window {
         fileContent: string;
+        dropfileContent: string;
     }
   }
 
@@ -22,17 +24,14 @@ export class P2tComponent {
     response: any; 
     test: String; 
     @ViewChild('stepperRef') stepper!: MatStepper;
+    @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
+    isFiledDropped: boolean= false
+    droppedFileName: string = '';
 
-    onDrop(event: DragEvent) {
-    event.preventDefault();
-    const fileList = event.dataTransfer?.files;
-    if (fileList) {
-      for (let i = 0; i < fileList.length; i++) {
-        const file = fileList.item(i);
-        // Dateiverarbeitungslogik hier
-      }
-    }
-}
+
+    
+
+    
 onDragOver(event: DragEvent) {
     event.preventDefault();
   }
@@ -161,22 +160,51 @@ onDragOver(event: DragEvent) {
     </net>
 </pnml>`;
 
-    if (window.fileContent !== undefined){
+    if (window.fileContent !== undefined || window.dropfileContent !== undefined){
         console.log("postman Request " + postmanRequest);
         console.log("file Content " + window.fileContent);
         this.p2tHttpService.postP2T(window.fileContent);
+        this.p2tHttpService.postP2T(window.dropfileContent)
+        
     }
 
     else{
         this.p2tHttpService.displayText("Keine Datei hochgeladen");
     }
     event.preventDefault();
+   
+   console.log("file Content " + window.fileContent);
     this.stepper.next();
   }
 
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {     
+      // Handle dropped files here
+      console.log(files);
+    }
+    this.processDroppedFiles(files); 
+    this.isFiledDropped= true;
+    this.droppedFileName = files[0].name;
+    
+  }
 
-
-
-
-
-}
+  processDroppedFiles(files:FileList){
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Handle each dropped file here
+        console.log(file.name);
+    
+        // Example: Read file content
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          window.dropfileContent = reader.result as string;
+          console.log("bin am Processen")
+          console.log(window.dropfileContent);
+          // Do something with the file content
+        };
+        reader.readAsText(file);
+      }
+  }
+  }
