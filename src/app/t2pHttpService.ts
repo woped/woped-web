@@ -19,7 +19,8 @@ const httpOptions = {
 })
 export class t2pHttpService {
   private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2';
-  private urlPetriNet = 'http://localhost:8081/t2p/generatePNML'
+  // private urlPetriNet = 'http://localhost:8081/t2p/generatePNML';
+  private urlPetriNet = 'http://localhost:8081/t2p/generatePictureFromPNML';
 
 
   // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
@@ -63,7 +64,19 @@ postt2pPetriNet(text:string){
         }
       );
 }
-generatePetriNet(text:string){
-  
+async generatePetriNet(modelAsPetriNet:string){
+  const viewer = new BpmnJS({ container: '#model-container' });
+  console.log(viewer);
+  try {
+    await  viewer.importXML(modelAsPetriNet);
+    let text2 = viewer.importXML(modelAsPetriNet);
+    viewer.peet
+
+
+
+}
+catch(err){
+console.log("Error");
+}
 }
 }
