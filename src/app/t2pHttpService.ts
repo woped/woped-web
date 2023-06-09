@@ -63,4 +63,7 @@ postt2pPetriNet(text:string){
         }
       );
 }
+generatePetriNet(text:string){
+  
+}
 }
