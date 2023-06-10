@@ -26,7 +26,7 @@
             <mat-label>Enter Text to Transform</mat-label>
             <div>
               <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
-                #modelInput required>{{ text }}</textarea>
+                #modelInput>{{ text }}</textarea>
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -52,7 +52,7 @@
         <!-- <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required /> -->
         <mat-label>Please enter the kind of Model</mat-label>
         <select matNativeControl required #diagram (click)="onSelectedDiagram($event)">
-          <input matInput required />
+          <!-- <input matInput required /> -->
           <option value="bpmn">BPMN</option>
           <option value="petri-net" default>Petri-Netz</option>
         </select>
@@ -75,35 +75,10 @@
         <button mat-button class="card">Download Process as .png</button>
       </div>
       <div>
-        <label>An overview above the input and output</label>
-        <br>
-        <label>Your entry</label>
-        <br>
         <label>{{text}}</label>
-        <br>
-        <label>Your result</label>
-        <br>
-        <label>Hier Variable2</label>
       </div>
     </form>
   </mat-step>
 </mat-vertical-stepper>
-<iframe [src]="iFrameURL" *ngIf="displayIframe" style="
-    height: 80%;
-    width: 80%;
-    z-index: 20;
-    position: absolute;
-    background: white;
-  " id="loginFrame"></iframe>
-<button (click)="onOpenIFrame()">Open Iframe</button>
+<!-- Container for displaying  -->
 <div id="model-container"></div>
-<!--
-<script>
-  const viewer = new BpmnJS({ container: 'body' });
-
-  try {
-    await viewer.importXML(bpmnXML);
-  } catch (err) {
-    console.error('error loading BPMN 2.0 XML', err);
-  }
-</script> -->

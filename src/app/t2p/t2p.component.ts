@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { t2pHttpService } from '../t2pHttpService';
+import { t2pHttpService } from './t2pHttpService';
 
 @Component({
   selector: 'app-t2p',
@@ -14,9 +14,9 @@ export class T2PComponent {
   iFrameURL: SafeResourceUrl;
   displayIframe = false;
   protected text: string = '';
-  protected selectedDiagram = "bpmn";
+  protected selectedDiagram = 'bpmn';
   protected kindOfDiagram = '';
-  protected fileContent="";
+  protected fileContent = '';
 
   constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
 
@@ -58,14 +58,14 @@ export class T2PComponent {
   generateProcess(inputText: string) {
     let text = inputText;
     text = this.replaceUmlaut(text);
-    if (this.selectedDiagram === "bpmn") {
+    if (this.selectedDiagram === 'bpmn') {
       this.http.postt2pBPMN(text);
       this.replaceUmlaut(
         'Der Manager öffnet sein Outlook und überlegt sich ob alles passt'
       );
       console.log('Methode für bpmn wird ausgeführt');
     }
-    if (this.selectedDiagram === "petri-net") {
+    if (this.selectedDiagram === 'petri-net') {
       this.http.postt2pPetriNet(text);
       console.log('Methode für petri netz wird ausgeführt');
     }
