@@ -80,12 +80,13 @@ export class t2pHttpService {
   }
 
   petrinetController(petrinet) {
-    var generateWorkFlowNet = true; //Determines wether WoPeD specific Elements like XOR Split are created
+    var generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
     let prettyPetriNet = getPetriNet(petrinet);
     generatePetrinetConfig(prettyPetriNet);
-    function generatePetrinetConfig(prettyPetriNet) {
-      var data = getVisElements(prettyPetriNet);
-
+    function generatePetrinetConfig(petrinet) {
+      console.log('generatePetrinetConfig');
+      var data = getVisElements(petrinet);
+      console.log(data);
       // create a network
       var container = document.getElementById('model-container');
 
