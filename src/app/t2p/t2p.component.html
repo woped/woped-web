@@ -32,7 +32,7 @@
         </mat-grid-tile>
         <mat-grid-tile colspan="1">
           <input type="file" accept=".doc,.docx,.txt,.rtf,.md" />
-          <button >Extract Text</button>
+          <button>Extract Text</button>
         </mat-grid-tile>
 
       </mat-grid-list>
@@ -49,12 +49,12 @@
       <ng-template matStepLabel>Choose Your Model</ng-template>
       <mat-form-field>
 
-        <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required />
+        <!-- <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required /> -->
         <mat-label>Please enter the kind of Model</mat-label>
-        <select matNativeControl required #diagram  (click)="onSelectedDiagram($event)" >
+        <select matNativeControl required #diagram (click)="onSelectedDiagram($event)">
           <input matInput required />
-          <option value="bpmn" default>BPMN</option>
-          <option value="petri-net">Petri-Netz</option>
+          <option value="bpmn">BPMN</option>
+          <option value="petri-net" default>Petri-Netz</option>
         </select>
       </mat-form-field>
       <div>
