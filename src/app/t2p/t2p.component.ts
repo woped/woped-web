@@ -52,9 +52,6 @@ export class T2PComponent {
   // }
   // }
 
-  onCLickButtonToFillOutName() {
-    console.log('Eingabe in Textfeld:' + this.text);
-  }
   generateProcess(inputText: string) {
     let text = inputText;
     text = this.replaceUmlaut(text);

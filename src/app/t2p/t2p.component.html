@@ -31,13 +31,13 @@
           </mat-form-field>
         </mat-grid-tile>
         <mat-grid-tile colspan="1">
-          <input type="file" accept=".doc,.docx,.txt,.rtf,.md" />
+          <input type="file" accept=".doc,.docx,.txt,.rtf,.md,.pdf" />
           <button>Extract Text</button>
         </mat-grid-tile>
 
       </mat-grid-list>
       <div>
-        <button mat-button matStepperNext class="card card-small green" (click)="onCLickButtonToFillOutName()">
+        <button mat-button matStepperNext class="card card-small green">
           Next
         </button>
         <button mat-button matStepperPrevious class="card">Back</button>
@@ -75,7 +75,8 @@
         <button mat-button class="card">Download Process as .png</button>
       </div>
       <div>
-        <label>{{text}}</label>
+        <!-- display input from textfield in label -->
+        <label>Input: {{ text }}</label>
       </div>
     </form>
   </mat-step>

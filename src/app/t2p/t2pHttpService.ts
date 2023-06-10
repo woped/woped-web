@@ -42,11 +42,16 @@ export class t2pHttpService {
       );
   }
   async displayBPMNModel(modelAsBPMN: string) {
+    // Empty the Container
+    document.getElementById('model-container').innerHTML = '';
+
+    // Create a new Viewer
     const viewer = new BpmnJS({ container: '#model-container' });
-    console.log(viewer);
+
     try {
+      // Display the BPMN Model
       await viewer.importXML(modelAsBPMN);
-      // viewer.get('#model-container').zoom('fit-viewport');
+      viewer.get('#model-container').zoom('fit-viewport');
     } catch (err) {
       console.error('error loading BPMN 2.0 XML', err);
     }
@@ -67,26 +72,22 @@ export class t2pHttpService {
       );
   }
   async generatePetriNet(modelAsPetriNet: string) {
-    // try {
-    let xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
-    console.log(xmlDoc);
-    // let text2 = viewer.importXML(modelAsPetriNet);
-    // viewer.peet
-
-    this.petrinetController(xmlDoc);
-    // } catch (err) {
-    // console.log('Error' + err);
-    // }
+    try {
+      let xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
+      this.petrinetController(xmlDoc);
+    } catch (err) {
+      console.log('Error' + err);
+    }
   }
 
+  // Todo: Methode Auslagern in eigene Datei
   petrinetController(petrinet) {
     var generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
     let prettyPetriNet = getPetriNet(petrinet);
     generatePetrinetConfig(prettyPetriNet);
     function generatePetrinetConfig(petrinet) {
-      console.log('generatePetrinetConfig');
       var data = getVisElements(petrinet);
-      console.log(data);
+
       // create a network
       var container = document.getElementById('model-container');
 
@@ -152,7 +153,6 @@ export class t2pHttpService {
       var places = PNML.getElementsByTagName('place');
       var transitions = PNML.getElementsByTagName('transition');
       var arcs = PNML.getElementsByTagName('arc');
-      console.log(places);
 
       var petrinet = {
         places: [],
@@ -198,7 +198,6 @@ export class t2pHttpService {
           gatewayID: gatewayID,
         });
       }
-      console.log(petrinet);
       return petrinet;
     }
 
