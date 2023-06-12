@@ -18,6 +18,7 @@ export class T2PComponent {
   protected selectedDiagram = 'bpmn';
   protected kindOfDiagram = '';
   protected fileContent = '';
+  protected textResult = '';
   @ViewChild('stepperRef') stepper!: MatStepper;
     @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
     isFiledDropped: boolean= false
@@ -62,6 +63,7 @@ export class T2PComponent {
     text = this.replaceUmlaut(text);
     if (this.selectedDiagram === 'bpmn') {
       this.http.postt2pBPMN(text);
+      this.setTextResult(text);
       this.replaceUmlaut(
         'Der Manager öffnet sein Outlook und überlegt sich ob alles passt'
       );
@@ -69,6 +71,7 @@ export class T2PComponent {
     }
     if (this.selectedDiagram === 'petri-net') {
       this.http.postt2pPetriNet(text);
+      this.setTextResult(text);
       console.log('Methode für petri netz wird ausgeführt');
     }
   }
@@ -119,8 +122,6 @@ export class T2PComponent {
         const reader = new FileReader();
         reader.onload = (e) => {
           window.dropfileContent = reader.result as string;
-          console.log("bin am Processen")
-          console.log(window.dropfileContent);
           this.setTextInTextBox(window.dropfileContent);
           // Do something with the file content
         };
@@ -129,5 +130,8 @@ export class T2PComponent {
   }
   setTextInTextBox(text:string){
     this.text = text;
+  }
+  setTextResult(text:string){
+    this.textResult = text;
   }
 }

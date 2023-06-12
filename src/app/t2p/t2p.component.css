@@ -277,7 +277,11 @@ svg#clouds {
 }
 
 .text-box {
-    width: 200px;
+  border: 1px dashed black;
+  height: 200px;
+  width: 50%;
+  display: flex;
+  justify-content: center;
 }
 
 #model-container {
