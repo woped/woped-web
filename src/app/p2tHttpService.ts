@@ -4,6 +4,11 @@ import {catchError, retry} from 'rxjs/operators'
 import { throwError } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 
+declare global {
+  interface Window {
+      text: string;
+  }
+}
 
 // const httpOptions= {headers: new HttpHeaders({
 //   // 'Content-Type':  'text/plain',
@@ -65,6 +70,7 @@ export class p2tHttpService {
    async displayText(response: any){
       try {
         response = this.formText(response);
+        window.text = response;
         const paragraph = document.createElement('p');
 
         const text = document.createTextNode(response);
@@ -76,6 +82,10 @@ export class p2tHttpService {
       } catch (err) {
         console.error('error', err);
       }
+   }
+
+   getText():string{
+    return window.text
    }
 
    private handleError(error: HttpErrorResponse) {

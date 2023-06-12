@@ -28,9 +28,6 @@ export class P2tComponent {
     isFiledDropped: boolean= false
     droppedFileName: string = '';
 
-
-    
-
     
 onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -43,6 +40,7 @@ onDragOver(event: DragEvent) {
   }
 
   sendText(){
+    console.log("Ich bin in der Methode")
         const input = document.getElementById('fileInput') as HTMLInputElement;
         if (input.files && input.files.length > 0) {
           const file = input.files[0];
@@ -50,7 +48,6 @@ onDragOver(event: DragEvent) {
           reader.onload = (e) => {
             
             window.fileContent = reader.result as string;
-//            console.log(window.fileContent);
           };
           reader.readAsText(file);
         }
@@ -161,11 +158,8 @@ onDragOver(event: DragEvent) {
 </pnml>`;
 
     if (window.fileContent !== undefined || window.dropfileContent !== undefined){
-        console.log("postman Request " + postmanRequest);
-        console.log("file Content " + window.fileContent);
         this.p2tHttpService.postP2T(window.fileContent);
         this.p2tHttpService.postP2T(window.dropfileContent)
-        
     }
 
     else{
@@ -207,4 +201,18 @@ onDragOver(event: DragEvent) {
         reader.readAsText(file);
       }
   }
+
+  downloadText(){
+    let text = this.p2tHttpService.getText();
+    let filename = "p2t";
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+    document.body.removeChild(element);
   }
+}

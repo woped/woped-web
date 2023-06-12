@@ -21,6 +21,7 @@
                         of processes that can be used for various purposes, such as training documentation, user
                         documentation, or compliance reports.</p>
                 </form>
+                <button mat-button matStepperNext>Next</button>
             </mat-step>
 
             <mat-step>
@@ -33,7 +34,8 @@
                         <div class="mehrspaltig">
                             <div class="Upload from explorer" style="margin-top: 2em">
                                 <p>
-                                    <input id="fileInput" type="file" size="50">
+                                    <input id="fileInput" type="file" size="50" accept=".pdf, .txt, .docs, .doc, .rtf, .md">
+                                    <!-- onchange="sendText()"  -->
                                     <br>(*.txt, *.html)
                                 </p>
                             </div>
@@ -54,7 +56,7 @@
                     <div id="result"></div>
                     <button mat-button matStepperPrevious>Back</button>
                     <button mat-button (click)="stepper.reset()">Reset</button>
-                    <button mat-button>Download Text as .txt</button>
+                    <button mat-button (click)="downloadText()">Download Text as .txt</button>
                 </div>
             </mat-step>
         </mat-stepper>
