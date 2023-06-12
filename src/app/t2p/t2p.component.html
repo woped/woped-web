@@ -31,11 +31,14 @@
           </mat-form-field>
         </mat-grid-tile>
         <mat-grid-tile colspan="1">
-          <input type="file" accept=".doc,.docx,.txt,.rtf,.md,.pdf" />
-          <button>Extract Text</button>
+          <!-- <input type="file" accept=".doc,.docx,.txt,.rtf,.md,.pdf" />
+          <button>Extract Text</button> -->
         </mat-grid-tile>
-
       </mat-grid-list>
+      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+        <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }} </span>
+        <span *ngIf="!isFiledDropped">Dateien per Drag and Drop hochladen</span>
+    </div>
       <div>
         <button mat-button matStepperNext class="card card-small green">
           Next

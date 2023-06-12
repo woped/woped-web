@@ -21,19 +21,19 @@ declare global {
 })
 
 export class P2tComponent {
-    response: any; 
-    test: String; 
+    response: any;
+    test: String;
     @ViewChild('stepperRef') stepper!: MatStepper;
     @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
     isFiledDropped: boolean= false
     droppedFileName: string = '';
 
-    
+
 onDragOver(event: DragEvent) {
     event.preventDefault();
   }
 
-    
+
 
   constructor(private p2tHttpService: p2tHttpService){
 
@@ -46,7 +46,7 @@ onDragOver(event: DragEvent) {
           const file = input.files[0];
           const reader = new FileReader();
           reader.onload = (e) => {
-            
+
             window.fileContent = reader.result as string;
           };
           reader.readAsText(file);
@@ -166,7 +166,7 @@ onDragOver(event: DragEvent) {
         this.p2tHttpService.displayText("Keine Datei hochgeladen");
     }
     event.preventDefault();
-   
+
    console.log("file Content " + window.fileContent);
     this.stepper.next();
   }
@@ -174,14 +174,14 @@ onDragOver(event: DragEvent) {
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {     
+    if (files && files.length > 0) {
       // Handle dropped files here
       console.log(files);
     }
-    this.processDroppedFiles(files); 
+    this.processDroppedFiles(files);
     this.isFiledDropped= true;
     this.droppedFileName = files[0].name;
-    
+
   }
 
   processDroppedFiles(files:FileList){
@@ -189,7 +189,7 @@ onDragOver(event: DragEvent) {
         const file = files[i];
         // Handle each dropped file here
         console.log(file.name);
-    
+
         // Example: Read file content
         const reader = new FileReader();
         reader.onload = (e) => {

@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { t2pHttpService } from './t2pHttpService';
+import { MatStepper } from '@angular/material/stepper';
 
 @Component({
   selector: 'app-t2p',
@@ -17,6 +18,10 @@ export class T2PComponent {
   protected selectedDiagram = 'bpmn';
   protected kindOfDiagram = '';
   protected fileContent = '';
+  @ViewChild('stepperRef') stepper!: MatStepper;
+    @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
+    isFiledDropped: boolean= false
+    droppedFileName: string = '';
 
   constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
 
@@ -89,4 +94,40 @@ export class T2PComponent {
   // setTextFromFile(){
   //   this.text = this.readUploadedFile(file);
   // }
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      // Handle dropped files here
+      console.log(files);
+    }
+    this.processDroppedFiles(files);
+    this.isFiledDropped= true;
+    this.droppedFileName = files[0].name;
+
+  }
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+  processDroppedFiles(files:FileList){
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Handle each dropped file here
+        console.log(file.name);
+
+        // Example: Read file content
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          window.dropfileContent = reader.result as string;
+          console.log("bin am Processen")
+          console.log(window.dropfileContent);
+          this.setTextInTextBox(window.dropfileContent);
+          // Do something with the file content
+        };
+        reader.readAsText(file);
+      }
+  }
+  setTextInTextBox(text:string){
+    this.text = text;
+  }
 }
