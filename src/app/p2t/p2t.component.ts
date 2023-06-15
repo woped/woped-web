@@ -25,8 +25,9 @@ export class P2tComponent {
     test: String;
     @ViewChild('stepperRef') stepper!: MatStepper;
     @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
-    isFiledDropped: boolean= false
+    isFileDropped: boolean= false
     droppedFileName: string = '';
+    @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
 
 onDragOver(event: DragEvent) {
@@ -39,20 +40,20 @@ onDragOver(event: DragEvent) {
 
   }
 
-  sendText(){
-    console.log("Ich bin in der Methode")
-        const input = document.getElementById('fileInput') as HTMLInputElement;
-        if (input.files && input.files.length > 0) {
-          const file = input.files[0];
-          const reader = new FileReader();
-          reader.onload = (e) => {
+//   sendText(){
+//     console.log("Ich bin in der Methode")
+//         const input = document.getElementById('fileInput') as HTMLInputElement;
+//         if (input.files && input.files.length > 0) {
+//           const file = input.files[0];
+//           const reader = new FileReader();
+//           reader.onload = (e) => {
 
-            window.fileContent = reader.result as string;
-          };
-          reader.readAsText(file);
-        }
-        event.preventDefault();
-  }
+//             window.fileContent = reader.result as string;
+//           };
+//           reader.readAsText(file);
+//         }
+//         event.preventDefault();
+//   }
 
 
   generateText(){
@@ -175,13 +176,10 @@ onDragOver(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      // Handle dropped files here
-      console.log(files);
+      this.processDroppedFiles(files);
+      this.isFileDropped = true;
+      this.droppedFileName = files[0].name;
     }
-    this.processDroppedFiles(files);
-    this.isFiledDropped= true;
-    this.droppedFileName = files[0].name;
-
   }
 
   processDroppedFiles(files:FileList){
@@ -214,5 +212,19 @@ onDragOver(event: DragEvent) {
 
     element.click();
     document.body.removeChild(element);
+  }
+
+  selectFiles() {
+    this.fileInputRef.nativeElement.click();
+  }
+
+  onFileSelected(event: Event) {
+    const fileInput = event.target as HTMLInputElement;
+    const files = fileInput.files;
+    if (files && files.length > 0) {
+      this.processDroppedFiles(files);
+      this.isFileDropped = true;
+      this.droppedFileName = files[0].name;
+    }
   }
 }

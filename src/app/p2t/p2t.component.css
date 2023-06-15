@@ -12,8 +12,17 @@
   width: 50%;
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto;
+  margin-top: 2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .dropzone span {
   margin: auto 0;
+}
+.generateButton {
+  margin-top: 2em;
 }

@@ -27,26 +27,19 @@
             <mat-step>
                 <form>
                     <ng-template matStepLabel>Model</ng-template>
-                    <p>To upload your process model you can either select your file via the Select button in your
-                        explorer
-                        or drag and drop it into the right pane.<br></p>
+                    <p>To upload your process model you can either select your file via a click in the Area in your
+                        explorer or drag and drop it into the right pane.<br></p>
                     <form method="POST Process Modell" enctype="multipart/form-data">
                         <div class="mehrspaltig">
-                            <div class="Upload from explorer" style="margin-top: 2em">
-                                <p>
-                                    <input id="fileInput" type="file" size="50" accept=".pdf, .txt, .docs, .doc, .rtf, .md">
-                                    <!-- onchange="sendText()"  -->
-                                    <br>(*.txt, *.html)
-                                </p>
+                                <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="selectFiles()">
+                                <input type="file" style="display: none" #fileInputRef (change)="onFileSelected($event)">
+                                <span *ngIf="isFileDropped">Hochgeladene Datei: {{ droppedFileName }}</span>
+                                <span *ngIf="!isFileDropped">Dateien per Drag and Drop hochladen</span>
                             </div>
-                            <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)">
-                                <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }} </span>
-                                <span *ngIf="!isFiledDropped">Dateien per Drag and Drop hochladen</span>
-                            </div>
+                            
                         </div>
                     </form>
-                    <button (click)="sendText()">Upload</button>
-                    <button (click)="generateText()">Generate</button>
+                    <button class="generate-button" (click)="generateText()">Generate</button>   
                 </form>
             </mat-step>
 
