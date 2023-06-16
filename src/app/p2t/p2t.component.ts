@@ -6,6 +6,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, windowWhen } from 'rxjs';
 
 
+
 declare global {
     interface Window {
         fileContent: string;
@@ -25,9 +26,10 @@ export class P2tComponent {
     test: String;
     @ViewChild('stepperRef') stepper!: MatStepper;
     @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
+    
     isFileDropped: boolean= false
     droppedFileName: string = '';
-    @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
 
 onDragOver(event: DragEvent) {
@@ -176,29 +178,49 @@ onDragOver(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      this.processDroppedFiles(files);
-      this.isFileDropped = true;
-      this.droppedFileName = files[0].name;
+      let hasAllowedFiles = false;
+      for (let i = 0; i < files.length; i++) {
+        const file = files.item(i);
+        if (file) {
+          const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
+          if (fileExtension === 'pnml' || fileExtension === 'bpmn') {
+            hasAllowedFiles = true;
+            break;
+          }
+        }
+      }
+
+      if (hasAllowedFiles) {
+        this.processDroppedFiles(files);
+        this.isFileDropped = true;
+        this.droppedFileName = files.item(0)?.name || '';
+      } else {
+        alert('Nur PNML- und BPMN-Dateien sind erlaubt!');
+      }
     }
   }
+  
+  
+  
+  
 
   processDroppedFiles(files:FileList){
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        // Handle each dropped file here
+
         console.log(file.name);
 
-        // Example: Read file content
+
         const reader = new FileReader();
         reader.onload = (e) => {
           window.dropfileContent = reader.result as string;
-          console.log("bin am Processen")
           console.log(window.dropfileContent);
-          // Do something with the file content
         };
         reader.readAsText(file);
       }
   }
+
+  
 
   downloadText(){
     let text = this.p2tHttpService.getText();
@@ -227,4 +249,5 @@ onDragOver(event: DragEvent) {
       this.droppedFileName = files[0].name;
     }
   }
+  
 }

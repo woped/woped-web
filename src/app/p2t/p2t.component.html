@@ -32,8 +32,8 @@
                     <form method="POST Process Modell" enctype="multipart/form-data">
                         <div class="mehrspaltig">
                                 <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="selectFiles()">
-                                <input type="file" style="display: none" #fileInputRef (change)="onFileSelected($event)">
-                                <span *ngIf="isFileDropped">Hochgeladene Datei: {{ droppedFileName }}</span>
+                                    <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn" (change)="onFileSelected($event)">
+                                    <span *ngIf="isFileDropped">Hochgeladene Datei: {{ droppedFileName }}</span>
                                 <span *ngIf="!isFileDropped">Dateien per Drag and Drop hochladen</span>
                             </div>
                             
