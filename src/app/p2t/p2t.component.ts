@@ -8,11 +8,11 @@ import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, wi
 
 
 declare global {
-    interface Window {
-        fileContent: string;
-        dropfileContent: string;
-    }
+  interface Window {
+    fileContent: string;
+    dropfileContent: string;
   }
+}
 
 @Component({
   selector: 'app-p2t',
@@ -22,44 +22,44 @@ declare global {
 })
 
 export class P2tComponent {
-    response: any;
-    test: String;
-    @ViewChild('stepperRef') stepper!: MatStepper;
-    @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
-    
-    isFileDropped: boolean= false
-    droppedFileName: string = '';
+  response: any;
+  test: String;
+  @ViewChild('stepperRef') stepper!: MatStepper;
+  @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
+
+  isFileDropped: boolean = false
+  droppedFileName: string = '';
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
 
-onDragOver(event: DragEvent) {
+  onDragOver(event: DragEvent) {
     event.preventDefault();
   }
 
 
 
-  constructor(private p2tHttpService: p2tHttpService){
+  constructor(private p2tHttpService: p2tHttpService) {
 
   }
 
-//   sendText(){
-//     console.log("Ich bin in der Methode")
-//         const input = document.getElementById('fileInput') as HTMLInputElement;
-//         if (input.files && input.files.length > 0) {
-//           const file = input.files[0];
-//           const reader = new FileReader();
-//           reader.onload = (e) => {
+  //   sendText(){
+  //     console.log("Ich bin in der Methode")
+  //         const input = document.getElementById('fileInput') as HTMLInputElement;
+  //         if (input.files && input.files.length > 0) {
+  //           const file = input.files[0];
+  //           const reader = new FileReader();
+  //           reader.onload = (e) => {
 
-//             window.fileContent = reader.result as string;
-//           };
-//           reader.readAsText(file);
-//         }
-//         event.preventDefault();
-//   }
+  //             window.fileContent = reader.result as string;
+  //           };
+  //           reader.readAsText(file);
+  //         }
+  //         event.preventDefault();
+  //   }
 
 
-  generateText(){
-    let postmanRequest=`<?xml version="1.0" encoding="UTF-8"?><pnml xmlns="pnml.woped.org">
+  generateText() {
+    let postmanRequest = `<?xml version="1.0" encoding="UTF-8"?><pnml xmlns="pnml.woped.org">
     <net type="http://www.informatik.hu-berlin.de/top/pntd/ptNetb" id="noID"><place id="p2">
             <name><text>start</text>
                 <graphics>
@@ -160,17 +160,17 @@ onDragOver(event: DragEvent) {
     </net>
 </pnml>`;
 
-    if (window.fileContent !== undefined || window.dropfileContent !== undefined){
-        this.p2tHttpService.postP2T(window.fileContent);
-        this.p2tHttpService.postP2T(window.dropfileContent)
+    if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
+      this.p2tHttpService.postP2T(window.fileContent);
+      this.p2tHttpService.postP2T(window.dropfileContent)
     }
 
-    else{
-        this.p2tHttpService.displayText("Keine Datei hochgeladen");
+    else {
+      this.p2tHttpService.displayText("Keine Datei hochgeladen");
     }
     event.preventDefault();
 
-   console.log("file Content " + window.fileContent);
+    console.log("file Content " + window.fileContent);
     this.stepper.next();
   }
 
@@ -178,51 +178,42 @@ onDragOver(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      let hasAllowedFiles = false;
-      for (let i = 0; i < files.length; i++) {
-        const file = files.item(i);
-        if (file) {
-          const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
-          if (fileExtension === 'pnml' || fileExtension === 'bpmn') {
-            hasAllowedFiles = true;
-            break;
-          }
-        }
-      }
+      const allowedExtensions = ['pnml', 'bpmn'];
+      const hasAllowedFiles = Array.from(files).some(file => {
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
+        return allowedExtensions.includes(fileExtension);
+      });
 
       if (hasAllowedFiles) {
         this.processDroppedFiles(files);
         this.isFileDropped = true;
         this.droppedFileName = files.item(0)?.name || '';
       } else {
-        alert('Nur PNML- und BPMN-Dateien sind erlaubt!');
+        alert('Bitte nur Dateien mit dem Format .pnml oder.bpmn hochladen');
       }
     }
   }
-  
-  
-  
-  
 
-  processDroppedFiles(files:FileList){
+
+
+
+
+  processDroppedFiles(files: FileList) {
     for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-
-        console.log(file.name);
-
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          window.dropfileContent = reader.result as string;
-          console.log(window.dropfileContent);
-        };
-        reader.readAsText(file);
-      }
+      const file = files[i];
+      console.log(file.name);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        window.dropfileContent = reader.result as string;
+        console.log(window.dropfileContent);
+      };
+      reader.readAsText(file);
+    }
   }
 
-  
 
-  downloadText(){
+
+  downloadText() {
     let text = this.p2tHttpService.getText();
     let filename = "p2t";
     var element = document.createElement('a');
@@ -249,5 +240,5 @@ onDragOver(event: DragEvent) {
       this.droppedFileName = files[0].name;
     }
   }
-  
+
 }
