@@ -23,7 +23,8 @@ export class T2PComponent {
     @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
     isFiledDropped: boolean= false
     droppedFileName: string = '';
-
+    @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
+    isFileDropped: boolean= false
   constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
 
   onOpenIFrame(): void {
@@ -133,5 +134,19 @@ export class T2PComponent {
   }
   setTextResult(text:string){
     this.textResult = text;
+  }
+  
+  selectFiles() {
+    this.fileInputRef.nativeElement.click();
+  }
+
+  onFileSelected(event: Event) {
+    const fileInput = event.target as HTMLInputElement;
+    const files = fileInput.files;
+    if (files && files.length > 0) {
+      this.processDroppedFiles(files);
+      this.isFileDropped = true;
+      this.droppedFileName = files[0].name;
+    }
   }
 }

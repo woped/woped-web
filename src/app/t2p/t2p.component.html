@@ -35,7 +35,9 @@
           <button>Extract Text</button> -->
         </mat-grid-tile>
       </mat-grid-list>
-      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"(click)="selectFiles()">
+        <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn" (change)="onFileSelected($event)">
+        <!--Ich war mir nicht sicher welche Dateitypen ihr akzeptiert, das könnt ihr hier einschränken-->
         <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }} </span>
         <span *ngIf="!isFiledDropped">Dateien per Drag and Drop hochladen</span>
     </div>
