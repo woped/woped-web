@@ -17,6 +17,7 @@ import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/mater
 import { MatInputModule } from '@angular/material/input';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatSelectModule} from '@angular/material/select';
+import {MatRadioModule} from '@angular/material/radio';
 
 
 
@@ -33,6 +34,7 @@ const routes: Routes = [
     T2PComponent,
     HomeComponent,
     P2tComponent,
+
   ],
 
   imports: [
@@ -45,7 +47,8 @@ const routes: Routes = [
     MatFormFieldModule,
     MatInputModule,
     MatGridListModule,
-    MatSelectModule
+    MatSelectModule,
+    MatRadioModule
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
   bootstrap: [AppComponent]

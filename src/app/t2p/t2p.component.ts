@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit,ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { t2pHttpService } from './t2pHttpService';
 import { MatStepper } from '@angular/material/stepper';
+import { NgModule } from '@angular/core';
 
 @Component({
   selector: 'app-t2p',
@@ -19,12 +20,16 @@ export class T2PComponent {
   protected kindOfDiagram = '';
   protected fileContent = '';
   protected textResult = '';
+  protected radioValue: string = '';
+  protected values: string[] = ['BPMN', 'Petri-Net'];
+  protected value: string;
+
   @ViewChild('stepperRef') stepper!: MatStepper;
-    @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
-    isFiledDropped: boolean= false
-    droppedFileName: string = '';
-    @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
-    isFileDropped: boolean= false
+  @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
+  isFiledDropped: boolean = false;
+  droppedFileName: string = '';
+  @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
+  isFileDropped: boolean = false;
   constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
 
   onOpenIFrame(): void {
@@ -87,12 +92,17 @@ export class T2PComponent {
       .replace('Ü', 'Ue');
   }
   onSelectedDiagram(event: any) {
+    console.log(event.target.value);
     switch (event.target.value) {
       case 'bpmn':
         this.selectedDiagram = 'bpmn';
         break;
       case 'petri-net':
         this.selectedDiagram = 'petri-net';
+        break;
+      default: {
+        console.log('nichts erkannt');
+      }
     }
   }
   // setTextFromFile(){
@@ -106,36 +116,35 @@ export class T2PComponent {
       console.log(files);
     }
     this.processDroppedFiles(files);
-    this.isFiledDropped= true;
+    this.isFiledDropped = true;
     this.droppedFileName = files[0].name;
-
   }
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
-  processDroppedFiles(files:FileList){
+  processDroppedFiles(files: FileList) {
     for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        // Handle each dropped file here
-        console.log(file.name);
+      const file = files[i];
+      // Handle each dropped file here
+      console.log(file.name);
 
-        // Example: Read file content
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          window.dropfileContent = reader.result as string;
-          this.setTextInTextBox(window.dropfileContent);
-          // Do something with the file content
-        };
-        reader.readAsText(file);
-      }
+      // Example: Read file content
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        window.dropfileContent = reader.result as string;
+        this.setTextInTextBox(window.dropfileContent);
+        // Do something with the file content
+      };
+      reader.readAsText(file);
+    }
   }
-  setTextInTextBox(text:string){
+  setTextInTextBox(text: string) {
     this.text = text;
   }
-  setTextResult(text:string){
+  setTextResult(text: string) {
     this.textResult = text;
   }
-  
+
   selectFiles() {
     this.fileInputRef.nativeElement.click();
   }

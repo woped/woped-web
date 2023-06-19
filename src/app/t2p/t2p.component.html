@@ -25,8 +25,15 @@
           <mat-form-field appearance="fill" [style.width.%]="80">
             <mat-label>Enter Text to Transform</mat-label>
             <div>
-              <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
-                #modelInput>{{ text }}</textarea>
+              <textarea
+                matInput
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="4"
+                cdkAutosizeMaxRows="100"
+                id="text-input"
+                #modelInput
+                >{{ text }}</textarea
+              >
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -35,12 +42,26 @@
           <button>Extract Text</button> -->
         </mat-grid-tile>
       </mat-grid-list>
-      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"(click)="selectFiles()">
-        <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn" (change)="onFileSelected($event)">
+      <div
+        class="dropzone"
+        #dropzoneRef
+        (drop)="onDrop($event)"
+        (dragover)="onDragOver($event)"
+        (click)="selectFiles()"
+      >
+        <input
+          type="file"
+          style="display: none"
+          #fileInputRef
+          accept=".txt"
+          (change)="onFileSelected($event)"
+        />
         <!--Ich war mir nicht sicher welche Dateitypen ihr akzeptiert, das könnt ihr hier einschränken-->
-        <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }} </span>
+        <span *ngIf="isFiledDropped"
+          >Hochgeladene Datei: {{ droppedFileName }}
+        </span>
         <span *ngIf="!isFiledDropped">Dateien per Drag and Drop hochladen</span>
-    </div>
+      </div>
       <div>
         <button mat-button matStepperNext class="card card-small green">
           Next
@@ -49,23 +70,62 @@
       </div>
     </form>
   </mat-step>
-  <mat-step>
+  <mat-step
+    >
+    <mat-radio-group
+      aria-label="Select an option"
+      (click)="onSelectedDiagram($event)"
+    >
+      <mat-radio-button value="bpmn">BPMN</mat-radio-button>
+      <mat-radio-button value="petri-net">Petri-Netz</mat-radio-button>
+    </mat-radio-group>
+    <!-- <mat-radio-group
+      #selectValue
+      (click)="onSelectedDiagram(selectValue.value)"
+      aria-label="Select an option"
+    >
+      <mat-radio-button name="bpmn" value="bpmn" [checked]="true"
+        >BPMN</mat-radio-button
+      >
+      <mat-radio-button name="petri-net" value="petri-net"
+        >Petri-Netz</mat-radio-button
+      >
+    </mat-radio-group> -->
+    <!-- <mat-radio-group
+  aria-labelledby="example-radio-group-label"
+  [(ngModel)]="selectedDiagram">
+  <mat-radio-button class="example-radio-button" *ngFor="let value of values" [value]="value">
+    {{value}}
+  </mat-radio-button>
+</mat-radio-group> -->
     <form>
       <ng-template matStepLabel>Choose Your Model</ng-template>
-      <mat-form-field>
+      <!-- <mat-form-field> -->
 
-        <!-- <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required /> -->
-        <mat-label>Please enter the kind of Model</mat-label>
-        <select matNativeControl required #diagram (click)="onSelectedDiagram($event)">
-          <!-- <input matInput required /> -->
+      <!-- <input matInput placeholder="Last name, First name" formControlName="firstCtrl" required /> -->
+      <!-- <mat-label>Please enter the kind of Model</mat-label> -->
+      <!-- <select matNativeControl required #diagram (click)="onSelectedDiagram($event)">
           <option value="bpmn">BPMN</option>
           <option value="petri-net" default>Petri-Netz</option>
-        </select>
-      </mat-form-field>
+        </select> -->
+      <!-- <mat-form-field>
+        <input matInput>
+
+      </mat-form-field> -->
+      <!-- </mat-form-field> -->
       <div>
-        <button type="button" mat-button matStepperPrevious class="card">Back</button>
-        <button type="button" mat-button matStepperNext class="card"
-          (click)="generateProcess(modelInput.value)">Next</button>
+        <button type="button" mat-button matStepperPrevious class="card">
+          Back
+        </button>
+        <button
+          type="button"
+          mat-button
+          matStepperNext
+          class="card"
+          (click)="generateProcess(modelInput.value)"
+        >
+          Next
+        </button>
       </div>
     </form>
   </mat-step>

@@ -37,7 +37,7 @@ export class t2pHttpService {
           this.displayBPMNModel(response);
         },
         (error: any) => {
-          console.log(error);
+          console.log(error);4
         }
       );
   }
