@@ -6,6 +6,7 @@ import {
   HttpErrorResponse,
   HttpHeaders,
 } from '@angular/common/http';
+import { SpinnerService } from './t2p.SpinnerService';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -26,18 +27,27 @@ export class t2pHttpService {
 
   // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
   //private text: string;
-  constructor(private t2phttpClient: HttpClient) {}
+  constructor(
+    private t2phttpClient: HttpClient,
+    public spinnerService: SpinnerService
+  ) {}
   postt2pBPMN(text: string) {
     return this.t2phttpClient
       .post<string>(this.urlBPMN, text, httpOptions)
       .subscribe(
         (response: any) => {
           console.log(response);
+          this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
           this.displayBPMNModel(response);
         },
         (error: any) => {
+<<<<<<< Updated upstream
           console.log(error);4
+=======
+          console.log(error);
+          console.log(this.spinnerService.visibility.value);
+>>>>>>> Stashed changes
         }
       );
   }
@@ -63,6 +73,7 @@ export class t2pHttpService {
       .subscribe(
         (response: any) => {
           console.log(response);
+          this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
           this.generatePetriNet(response);
         },
