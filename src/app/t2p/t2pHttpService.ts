@@ -42,12 +42,7 @@ export class t2pHttpService {
           this.displayBPMNModel(response);
         },
         (error: any) => {
-<<<<<<< Updated upstream
-          console.log(error);4
-=======
           console.log(error);
-          console.log(this.spinnerService.visibility.value);
->>>>>>> Stashed changes
         }
       );
   }

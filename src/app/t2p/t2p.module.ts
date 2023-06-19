@@ -18,8 +18,6 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { T2PComponent } from './t2p.component';
 import { MatSelectModule } from '@angular/material/select';
 import { SpinnerService } from './t2p.SpinnerService';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { CustomHttpInterceptor } from './http-interceptor';
 
 @NgModule({
   declarations: [T2PComponent],
@@ -39,8 +37,7 @@ import { CustomHttpInterceptor } from './http-interceptor';
   ],
   providers: [
     {
-      provide: { MAT_FORM_FIELD_DEFAULT_OPTIONS, HTTP_INTERCEPTORS },
-      useClass: CustomHttpInterceptor,
+      provide: { MAT_FORM_FIELD_DEFAULT_OPTIONS },
       multi: true,
       useValue: { appearance: 'outline' },
     },

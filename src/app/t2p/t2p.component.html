@@ -25,15 +25,8 @@
           <mat-form-field appearance="fill" [style.width.%]="80">
             <mat-label>Enter Text to Transform</mat-label>
             <div>
-              <textarea
-                matInput
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="4"
-                cdkAutosizeMaxRows="100"
-                id="text-input"
-                #modelInput
-                >{{ text }}</textarea
-              >
+              <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" id="text-input"
+                #modelInput>{{ text }}</textarea>
             </div>
           </mat-form-field>
         </mat-grid-tile>
@@ -42,29 +35,11 @@
           <button>Extract Text</button> -->
         </mat-grid-tile>
       </mat-grid-list>
-<<<<<<< Updated upstream
-      <div
-        class="dropzone"
-        #dropzoneRef
-        (drop)="onDrop($event)"
-        (dragover)="onDragOver($event)"
-        (click)="selectFiles()"
-      >
-        <input
-          type="file"
-          style="display: none"
-          #fileInputRef
-          accept=".txt"
-          (change)="onFileSelected($event)"
-        />
-=======
       <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
         (click)="selectFiles()">
-        <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn" (change)="onFileSelected($event)">
->>>>>>> Stashed changes
+        <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
         <!--Ich war mir nicht sicher welche Dateitypen ihr akzeptiert, das könnt ihr hier einschränken-->
-        <span *ngIf="isFiledDropped"
-          >Hochgeladene Datei: {{ droppedFileName }}
+        <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }}
         </span>
         <span *ngIf="!isFiledDropped">Dateien per Drag and Drop hochladen</span>
       </div>
@@ -76,13 +51,8 @@
       </div>
     </form>
   </mat-step>
-<<<<<<< Updated upstream
-  <mat-step
-    >
-    <mat-radio-group
-      aria-label="Select an option"
-      (click)="onSelectedDiagram($event)"
-    >
+  <mat-step>
+    <mat-radio-group aria-label="Select an option" (click)="onSelectedDiagram($event)">
       <mat-radio-button value="bpmn">BPMN</mat-radio-button>
       <mat-radio-button value="petri-net">Petri-Netz</mat-radio-button>
     </mat-radio-group>
@@ -105,14 +75,6 @@
     {{value}}
   </mat-radio-button>
 </mat-radio-group> -->
-=======
-  <mat-step>
-    <mat-radio-group aria-label="Select an option">
-      <mat-radio-button value="1">Option 1</mat-radio-button>
-      <mat-radio-button value="2">Option 2</mat-radio-button>
-    </mat-radio-group>
-
->>>>>>> Stashed changes
     <form>
       <ng-template matStepLabel>Choose Your Model</ng-template>
       <!-- <mat-form-field> -->
@@ -132,13 +94,7 @@
         <button type="button" mat-button matStepperPrevious class="card">
           Back
         </button>
-        <button
-          type="button"
-          mat-button
-          matStepperNext
-          class="card"
-          (click)="generateProcess(modelInput.value)"
-        >
+        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess(modelInput.value)">
           Next
         </button>
       </div>

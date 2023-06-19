@@ -16,19 +16,10 @@ import {
   MatFormFieldModule,
 } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-<<<<<<< Updated upstream
-import {MatGridListModule} from '@angular/material/grid-list';
-import {MatSelectModule} from '@angular/material/select';
-import {MatRadioModule} from '@angular/material/radio';
-
-=======
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
->>>>>>> Stashed changes
-
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -38,17 +29,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-<<<<<<< Updated upstream
-  declarations: [
-    AppComponent,
-    T2PComponent,
-    HomeComponent,
-    P2tComponent,
-
-  ],
-=======
   declarations: [AppComponent, T2PComponent, HomeComponent, P2tComponent],
->>>>>>> Stashed changes
 
   imports: [
     BrowserModule,
@@ -61,17 +42,12 @@ const routes: Routes = [
     MatInputModule,
     MatGridListModule,
     MatSelectModule,
-<<<<<<< Updated upstream
-    MatRadioModule
-=======
     MatRadioModule,
     MatProgressSpinnerModule,
->>>>>>> Stashed changes
   ],
   providers: [
     {
-      provide: { MAT_FORM_FIELD_DEFAULT_OPTIONS, HTTP_INTERCEPTORS },
-      useClass: CustomHttpInterceptor,
+      provide: { MAT_FORM_FIELD_DEFAULT_OPTIONS },
       multi: true,
       useValue: { appearance: 'outline' },
     },

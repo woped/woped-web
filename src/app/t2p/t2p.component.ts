@@ -4,11 +4,7 @@ import { FormControl } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { t2pHttpService } from './t2pHttpService';
 import { MatStepper } from '@angular/material/stepper';
-<<<<<<< Updated upstream
-import { NgModule } from '@angular/core';
-=======
 import { SpinnerService } from './t2p.SpinnerService';
->>>>>>> Stashed changes
 
 @Component({
   selector: 'app-t2p',
@@ -34,15 +30,11 @@ export class T2PComponent {
   droppedFileName: string = '';
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
   isFileDropped: boolean = false;
-<<<<<<< Updated upstream
-  constructor(private sanitizer: DomSanitizer, private http: t2pHttpService) {}
-=======
   constructor(
     private sanitizer: DomSanitizer,
     private http: t2pHttpService,
     public spinnerService: SpinnerService
   ) {}
->>>>>>> Stashed changes
 
   onOpenIFrame(): void {
     this.iFrameURL =
