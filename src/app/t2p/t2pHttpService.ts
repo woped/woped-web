@@ -42,6 +42,10 @@ export class t2pHttpService {
         },
         (error: any) => {
           console.log(error);
+          // Error Handling User Feedback
+          this.spinnerService.hide();
+          document.getElementById('error-container').innerHTML =
+            error.status + ' ' + error.statusText + ' ' + error.error;
         }
       );
   }
@@ -73,6 +77,10 @@ export class t2pHttpService {
         },
         (error: any) => {
           console.log(error);
+          this.spinnerService.hide();
+          // Error Handling User Feedback
+          document.getElementById('error-container').innerHTML =
+            error.status + ' ' + error.statusText + ' ' + error.error;
         }
       );
   }
