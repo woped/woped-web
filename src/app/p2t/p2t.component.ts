@@ -4,8 +4,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { HttpResponse } from '@angular/common/http';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, windowWhen } from 'rxjs';
-
-
+import { SpinnerService } from './p2t.SpinnerService'
 
 declare global {
   interface Window {
@@ -36,11 +35,10 @@ export class P2tComponent {
     event.preventDefault();
   }
 
-
-
-  constructor(private p2tHttpService: p2tHttpService) {
-
-  }
+  constructor(
+    private p2tHttpService: p2tHttpService, 
+    public spinnerService: SpinnerService
+    ) {}
 
   //   sendText(){
   //     console.log("Ich bin in der Methode")
@@ -161,6 +159,8 @@ export class P2tComponent {
 </pnml>`;
 
     if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
+      this.spinnerService.show();
+    console.log("ich dreh mich");
       this.p2tHttpService.postP2T(window.fileContent);
       this.p2tHttpService.postP2T(window.dropfileContent)
     }

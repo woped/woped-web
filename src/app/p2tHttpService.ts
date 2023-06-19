@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import {catchError, retry} from 'rxjs/operators'
 import { throwError } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
+import { SpinnerService } from './t2p/t2p.SpinnerService';
 
 declare global {
   interface Window {
@@ -43,7 +44,10 @@ export class p2tHttpService {
   //private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
   asyncText: String;
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    public spinnerService: SpinnerService
+    ) {
 
 
    }
@@ -54,15 +58,22 @@ export class p2tHttpService {
       return this.http.post<string>(this.url, text, httpOptions)
       .subscribe((response: any) => {
         console.log(response);
+        console.log("ich hör auf");
+        this.spinnerService.hide();
         this.displayText(response);
+        
       },
       (error: any) => {
+        this.spinnerService.hide();
+        console.log("ich hör auf");
         console.log(error);
+        
       }
       );
    }
 
    formText(text: string):string{
+    this.spinnerService.hide();
     text = text.replace(/<[^>]+>/g, '');
     return text; 
   }
@@ -78,9 +89,11 @@ export class p2tHttpService {
 
         const container = document.getElementById('result');
         container.appendChild(paragraph);
+        this.spinnerService.hide();
         
       } catch (err) {
         console.error('error', err);
+        this.spinnerService.hide();
       }
    }
 

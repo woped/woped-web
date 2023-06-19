@@ -45,6 +45,10 @@
 
             <mat-step>
                 <ng-template matStepLabel>Text (Done)</ng-template>
+                 <div id="loading">
+                    <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
+                    </mat-spinner> 
+                      </div>
                 <div>
                     <div id="result"></div>
                     <button mat-button matStepperPrevious>Back</button>
