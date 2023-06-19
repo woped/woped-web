@@ -113,15 +113,18 @@
         <button mat-button class="card">Reset</button>
         <button mat-button class="card">Download Process as .png</button>
       </div>
-      <div>
-        <!-- display input from textfield in label -->
-        <label> Your Input: {{ textResult }}</label>
 
-      </div>
     </form>
-    <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
-    </mat-spinner>
+    <div id="loading">
+      <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
+      </mat-spinner>
+    </div>
   </mat-step>
 </mat-vertical-stepper>
 <!-- Container for displaying  -->
+<div>
+  <!-- display input from textfield in label -->
+  <label> Your Input: {{ textResult }}</label>
+
+</div>
 <div id="model-container"></div>

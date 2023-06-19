@@ -277,11 +277,11 @@ svg#clouds {
 }
 
 .text-box {
-  border: 1px dashed black;
-  height: 200px;
-  width: 50%;
-  display: flex;
-  justify-content: center;
+    border: 1px dashed black;
+    height: 200px;
+    width: 50%;
+    display: flex;
+    justify-content: center;
 }
 
 #model-container {
@@ -290,6 +290,10 @@ svg#clouds {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#loading {
+    text-align: center;
 }
 
 /* Responsive Styles */
@@ -321,14 +325,11 @@ svg#clouds {
         visibility: hidden;
     }
 }
+
 .dropzone {
-  border: 1px dashed black;
-  height: 200px;
-  width: 50%;
-  display: flex;
-  justify-content: center;
+    border: 1px dashed black;
+    height: 200px;
+    width: 50%;
+    display: flex;
+    justify-content: center;
 }
-
-
-
-
