@@ -7,6 +7,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { SpinnerService } from './t2p.SpinnerService';
+import { DomSanitizer } from '@angular/platform-browser';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -23,12 +24,15 @@ export class t2pHttpService {
   private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2';
   private urlPetriNet = 'http://localhost:8081/t2p/generatePNML';
   public domparser = new DOMParser();
+  fileUrl;
+  private plainDocumentForDownload: string;
 
   // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
   //private text: string;
   constructor(
     private t2phttpClient: HttpClient,
-    public spinnerService: SpinnerService
+    public spinnerService: SpinnerService,
+    private sanitizer: DomSanitizer
   ) {}
   postt2pBPMN(text: string) {
     return this.t2phttpClient
@@ -39,6 +43,7 @@ export class t2pHttpService {
           this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
           this.displayBPMNModel(response);
+          this.plainDocumentForDownload = response;
         },
         (error: any) => {
           console.log(error);
@@ -49,6 +54,7 @@ export class t2pHttpService {
         }
       );
   }
+
   async displayBPMNModel(modelAsBPMN: string) {
     // Empty the Container
     document.getElementById('model-container').innerHTML = '';
@@ -59,11 +65,33 @@ export class t2pHttpService {
     try {
       // Display the BPMN Model
       await viewer.importXML(modelAsBPMN);
-      viewer.get('#model-container').zoom('fit-viewport');
     } catch (err) {
       console.error('error loading BPMN 2.0 XML', err);
     }
   }
+
+  downloadModelAsText() {
+    let filename = 't2p';
+    var element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' +
+        encodeURIComponent(this.plainDocumentForDownload)
+    );
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+    document.body.removeChild(element);
+
+    // this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+    //   window.URL.createObjectURL(blob)
+    // );
+    // console.log(this.fileUrl);
+  }
+
   postt2pPetriNet(text: string) {
     console.log('postt2pPetriNet');
     return this.t2phttpClient
@@ -74,6 +102,7 @@ export class t2pHttpService {
           this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
           this.generatePetriNet(response);
+          this.plainDocumentForDownload = response;
         },
         (error: any) => {
           console.log(error);

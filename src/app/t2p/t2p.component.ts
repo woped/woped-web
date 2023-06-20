@@ -163,4 +163,8 @@ export class T2PComponent {
       this.droppedFileName = files[0].name;
     }
   }
+
+  onDownloadText() {
+    this.http.downloadModelAsText();
+  }
 }
