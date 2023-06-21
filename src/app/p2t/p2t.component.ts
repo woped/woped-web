@@ -30,7 +30,6 @@ export class P2tComponent {
   droppedFileName: string = '';
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
-
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
@@ -56,7 +55,19 @@ export class P2tComponent {
   //   }
 
 
-  generateText() {
+  generateText() { 
+    //Hier geht es zunächst darum, den eingegebenen Text darzustellen
+    const paragraph = document.createElement('p');
+    let input = window.dropfileContent;
+    const text = document.createTextNode(input);
+    const container = document.getElementById('input');
+    if(container.firstChild){
+      container.firstChild.remove();
+    }
+    paragraph.appendChild(text);
+    container.appendChild(paragraph);
+
+    //Hier wird die Anfrage abgesendet
     let postmanRequest = `<?xml version="1.0" encoding="UTF-8"?><pnml xmlns="pnml.woped.org">
     <net type="http://www.informatik.hu-berlin.de/top/pntd/ptNetb" id="noID"><place id="p2">
             <name><text>start</text>
