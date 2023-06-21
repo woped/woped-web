@@ -5,6 +5,7 @@ import { HttpResponse } from '@angular/common/http';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, windowWhen } from 'rxjs';
 import { SpinnerService } from './p2t.SpinnerService'
+import { t2pHttpService } from '../t2p/t2pHttpService';
 
 declare global {
   interface Window {
@@ -23,6 +24,8 @@ declare global {
 export class P2tComponent {
   response: any;
   test: String;
+  fileType: String;
+
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
 
@@ -36,139 +39,29 @@ export class P2tComponent {
 
   constructor(
     private p2tHttpService: p2tHttpService, 
+    private t2phttpService: t2pHttpService,
     public spinnerService: SpinnerService
     ) {}
-
-  //   sendText(){
-  //     console.log("Ich bin in der Methode")
-  //         const input = document.getElementById('fileInput') as HTMLInputElement;
-  //         if (input.files && input.files.length > 0) {
-  //           const file = input.files[0];
-  //           const reader = new FileReader();
-  //           reader.onload = (e) => {
-
-  //             window.fileContent = reader.result as string;
-  //           };
-  //           reader.readAsText(file);
-  //         }
-  //         event.preventDefault();
-  //   }
-
 
   generateText() { 
     //Hier geht es zunächst darum, den eingegebenen Text darzustellen
     const paragraph = document.createElement('p');
-    let input = window.dropfileContent;
-    const text = document.createTextNode(input);
+   // if (file)
+
+  if (this.fileType == "bpmn")
+    this.t2phttpService.displayBPMNModel(window.dropfileContent)
+  else if (this.fileType == "pnml")
+    this.t2phttpService.generatePetriNet(window.dropfileContent)
+  //  let input = window.dropfileContent;
+  /*  const text = document.createTextNode(input);
     const container = document.getElementById('input');
     if(container.firstChild){
       container.firstChild.remove();
     }
     paragraph.appendChild(text);
-    container.appendChild(paragraph);
+    container.appendChild(paragraph);*/
 
     //Hier wird die Anfrage abgesendet
-    let postmanRequest = `<?xml version="1.0" encoding="UTF-8"?><pnml xmlns="pnml.woped.org">
-    <net type="http://www.informatik.hu-berlin.de/top/pntd/ptNetb" id="noID"><place id="p2">
-            <name><text>start</text>
-                <graphics>
-                    <offset x="0" y="0"/>
-                </graphics>
-            </name>
-            <graphics>
-                <position x="0" y="0"/>
-                <dimension x="40" y="40"/>
-            </graphics>
-            <initialMarking>
-                <text>1</text>
-            </initialMarking>
-        </place>
-        <place id="p3">
-            <name>
-                <text>end</text>
-                <graphics>
-                    <offset x="0" y="0"/>
-                </graphics>
-            </name>
-            <graphics>
-                <position x="0" y="0"/>
-                <dimension x="40" y="40"/>
-            </graphics>
-        </place>
-        <transition id="t2">
-            <name>
-                <text>buy auto</text>
-                <graphics>
-                    <offset x="0" y="0"/>
-                </graphics>
-            </name>
-            <graphics>
-                <position x="0" y="0"/>
-                <dimension x="40" y="40"/>
-            </graphics>
-            <toolspecific tool="WoPeD" version="1.0">
-                <trigger id="" type="200">
-                    <graphics>
-                        <position x="0" y="0"/>
-                        <dimension x="24" y="22"/>
-                    </graphics>
-                </trigger>
-                <transitionResource organizationalUnitName="all" roleName="manager">
-                    <graphics>
-                        <position x="0" y="0"/>
-                        <dimension x="60" y="22"/>
-                    </graphics>
-                </transitionResource>
-                <time>0</time>
-                <timeUnit>1</timeUnit>
-                <orientation>1</orientation>
-            </toolspecific>
-        </transition>
-        <arc id="a4" source="t2" target="p3">
-            <inscription>
-                <text>1</text>
-                <graphics>
-                    <offset x="500.0" y="-12.0"/>
-                </graphics>
-            </inscription>
-            <toolspecific tool="WoPeD" version="1.0">
-                <probability>1.0</probability>
-                <displayProbabilityOn>false</displayProbabilityOn>
-                <displayProbabilityPosition x="500.0" y="12.0"/>
-            </toolspecific>
-        </arc>
-        <arc id="a5" source="p2" target="t2">
-            <inscription>
-                <text>1</text>
-                <graphics>
-                    <offset x="500.0" y="-12.0"/>
-                </graphics>
-            </inscription>
-            <toolspecific tool="WoPeD" version="1.0">
-                <probability>1.0</probability>
-                <displayProbabilityOn>false</displayProbabilityOn>
-                <displayProbabilityPosition x="500.0" y="12.0"/>
-            </toolspecific>
-        </arc>
-        <toolspecific tool="WoPeD" version="1.0">
-            <bounds>
-                <position x="2" y="25"/>
-                <dimension x="763" y="574"/>
-            </bounds>
-            <scale>100</scale>
-            <treeWidthRight>549</treeWidthRight>
-            <overviewPanelVisible>false</overviewPanelVisible>
-            <treeHeightOverview>100</treeHeightOverview>
-            <treePanelVisible>false</treePanelVisible>
-            <verticalLayout>false</verticalLayout>
-            <resources>
-                <role Name="manager"/>
-                <organizationUnit Name="all"/>
-            </resources>
-        </toolspecific>
-    </net>
-</pnml>`;
-
     if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
       this.spinnerService.show();
       console.log("ich dreh mich");
@@ -181,7 +74,6 @@ export class P2tComponent {
     }
     event.preventDefault();
 
-    console.log("file Content " + window.fileContent);
     this.stepper.next();
   }
 
@@ -194,8 +86,9 @@ export class P2tComponent {
         const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
         return allowedExtensions.includes(fileExtension);
       });
-
       if (hasAllowedFiles) {
+        console.log("Hallo");
+
         this.processDroppedFiles(files);
         this.isFileDropped = true;
         this.droppedFileName = files.item(0)?.name || '';
@@ -205,18 +98,15 @@ export class P2tComponent {
     }
   }
 
-
-
-
-
   processDroppedFiles(files: FileList) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       console.log(file.name);
       const reader = new FileReader();
+
       reader.onload = (e) => {
+
         window.dropfileContent = reader.result as string;
-        console.log(window.dropfileContent);
       };
       reader.readAsText(file);
     }
@@ -247,8 +137,28 @@ export class P2tComponent {
     const files = fileInput.files;
     if (files && files.length > 0) {
       this.processDroppedFiles(files);
+      console.log("Gakko");
       this.isFileDropped = true;
       this.droppedFileName = files[0].name;
+
+      const allowedExtensions = ['pnml', 'bpmn'];
+      const hasAllowedFiles = Array.from(files).some(file => {
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
+        if (fileExtension == 'pnml')
+          this.fileType = "pnml";
+        else if(fileExtension == 'bpmn')
+          this.fileType = "bpmn";
+        return allowedExtensions.includes(fileExtension);
+      });
+      if (hasAllowedFiles) {
+        console.log("Hallo");
+
+        this.processDroppedFiles(files);
+        this.isFileDropped = true;
+        this.droppedFileName = files.item(0)?.name || '';
+      } else {
+        alert('Bitte nur Dateien mit dem Format .pnml oder.bpmn hochladen');
+      }
     }
   }
 
