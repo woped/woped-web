@@ -160,8 +160,8 @@ export class P2tComponent {
 
     if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
       this.spinnerService.show();
-    console.log("ich dreh mich");
-      this.p2tHttpService.postP2T(window.fileContent);
+      console.log("ich dreh mich");
+    //  this.p2tHttpService.postP2T(window.fileContent);
       this.p2tHttpService.postP2T(window.dropfileContent)
     }
 

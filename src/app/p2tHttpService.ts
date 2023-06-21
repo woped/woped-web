@@ -85,9 +85,17 @@ export class p2tHttpService {
         const paragraph = document.createElement('p');
 
         const text = document.createTextNode(response);
-        paragraph.appendChild(text);
+       // paragraph.appendChild(text);
 
         const container = document.getElementById('result');
+        
+        
+
+        if(container.firstChild){
+          container.firstChild.remove();
+        }
+
+        paragraph.appendChild(text);
         container.appendChild(paragraph);
         this.spinnerService.hide();
         
