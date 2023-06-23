@@ -55,25 +55,24 @@ export class p2tHttpService {
      return this.http.get("https://dummyjson.com/products/1").subscribe(data => console.log(data));
    }
    postP2T(text: string){
+    
       return this.http.post<string>(this.url, text, httpOptions)
       .subscribe((response: any) => {
         console.log(response);
-        console.log("ich hör auf");
         this.spinnerService.hide();
         this.displayText(response);
+        this.spinnerService.hide();
         
       },
       (error: any) => {
-        this.spinnerService.hide();
-        console.log("ich hör auf");
-        console.log(error);
-        
+        this.spinnerService.hide(); 
+        console.log(error);       
       }
       );
    }
 
    formText(text: string):string{
-    this.spinnerService.hide();
+   // this.spinnerService.hide();
     text = text.replace(/<[^>]+>/g, '');
     return text; 
   }
