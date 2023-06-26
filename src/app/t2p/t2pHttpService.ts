@@ -39,14 +39,12 @@ export class t2pHttpService {
       .post<string>(this.urlBPMN, text, httpOptions)
       .subscribe(
         (response: any) => {
-          console.log(response);
           this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
           this.displayBPMNModel(response);
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
-          console.log(error);
           // Error Handling User Feedback
           this.spinnerService.hide();
           document.getElementById('error-container').innerHTML =
@@ -66,7 +64,6 @@ export class t2pHttpService {
       // Display the BPMN Model
       await viewer.importXML(modelAsBPMN);
     } catch (err) {
-      console.error('error loading BPMN 2.0 XML', err);
     }
   }
 
@@ -85,27 +82,19 @@ export class t2pHttpService {
 
     element.click();
     document.body.removeChild(element);
-
-    // this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-    //   window.URL.createObjectURL(blob)
-    // );
-    // console.log(this.fileUrl);
   }
 
   postt2pPetriNet(text: string) {
-    console.log('postt2pPetriNet');
     return this.t2phttpClient
       .post<string>(this.urlPetriNet, text, httpOptions)
       .subscribe(
         (response: any) => {
-          console.log(response);
           this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
           this.generatePetriNet(response);
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
-          console.log(error);
           this.spinnerService.hide();
           // Error Handling User Feedback
           document.getElementById('error-container').innerHTML =
@@ -118,7 +107,6 @@ export class t2pHttpService {
       let xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
       this.petrinetController(xmlDoc);
     } catch (err) {
-      console.log('Error' + err);
     }
   }
 
