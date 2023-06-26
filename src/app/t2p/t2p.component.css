@@ -333,3 +333,6 @@ svg#clouds {
     display: flex;
     justify-content: center;
 }
+.textfeld {
+  word-wrap: break-word;
+}
