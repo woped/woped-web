@@ -69,6 +69,7 @@ export class T2PComponent {
   // }
 
   generateProcess(inputText: string) {
+    document.getElementById('error-container-text').style.display = 'none';
     this.spinnerService.show();
     let text = inputText;
     text = this.replaceUmlaut(text);
@@ -116,6 +117,7 @@ export class T2PComponent {
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
+
     if (files && files.length > 0) {
       // Handle dropped files here
       console.log(files);

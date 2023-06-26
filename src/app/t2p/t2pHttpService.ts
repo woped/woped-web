@@ -49,8 +49,10 @@ export class t2pHttpService {
           console.log(error);
           // Error Handling User Feedback
           this.spinnerService.hide();
-          document.getElementById('error-container').innerHTML =
-            error.status + ' ' + error.statusText + ' ' + error.error;
+          document.getElementById('error-container-text').innerHTML =
+            'This is an error 403!' + error.status + ' ' + error.statusText;
+          document.getElementById('error-container-text').style.display =
+            'block';
         }
       );
   }

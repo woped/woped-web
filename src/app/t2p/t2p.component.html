@@ -41,8 +41,7 @@
         (click)="selectFiles()">
         <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
         <!--Ich war mir nicht sicher welche Dateitypen ihr akzeptiert, das könnt ihr hier einschränken-->
-        <span *ngIf="isFiledDropped"
-          >Hochgeladene Datei: {{ droppedFileName }}
+        <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }}
         </span>
         <span *ngIf="!isFiledDropped">Upload files via drag and drop or click into the textfield</span>
       </div>
@@ -132,5 +131,7 @@
   <!-- display input from textfield in label -->
   <label> <b>Your Input:</b> {{ textResult }}</label>
 </div>
-<div id="error-container"></div>
+<div id="error-container">
+  <p id="error-container-text"></p>
+</div>
 <div id="model-container"></div>
