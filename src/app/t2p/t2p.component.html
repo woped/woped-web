@@ -21,46 +21,28 @@
     <form>
       <ng-template matStepLabel>Insert your Text</ng-template>
       <!-- <mat-grid-list cols="4" rowHeight="2:1"> -->
-        <!-- <mat-grid-tile colspan="3"> -->
-          <ng-template matStepLabel>Text</ng-template>
-          <mat-form-field appearance="fill" [style.width.%]="50" >
-            <mat-label>Enter Text to Transform </mat-label>
-            <div>
-              <textarea class="textfeld" [style.width.%]="100"
-                matInput
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="4"
-                cdkAutosizeMaxRows="100"
-                id="text-input"
-                #modelInput
-                >{{ text }}</textarea
-              >
-            </div>
-          </mat-form-field>
-          <br>
-        <!-- </mat-grid-tile> -->
-        <!-- <mat-grid-tile colspan="1"> -->
-          <!-- <input type="file" accept=".doc,.docx,.txt,.rtf,.md,.pdf" />
+      <!-- <mat-grid-tile colspan="3"> -->
+      <ng-template matStepLabel>Text</ng-template>
+      <mat-form-field appearance="fill" [style.width.%]="50">
+        <mat-label>Enter Text to Transform </mat-label>
+        <div>
+          <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
+            cdkAutosizeMaxRows="100" id="text-input" #modelInput>{{ text }}</textarea>
+        </div>
+      </mat-form-field>
+      <br>
+      <!-- </mat-grid-tile> -->
+      <!-- <mat-grid-tile colspan="1"> -->
+      <!-- <input type="file" accept=".doc,.docx,.txt,.rtf,.md,.pdf" />
           <button>Extract Text</button> -->
-        <!-- </mat-grid-tile> -->
+      <!-- </mat-grid-tile> -->
       <!-- </mat-grid-list> -->
-      <div
-        class="dropzone"
-        #dropzoneRef
-        (drop)="onDrop($event)"
-        (dragover)="onDragOver($event)"
-        (click)="selectFiles()"
-      >
-        <input
-          type="file"
-          style="display: none"
-          #fileInputRef
-          accept=".txt"
-          (change)="onFileSelected($event)"
-        />
+      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+        (click)="selectFiles()">
+        <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
         <!--Ich war mir nicht sicher welche Dateitypen ihr akzeptiert, das könnt ihr hier einschränken-->
         <span *ngIf="isFiledDropped"
-          >Uploaded file: {{ droppedFileName }}
+          >Hochgeladene Datei: {{ droppedFileName }}
         </span>
         <span *ngIf="!isFiledDropped">Upload files via drag and drop or click into the textfield</span>
       </div>
@@ -74,10 +56,7 @@
     </form>
   </mat-step>
   <mat-step>
-    <mat-radio-group
-      aria-label="Select an option"
-      (click)="onSelectedDiagram($event)"
-    >
+    <mat-radio-group aria-label="Select an option" (click)="onSelectedDiagram($event)">
       <mat-radio-button value="bpmn">BPMN</mat-radio-button>
       <mat-radio-button value="petri-net">Petri-Netz</mat-radio-button>
     </mat-radio-group>
@@ -120,13 +99,7 @@
         <button type="button" mat-button matStepperPrevious class="card">
           Back
         </button>
-        <button
-          type="button"
-          mat-button
-          matStepperNext
-          class="card"
-          (click)="generateProcess(modelInput.value)"
-        >
+        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess(modelInput.value)">
           Next
         </button>
       </div>
@@ -142,6 +115,10 @@
         <button mat-button matStepperPrevious class="card">Back</button>
         <!-- <button mat-button class="card">Reset</button> -->
         <button mat-button class="card">Download Process as .png</button>
+        <button (click)="onDownloadText()" class="card">
+          Download Process as File
+        </button>
+
       </div>
     </form>
     <div id="loading">
@@ -157,6 +134,3 @@
 </div>
 <div id="error-container"></div>
 <div id="model-container"></div>
-<button (click)="onDownloadText()" class="card">
-  Download Process as File
-</button>
