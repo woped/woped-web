@@ -70,7 +70,7 @@ export class P2tComponent {
     }
 
     else {
-      this.p2tHttpService.displayText("Keine Datei hochgeladen");
+      this.p2tHttpService.displayText("No files uploaded");
     }
     event.preventDefault();
 
@@ -93,7 +93,7 @@ export class P2tComponent {
         this.isFileDropped = true;
         this.droppedFileName = files.item(0)?.name || '';
       } else {
-        alert('Bitte nur Dateien mit dem Format .pnml oder.bpmn hochladen');
+        alert('Please upload only files with .pnml or .bpmn format');
       }
     }
   }
@@ -157,7 +157,7 @@ export class P2tComponent {
         this.isFileDropped = true;
         this.droppedFileName = files.item(0)?.name || '';
       } else {
-        alert('Bitte nur Dateien mit dem Format .pnml oder.bpmn hochladen');
+        alert('Please upload only files with .pnml or .bpmn format');
       }
     }
   }
