@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-</head>
-
-<body>
     <div>
         <mat-stepper orientation="vertical" #stepperRef>
             <mat-step>
@@ -51,17 +46,13 @@
                       </div>
                 <div>
                     <p>Deine Eingabe: <br></p>
-                    <div id="model-container"></div>
+                    <div class="test1" id="model-container"></div>
                     <p>Der Text: <br></p>
                     <div id="result"></div>
                     <button mat-button matStepperPrevious>Back</button>
-                    <button mat-button (click)="stepper.reset()">Reset</button>
                     <button mat-button (click)="downloadText()">Download Text as .txt</button>
                 </div>
             </mat-step>
         </mat-stepper>
     </div>
-    
-</body>
-
 </html>
