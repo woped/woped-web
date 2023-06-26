@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import * as vis from 'vis';
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SpinnerService } from './t2p.SpinnerService';
-import { DomSanitizer } from '@angular/platform-browser';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -21,20 +16,17 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class t2pHttpService {
-  private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2';
-  private urlPetriNet = 'http://localhost:8081/t2p/generatePNML';
+  private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2'; // Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .bpmn Datei zurück?
+  private urlPetriNet = 'http://localhost:8081/t2p/generatePNML'; //Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .pnml Datei zurück?
   public domparser = new DOMParser();
-  fileUrl;
   private plainDocumentForDownload: string;
 
-  // private url = 'https://woped.dhbw-karlsruhe.de/t2p/generateText';
-  //private text: string;
   constructor(
     private t2phttpClient: HttpClient,
-    public spinnerService: SpinnerService,
-    private sanitizer: DomSanitizer
+    public spinnerService: SpinnerService
   ) {}
-  postt2pBPMN(text: string) {
+  //Makes the HTTP request and returns the HTTP response for the BPMN model. Triggers the display of the model at the same time.
+  public postT2PBPMN(text: string) {
     return this.t2phttpClient
       .post<string>(this.urlBPMN, text, httpOptions)
       .subscribe(
@@ -54,8 +46,8 @@ export class t2pHttpService {
         }
       );
   }
-
-  async displayBPMNModel(modelAsBPMN: string) {
+  //Used to display the BPMN model. Sets the representation in the HTML element "model-container".
+  public async displayBPMNModel(modelAsBPMN: string) {
     // Empty the Container
     document.getElementById('model-container').innerHTML = '';
 
@@ -65,11 +57,10 @@ export class t2pHttpService {
     try {
       // Display the BPMN Model
       await viewer.importXML(modelAsBPMN);
-    } catch (err) {
-    }
+    } catch (err) {}
   }
-
-  downloadModelAsText() {
+  //Enables the download of a text file in which the diagram is displayed as a .pnml or .bpmn file. ???
+  public downloadModelAsText() {
     let filename = 't2p';
     var element = document.createElement('a');
     element.setAttribute(
@@ -85,8 +76,8 @@ export class t2pHttpService {
     element.click();
     document.body.removeChild(element);
   }
-
-  postt2pPetriNet(text: string) {
+  //Makes the HTTP request and returns the HTTP response for the  Petri net. Triggers the display of the model at the same time.
+  public postT2PPetriNet(text: string) {
     return this.t2phttpClient
       .post<string>(this.urlPetriNet, text, httpOptions)
       .subscribe(
@@ -104,16 +95,16 @@ export class t2pHttpService {
         }
       );
   }
-  async generatePetriNet(modelAsPetriNet: string) {
+  //Displays the Petri net??
+  public async generatePetriNet(modelAsPetriNet: string) {
     try {
       let xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
       this.petrinetController(xmlDoc);
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
   // Todo: Methode Auslagern in eigene Datei
-  petrinetController(petrinet) {
+  public petrinetController(petrinet: any) {
     var generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
     let prettyPetriNet = getPetriNet(petrinet);
     generatePetrinetConfig(prettyPetriNet);

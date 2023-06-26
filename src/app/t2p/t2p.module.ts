@@ -13,7 +13,6 @@ import {
 } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatStepperModule } from '@angular/material/stepper';
-// import {StepperOverviewExample} from './app.stepper';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { T2PComponent } from './t2p.component';
 import { MatSelectModule } from '@angular/material/select';
