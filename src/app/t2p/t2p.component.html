@@ -4,17 +4,14 @@
       <ng-template matStepLabel>Explanation</ng-template>
       <p>
         <b>What is T2P?</b> <br />
-        The process-to-text approach in the context of Business Process
-        Management (BPM) and Natural Language Processing (NLP) refers to the
-        automatic generation of text descriptions or documentations of business
-        processes. Using BPM techniques and NLP algorithms, process models can
-        be analyzed and translated into natural language. This allows the
-        creation of detailed descriptions of processes that can be used for
-        various purposes, such as training documentation, user documentation, or
-        compliance reports.
+        The text-to-process approach deals with the conversion of a text test
+        into a model within the framework of business process management (BPM)
+        and natural language processing (NLP). With the help of various
+        algorithms, the desired text can be converted either into a BPMN model
+        or into a Petri net.
       </p>
     </form>
-    <br>
+    <br />
     <button mat-button matStepperNext class="card">Next</button>
   </mat-step>
   <mat-step>
@@ -26,26 +23,49 @@
       <mat-form-field appearance="fill" [style.width.%]="50">
         <mat-label>Enter Text to Transform </mat-label>
         <div>
-          <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
-            cdkAutosizeMaxRows="100" id="text-input" #modelInput>{{ text }}</textarea>
+          <textarea
+            class="textfeld"
+            [style.width.%]="100"
+            matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="4"
+            cdkAutosizeMaxRows="100"
+            id="text-input"
+            #modelInput
+            >{{ text }}</textarea
+          >
         </div>
       </mat-form-field>
-      <br>
+      <br />
       <!-- </mat-grid-tile> -->
       <!-- <mat-grid-tile colspan="1"> -->
       <!-- <input type="file" accept=".doc,.docx,.txt,.rtf,.md,.pdf" />
           <button>Extract Text</button> -->
       <!-- </mat-grid-tile> -->
       <!-- </mat-grid-list> -->
-      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
-        (click)="selectFiles()">
-        <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
+      <div
+        class="dropzone"
+        #dropzoneRef
+        (drop)="onDrop($event)"
+        (dragover)="onDragOver($event)"
+        (click)="selectFiles()"
+      >
+        <input
+          type="file"
+          style="display: none"
+          #fileInputRef
+          accept=".txt"
+          (change)="onFileSelected($event)"
+        />
         <!--Ich war mir nicht sicher welche Dateitypen ihr akzeptiert, das könnt ihr hier einschränken-->
-        <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }}
+        <span *ngIf="isFiledDropped"
+          >Hochgeladene Datei: {{ droppedFileName }}
         </span>
-        <span *ngIf="!isFiledDropped">Upload files via drag and drop or click into the textfield</span>
+        <span *ngIf="!isFiledDropped"
+          >Upload files via drag and drop or click into the textfield</span
+        >
       </div>
-      <br>
+      <br />
       <div>
         <button mat-button matStepperPrevious class="card">Back</button>
         <button type="button" mat-button matStepperNext class="card">
@@ -55,7 +75,10 @@
     </form>
   </mat-step>
   <mat-step>
-    <mat-radio-group aria-label="Select an option" (click)="onSelectedDiagram($event)">
+    <mat-radio-group
+      aria-label="Select an option"
+      (click)="onSelectedDiagram($event)"
+    >
       <mat-radio-button value="bpmn">BPMN</mat-radio-button>
       <mat-radio-button value="petri-net">Petri-Netz</mat-radio-button>
     </mat-radio-group>
@@ -93,12 +116,18 @@
 
       </mat-form-field> -->
       <!-- </mat-form-field> -->
-      <br>
+      <br />
       <div>
         <button type="button" mat-button matStepperPrevious class="card">
           Back
         </button>
-        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess(modelInput.value)">
+        <button
+          type="button"
+          mat-button
+          matStepperNext
+          class="card"
+          (click)="generateProcess(modelInput.value)"
+        >
           Next
         </button>
       </div>
@@ -110,14 +139,13 @@
       <ng-template matStepLabel>Done</ng-template>
       You are now done.
       <div>
-        <br>
+        <br />
         <button mat-button matStepperPrevious class="card">Back</button>
         <!-- <button mat-button class="card">Reset</button> -->
         <button mat-button class="card">Download Process as .png</button>
         <button (click)="onDownloadText()" class="card">
           Download Process as File
         </button>
-
       </div>
     </form>
     <div id="loading">
