@@ -66,7 +66,10 @@ export class p2tHttpService {
       },
       (error: any) => {
         this.spinnerService.hide(); 
-        console.log(error);       
+        console.log(error);
+        document.getElementById('error-box').style.visibility = 'visible'; 
+        document.getElementById('error-content').innerHTML = this.handleError(error);
+        document.getElementById('error-content').style.display = 'block';      
       }
       );
    }
@@ -112,14 +115,30 @@ export class p2tHttpService {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
       console.error('An error occurred:', error.error);
+      return `Client Error`;
     } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong.
-      console.error
+      switch (error.status) {
+        case 450: {
+            return `Text could not be generated`;
+        }
+        case 451: {
+            return `RPST Failure`;
+        }
+        case 452: {
+            return `Modell could not be structured`;
+        }
+        case 453: {
+          return `Text could not be parsed`;
+        }
+        default: {
+            return `Unknown Server Error: ${error.message}`;
+        }
+
+    }
 
     }
     // Return an observable with a user-facing error message.
-    return throwError(() => new Error('Something bad happened; please try again later.'));
+    //return throwError(() => new Error(this.handleError(error)));
   }
 
   // getP2t(){
