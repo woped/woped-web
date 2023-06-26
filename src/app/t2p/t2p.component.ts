@@ -42,33 +42,8 @@ export class T2PComponent {
     this.displayIframe = true;
   }
 
-  // public readUploadedFile(file: File): Promise<string> {
-  //   return new Promise<string>((resolve, reject) => {
-  //     const reader = new FileReader();
-
-  //      reader.onload = (event: any) => {
-  //       const fileContent = event.target.result;
-  //       resolve(fileContent);
-  //     };
-
-  //     reader.onerror = (event: any) => {
-  //       reject(event.target.error);
-  //     };
-
-  //  console.log( reader.readAsText(file))  ;
-  //   });
-  // const file: File = event.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = (e) => {
-  //     this.fileContent = reader.result as string;
-  //   };
-
-  //   reader.readAsText(file);
-  // }
-  // }
-
   generateProcess(inputText: string) {
+    document.getElementById('error-container-text').style.display = 'none';
     this.spinnerService.show();
     let text = inputText;
     text = this.replaceUmlaut(text);
@@ -78,12 +53,10 @@ export class T2PComponent {
       this.replaceUmlaut(
         'Der Manager öffnet sein Outlook und überlegt sich ob alles passt'
       );
-      console.log('Methode für bpmn wird ausgeführt');
     }
     if (this.selectedDiagram === 'petri-net') {
       this.http.postt2pPetriNet(text);
       this.setTextResult(text);
-      console.log('Methode für petri netz wird ausgeführt');
     }
   }
   replaceUmlaut(text: string) {
@@ -97,7 +70,6 @@ export class T2PComponent {
       .replace('Ü', 'Ue');
   }
   onSelectedDiagram(event: any) {
-    console.log(event.target.value);
     switch (event.target.value) {
       case 'bpmn':
         this.selectedDiagram = 'bpmn';
@@ -106,19 +78,15 @@ export class T2PComponent {
         this.selectedDiagram = 'petri-net';
         break;
       default: {
-        console.log('nichts erkannt');
       }
     }
   }
-  // setTextFromFile(){
-  //   this.text = this.readUploadedFile(file);
-  // }
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
+
     if (files && files.length > 0) {
       // Handle dropped files here
-      console.log(files);
     }
     this.processDroppedFiles(files);
     this.isFiledDropped = true;
@@ -131,7 +99,6 @@ export class T2PComponent {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       // Handle each dropped file here
-      console.log(file.name);
 
       // Example: Read file content
       const reader = new FileReader();

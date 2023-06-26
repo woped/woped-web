@@ -28,8 +28,8 @@
                         <div class="mehrspaltig">
                                 <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="selectFiles()">
                                     <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn" (change)="onFileSelected($event)">
-                                    <span *ngIf="isFileDropped">Hochgeladene Datei: {{ droppedFileName }}</span>
-                                <span *ngIf="!isFileDropped">Dateien per Drag and Drop hochladen</span>
+                                    <span *ngIf="isFileDropped">Uploaded file: {{ droppedFileName }}</span>
+                                <span *ngIf="!isFileDropped">Upload files via drag and drop or click into the textfield</span>
                             </div>
                             
                         </div>
@@ -45,9 +45,9 @@
                     </mat-spinner> 
                       </div>
                 <div>
-                    <p>Deine Eingabe: <br></p>
+                    <p>Your input: <br></p>
                     <div class="test1" id="model-container"></div>
-                    <p>Der Text: <br></p>
+                    <p>Your Text: <br></p>
                     <div id="result"></div>
                     <button mat-button matStepperPrevious>Back</button>
                     <button mat-button (click)="downloadText()">Download Text as .txt</button>

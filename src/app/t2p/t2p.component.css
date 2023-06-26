@@ -296,6 +296,25 @@ svg#clouds {
     text-align: center;
 }
 
+#error-container {
+    width: 100%;
+    height: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#error-container-text {
+    color: white;
+    padding: 20px;
+    border-color: #da0000;
+    border-style: solid;
+    background-color: #f7614e;
+    border-radius: 10px;
+    display: none;
+}
+
 /* Responsive Styles */
 @media screen and (max-width: 767px) {
 
@@ -333,6 +352,7 @@ svg#clouds {
     display: flex;
     justify-content: center;
 }
+
 .textfeld {
-  word-wrap: break-word;
+    word-wrap: break-word;
 }
