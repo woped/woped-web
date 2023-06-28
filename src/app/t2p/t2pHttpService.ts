@@ -37,10 +37,11 @@ export class t2pHttpService {
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
+          console.log(error);
           // Error Handling User Feedback
           this.spinnerService.hide();
           document.getElementById('error-container-text').innerHTML =
-            'This is an error 403!' + error.status + ' ' + error.statusText;
+            error.status + ' ' + error.statusText + ' ' + error.error;
           document.getElementById('error-container-text').style.display =
             'block';
         }
@@ -90,8 +91,10 @@ export class t2pHttpService {
         (error: any) => {
           this.spinnerService.hide();
           // Error Handling User Feedback
-          document.getElementById('error-container').innerHTML =
+          document.getElementById('error-container-text').innerHTML =
             error.status + ' ' + error.statusText + ' ' + error.error;
+          document.getElementById('error-container-text').style.display =
+            'block';
         }
       );
   }
