@@ -1,11 +1,11 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { p2tHttpService } from '../p2tHttpService';
+import { p2tHttpService } from '../Services/p2tHttpService';
 import { MatStepper } from '@angular/material/stepper';
 import { HttpResponse } from '@angular/common/http';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, windowWhen } from 'rxjs';
-import { SpinnerService } from '../SpinnerService'
-import { t2pHttpService } from '../t2p/t2pHttpService';
+import { SpinnerService } from '../Services/SpinnerService'
+import { t2pHttpService } from '../Services/t2pHttpService';
 
 
 //global variable to store the file content

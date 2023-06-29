@@ -3,7 +3,7 @@ import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import * as vis from 'vis';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 // import { SpinnerService } from './t2p.SpinnerService';
-import { SpinnerService } from '../SpinnerService';
+import { SpinnerService } from './SpinnerService';
 const httpOptions = {
   headers: new HttpHeaders({
     Accept: '*/*',
