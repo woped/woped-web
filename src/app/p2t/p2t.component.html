@@ -16,7 +16,7 @@
                         of processes that can be used for various purposes, such as training documentation, user
                         documentation, or compliance reports.</p>
                 </form>
-                <button mat-button matStepperNext>Next</button>
+                <button mat-button matStepperNext class="card">Next</button>
             </mat-step>
 
             <mat-step>
@@ -34,7 +34,7 @@
                             
                         </div>
                     </form>
-                    <button class="generate-button" (click)="generateText()">Generate</button>   
+                    <button button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>   
                 </form>
             </mat-step>
 
@@ -49,8 +49,8 @@
                     <div class="test1" id="model-container"></div>
                     <p>Your Text: <br></p>
                     <div id="result"></div>
-                    <button mat-button matStepperPrevious>Back</button>
-                    <button mat-button (click)="downloadText()">Download Text as .txt</button>
+                    <button mat-button matStepperPrevious class="card">Back</button>
+                    <button mat-button matStepperNext class="card" (click)="downloadText()">Download Text as .txt</button>
                 </div>
             </mat-step>
         </mat-stepper>

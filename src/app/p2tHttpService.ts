@@ -11,17 +11,6 @@ declare global {
   }
 }
 
-// const httpOptions= {headers: new HttpHeaders({
-//   // 'Content-Type':  'text/plain',
-//   // Authorization: 'my-auth-token'
-//   // 'Accept-Encoding': 'gzip, deflate, br',
-//   // 'Accept': '*/*',
-//   // 'Connection': 'keep-alive',
-//   // 'User-Agent': 'Mozilla/5.0',
-// }
-
-// {responseType: 'text'})};
-
 const httpOptions = {
       headers: new HttpHeaders({
       'Accept': 'text/plain, */*',
@@ -40,8 +29,7 @@ const httpOptions = {
 })
 
 export class p2tHttpService {
-  private url= 'http://localhost:8080/p2t/generateText'
-  //private url= 'https://woped.dhbw-karlsruhe.de/p2t/generateText'
+  private url= 'http://localhost:8080/p2t/generateText' // Specifies the interface through which the text is displayed.
   asyncText: String;
 
   constructor(
@@ -54,11 +42,14 @@ export class p2tHttpService {
    getDummy(text: string){
      return this.http.get("https://dummyjson.com/products/1").subscribe(data => console.log(data));
    }
+
+   // This method is used to send the text to the server and to display the response.
    postP2T(text: string){
     
       return this.http.post<string>(this.url, text, httpOptions)
       .subscribe((response: any) => {
         console.log(response);
+        // hides the spinner when the response is received.
         this.spinnerService.hide();
         this.displayText(response);
         this.spinnerService.hide();
@@ -67,50 +58,45 @@ export class p2tHttpService {
       (error: any) => {
         this.spinnerService.hide(); 
         console.log(error);
+        // Error handling User Feedback
         document.getElementById('error-box').style.visibility = 'visible'; 
         document.getElementById('error-content').innerHTML = this.handleError(error);
         document.getElementById('error-content').style.display = 'block';      
       }
       );
    }
-
+// This method is used to remove the html tags from the response.
    formText(text: string):string{
    // this.spinnerService.hide();
     text = text.replace(/<[^>]+>/g, '');
     return text; 
   }
 
+  // This method is used to display the response.
    async displayText(response: any){
       try {
         response = this.formText(response);
         window.text = response;
         const paragraph = document.createElement('p');
-
         const text = document.createTextNode(response);
        // paragraph.appendChild(text);
-
         const container = document.getElementById('result');
-        
-        
-
         if(container.firstChild){
           container.firstChild.remove();
         }
-
         paragraph.appendChild(text);
         container.appendChild(paragraph);
-        this.spinnerService.hide();
-        
+        this.spinnerService.hide();        
       } catch (err) {
         console.error('error', err);
         this.spinnerService.hide();
       }
    }
-
+// This method is used to get the text from the server.
    getText():string{
     return window.text
    }
-
+// This method is used to handle the errors.
    private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
@@ -133,25 +119,8 @@ export class p2tHttpService {
         default: {
             return `Unknown Server Error: ${error.message}`;
         }
-
     }
-
     }
-    // Return an observable with a user-facing error message.
-    //return throwError(() => new Error(this.handleError(error)));
   }
-
-  // getP2t(){
-  //   this.p2thttp.get(this.url).
-  // }
-  // getConfig (resp => {
-  //   // display its headers
-  //   const keys = resp.headers.keys();
-  //   this.headers = keys.map(key =>
-  //     ${key}: ${resp.headers.get(key)});
-
-  //   // access the body directly, which is typed as Config.
-  //   this.config = { ...resp.body! };
-  // })
 }
 

@@ -7,6 +7,8 @@ import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, wi
 import { SpinnerService } from '../t2p/t2p.SpinnerService';
 import { t2pHttpService } from '../t2p/t2pHttpService';
 
+
+//global variable to store the file content
 declare global {
   interface Window {
     fileContent: string;
@@ -26,13 +28,19 @@ export class P2tComponent {
   test: String;
   fileType: String;
 
+  // ViewChild decorator to get a reference to MatStepper
   @ViewChild('stepperRef') stepper!: MatStepper;
+
+  // ViewChild decorator to get a reference to the drop zone element
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
 
   isFileDropped: boolean = false
   droppedFileName: string = '';
+
+  // ViewChild decorator to get a reference to the HTML file input element
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
+  // This method is called when a file is dragged on the drop zone
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
@@ -43,26 +51,14 @@ export class P2tComponent {
     public spinnerService: SpinnerService
     ) {}
 
-  generateText() { 
-    //Hier geht es zunächst darum, den eingegebenen Text darzustellen
-    const paragraph = document.createElement('p');
-   // if (file)
 
+// This method generates the text based on the selected file type and content.Allows only pnml and bpmn files
+  generateText() { 
+    const paragraph = document.createElement('p');
   if (this.fileType == "bpmn")
     this.t2phttpService.displayBPMNModel(window.dropfileContent)
   else if (this.fileType == "pnml")
     this.t2phttpService.generatePetriNet(window.dropfileContent)
-  //  let input = window.dropfileContent;
-  /*  const text = document.createTextNode(input);
-    const container = document.getElementById('input');
-    if(container.firstChild){
-      container.firstChild.remove();
-    }
-    paragraph.appendChild(text);
-    container.appendChild(paragraph);*/
-
-    //Hier wird die Anfrage abgesendet
-    
     if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
       this.spinnerService.show();
     //  this.p2tHttpService.postP2T(window.fileContent);
@@ -77,6 +73,8 @@ export class P2tComponent {
     this.stepper.next();
   }
 
+
+   // This method is called when files are dropped on the drop zone
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
@@ -97,7 +95,7 @@ export class P2tComponent {
       }
     }
   }
-
+// Process the dropped files and read their contents
   processDroppedFiles(files: FileList) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -113,7 +111,7 @@ export class P2tComponent {
   }
 
 
-
+// Download the generated text as a txt file
   downloadText() {
     let text = this.p2tHttpService.getText();
     let filename = "p2t";
@@ -128,16 +126,17 @@ export class P2tComponent {
     document.body.removeChild(element);
   }
 
+// Trigger the file input to select files
   selectFiles() {
     this.fileInputRef.nativeElement.click();
   }
 
+ // Handle the file selection event
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
     const files = fileInput.files;
     if (files && files.length > 0) {
       this.processDroppedFiles(files);
-      console.log("Gakko");
       this.isFileDropped = true;
       this.droppedFileName = files[0].name;
 
@@ -151,8 +150,6 @@ export class P2tComponent {
         return allowedExtensions.includes(fileExtension);
       });
       if (hasAllowedFiles) {
-        console.log("Hallo");
-
         this.processDroppedFiles(files);
         this.isFileDropped = true;
         this.droppedFileName = files.item(0)?.name || '';
