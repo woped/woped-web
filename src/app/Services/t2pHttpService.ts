@@ -34,8 +34,9 @@ export class t2pHttpService {
       .subscribe(
         (response: any) => {
           this.spinnerService.hide();
+
           // Call Method to Display the BPMN Model.
-          this.displayBPMNModel(response);
+          ModelDisplayer.displayBPMNModel(response);
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
@@ -49,10 +50,7 @@ export class t2pHttpService {
         }
       );
   }
-  //Used to display the BPMN model. Sets the representation in the HTML element "model-container".
-  public async displayBPMNModel(modelAsBPMN: string) {
-    ModelDisplayer.displayBPMNModel(modelAsBPMN);
-  }
+
   //Enables the download of a text file in which the diagram is displayed as a .pnml or .bpmn file. ???
   public downloadModelAsText() {
     let filename = 't2p';
