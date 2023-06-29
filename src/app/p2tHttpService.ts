@@ -3,8 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import {catchError, retry} from 'rxjs/operators'
 import { throwError } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
-import { SpinnerService } from './t2p/t2p.SpinnerService';
-
+import { SpinnerService } from './SpinnerService';
 declare global {
   interface Window {
       text: string;
@@ -45,7 +44,7 @@ export class p2tHttpService {
 
    // This method is used to send the text to the server and to display the response.
    postP2T(text: string){
-    
+
       return this.http.post<string>(this.url, text, httpOptions)
       .subscribe((response: any) => {
         console.log(response);
@@ -53,15 +52,15 @@ export class p2tHttpService {
         this.spinnerService.hide();
         this.displayText(response);
         this.spinnerService.hide();
-        
+
       },
       (error: any) => {
-        this.spinnerService.hide(); 
+        this.spinnerService.hide();
         console.log(error);
         // Error handling User Feedback
-        document.getElementById('error-box').style.visibility = 'visible'; 
+        document.getElementById('error-box').style.visibility = 'visible';
         document.getElementById('error-content').innerHTML = this.handleError(error);
-        document.getElementById('error-content').style.display = 'block';      
+        document.getElementById('error-content').style.display = 'block';
       }
       );
    }
@@ -69,7 +68,7 @@ export class p2tHttpService {
    formText(text: string):string{
    // this.spinnerService.hide();
     text = text.replace(/<[^>]+>/g, '');
-    return text; 
+    return text;
   }
 
   // This method is used to display the response.
@@ -86,7 +85,7 @@ export class p2tHttpService {
         }
         paragraph.appendChild(text);
         container.appendChild(paragraph);
-        this.spinnerService.hide();        
+        this.spinnerService.hide();
       } catch (err) {
         console.error('error', err);
         this.spinnerService.hide();

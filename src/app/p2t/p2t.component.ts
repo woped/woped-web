@@ -4,7 +4,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { HttpResponse } from '@angular/common/http';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { defer, first, fromEvent, merge, mergeMap, switchMap, takeUntil, tap, windowWhen } from 'rxjs';
-import { SpinnerService } from '../t2p/t2p.SpinnerService';
+import { SpinnerService } from '../SpinnerService'
 import { t2pHttpService } from '../t2p/t2pHttpService';
 
 
@@ -46,14 +46,14 @@ export class P2tComponent {
   }
 
   constructor(
-    private p2tHttpService: p2tHttpService, 
+    private p2tHttpService: p2tHttpService,
     private t2phttpService: t2pHttpService,
     public spinnerService: SpinnerService
     ) {}
 
 
 // This method generates the text based on the selected file type and content.Allows only pnml and bpmn files
-  generateText() { 
+  generateText() {
     const paragraph = document.createElement('p');
   if (this.fileType == "bpmn")
     this.t2phttpService.displayBPMNModel(window.dropfileContent)

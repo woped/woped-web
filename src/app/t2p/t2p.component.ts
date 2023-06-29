@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { t2pHttpService } from './t2pHttpService';
 import { MatStepper } from '@angular/material/stepper';
-import { SpinnerService } from './t2p.SpinnerService';
-
+// import { SpinnerService } from './t2p.SpinnerService';
+import { SpinnerService } from '../SpinnerService';
 @Component({
   selector: 'app-t2p',
   templateUrl: './t2p.component.html',
