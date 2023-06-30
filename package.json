@@ -51,7 +51,10 @@
     "version": "auto-changelog -p && git add CHANGELOG.md",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d .",
     "storybook": "npm run docs:json && start-storybook -p 6006",
-    "build-storybook": "npm run docs:json && build-storybook"
+    "build-storybook": "npm run docs:json && build-storybook",
+    "deploy-storybook": "npm run build-storybook && npx angular-cli-ghpages --dir=dist/angular-starter",
+    "deploy_dependency": "ng add angular-cli-ghpages",
+    "deploy": "ng deploy --base-href=/woped-frontend/"
   },
   "private": false,
   "dependencies": {
