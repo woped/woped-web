@@ -4,6 +4,8 @@ import { t2pHttpService } from '../Services/t2pHttpService';
 import { MatStepper } from '@angular/material/stepper';
 // import { SpinnerService } from './t2p.SpinnerService';
 import { SpinnerService } from '../Services/SpinnerService';
+import html2canvas from 'html2canvas';
+
 @Component({
   selector: 'app-t2p',
   templateUrl: './t2p.component.html',
@@ -126,4 +128,24 @@ export class T2PComponent {
   protected onDownloadText() {
     this.http.downloadModelAsText();
   }
-}
+  onDownloadImage(){
+    const element = document.getElementById('model-container'); // ID des zu konvertierenden Divs
+
+    html2canvas(element).then((canvas) => {
+      // Konvertiere das Canvas in eine Bilddaten-URL
+      const imgData = canvas.toDataURL('image/png');
+
+      // Erstelle einen Download-Link
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = 't2p.png'; // Dateiname für das heruntergeladene Bild
+
+      // Füge den Link zum Dokument hinzu und klicke ihn automatisch an
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  }
+  }
+
+
