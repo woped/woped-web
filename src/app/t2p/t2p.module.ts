@@ -16,7 +16,6 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { T2PComponent } from './t2p.component';
 import { MatSelectModule } from '@angular/material/select';
-import { SpinnerService } from './t2p.SpinnerService';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({

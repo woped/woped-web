@@ -128,19 +128,20 @@ export class T2PComponent {
   protected onDownloadText() {
     this.http.downloadModelAsText();
   }
+  //Triggers the download of a image of the diagram
   onDownloadImage(){
-    const element = document.getElementById('model-container'); // ID des zu konvertierenden Divs
+    const element = document.getElementById('model-container'); // ID of the div to be converted
 
     html2canvas(element).then((canvas) => {
-      // Konvertiere das Canvas in eine Bilddaten-URL
+      // Convert the canvas into an image data URL
       const imgData = canvas.toDataURL('image/png');
 
-      // Erstelle einen Download-Link
+      // Create a download link
       const link = document.createElement('a');
       link.href = imgData;
-      link.download = 't2p.png'; // Dateiname für das heruntergeladene Bild
+      link.download = 't2p.png'; // File name for the downloaded image
 
-      // Füge den Link zum Dokument hinzu und klicke ihn automatisch an
+      // Add the link to the document and click it automatically
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

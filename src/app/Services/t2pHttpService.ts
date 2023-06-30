@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-// import { SpinnerService } from './t2p.SpinnerService';
 import { SpinnerService } from './SpinnerService';
 
 import { ModelDisplayer } from '../utilities/modelDisplayer';
@@ -53,8 +52,8 @@ export class t2pHttpService {
 
   //Enables the download of a text file in which the diagram is displayed as a .pnml or .bpmn file. ???
   public downloadModelAsText() {
-    let filename = 't2p';
-    var element = document.createElement('a');
+    const filename = 't2p';
+    const element = document.createElement('a');
     element.setAttribute(
       'href',
       'data:text/plain;charset=utf-8,' +
@@ -69,6 +68,7 @@ export class t2pHttpService {
     document.body.removeChild(element);
   }
   //Makes the HTTP request and returns the HTTP response for the  Petri net. Triggers the display of the model at the same time.
+  //The Petri net is displayed in the same way as the BPMN model.
   public postT2PPetriNet(text: string) {
     return this.t2phttpClient
       .post<string>(this.urlPetriNet, text, httpOptions)

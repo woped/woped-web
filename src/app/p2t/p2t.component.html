@@ -21,7 +21,7 @@
 
             <mat-step>
                 <form>
-                    <ng-template matStepLabel>Model</ng-template>
+                    <ng-template matStepLabel>Insert your Model</ng-template>
                     <p>To upload your process model you can either select your file via a click in the Area in your
                         explorer or drag and drop it into the right pane.<br></p>
                     <form method="POST Process Modell" enctype="multipart/form-data">
@@ -31,10 +31,9 @@
                                     <span *ngIf="isFileDropped">Uploaded file: {{ droppedFileName }}</span>
                                 <span *ngIf="!isFileDropped">Upload files via drag and drop or click into the textfield</span>
                             </div>
-                            
                         </div>
-                    </form>
-                    <button button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>   
+                      </form>
+                      <button button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>   
                 </form>
             </mat-step>
 

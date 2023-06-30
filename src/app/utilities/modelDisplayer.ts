@@ -133,7 +133,7 @@ export class ModelDisplayer {
       }
       return false;
     }
-
+    // Identifies the Gateways
     function logGatewayTransition(transition) {
       if (logContainsGateway(transition) === true) {
         for (var x = 0; x < gateways.length; x++) {
@@ -147,7 +147,7 @@ export class ModelDisplayer {
         });
       }
     }
-
+    
     function getGatewayIDsforReplacement(arc) {
       var replacement = { source: null, target: null };
       for (var x = 0; x < gateways.length; x++) {
