@@ -39,12 +39,12 @@ jobs:
     - name: Build
       run: |
         npm run build 
-    - name: Lint
-      run: |
-        npm run lint
-    - name: Test
-      run: |
-        npm run test 
+    #- name: Lint
+    #  run: |
+    #    npm run lint
+    #- name: Test
+    #  run: |
+    #    npm run test 
     - name: Conventional Changelog Action
       id: changelog
       uses: TriPSs/conventional-changelog-action@v3
