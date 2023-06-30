@@ -45,6 +45,9 @@ jobs:
     #- name: Test
     #  run: |
     #    npm run test 
+    - name: install dependencies
+      run: npm run deploy_dependency
+      
     - name: Conventional Changelog Action
       id: changelog
       uses: TriPSs/conventional-changelog-action@v3
@@ -52,15 +55,15 @@ jobs:
         github-token: ${{ secrets.REPO_TOKEN }}
         output-file: "false"
 
-    - name: Create Release
-      uses: actions/create-release@v1
-      #if: ${{ steps.changelog.outputs.skipped == 'false' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
-      with:
-        tag_name: release
-        release_name: release
-        body: ${{ steps.changelog.outputs.clean_changelog }}
+    #- name: Create Release
+    #  uses: actions/create-release@v1
+    #  #if: ${{ steps.changelog.outputs.skipped == 'false' }}
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+    #  with:
+    #    tag_name: release
+    #    release_name: release
+    #    body: ${{ steps.changelog.outputs.clean_changelog }}
 
     - name: Deploy
       run: |
