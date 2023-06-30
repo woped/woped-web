@@ -58,8 +58,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
       with:
-        tag_name: ${{ steps.changelog.outputs.tag }}
-        release_name: ${{ steps.changelog.outputs.tag }}
+        tag_name: release
+        release_name: release
         body: ${{ steps.changelog.outputs.clean_changelog }}
 
     - name: Deploy
