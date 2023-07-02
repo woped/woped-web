@@ -68,6 +68,7 @@ export class p2tHttpService {
    formText(text: string):string{
    // this.spinnerService.hide();
     text = text.replace(/<[^>]+>/g, '');
+    text = text.replace(/&#032-/g, "");
     return text;
   }
 
