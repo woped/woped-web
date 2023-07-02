@@ -21,40 +21,17 @@
       <mat-form-field appearance="fill" [style.width.%]="50">
         <mat-label>Enter Text to Transform </mat-label>
         <div>
-          <textarea
-            class="textfeld"
-            [style.width.%]="100"
-            matInput
-            cdkTextareaAutosize
-            cdkAutosizeMinRows="4"
-            cdkAutosizeMaxRows="100"
-            id="text-input"
-            #modelInput
-            >{{ text }}</textarea
-          >
+          <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
+            cdkAutosizeMaxRows="100" id="text-input" #modelInput>{{ text }}</textarea>
         </div>
       </mat-form-field>
       <br />
-      <div
-        class="dropzone"
-        #dropzoneRef
-        (drop)="onDrop($event)"
-        (dragover)="onDragOver($event)"
-        (click)="selectFiles()"
-      >
-        <input
-          type="file"
-          style="display: none"
-          #fileInputRef
-          accept=".txt"
-          (change)="onFileSelected($event)"
-        />
-        <span *ngIf="isFiledDropped"
-          >Hochgeladene Datei: {{ droppedFileName }}
+      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+        (click)="selectFiles()">
+        <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
+        <span *ngIf="isFiledDropped">Hochgeladene Datei: {{ droppedFileName }}
         </span>
-        <span *ngIf="!isFiledDropped"
-          >Upload files via drag and drop or click into the textfield</span
-        >
+        <span *ngIf="!isFiledDropped">Upload files via drag and drop or click into the textfield</span>
       </div>
       <br />
       <div>
@@ -66,10 +43,7 @@
     </form>
   </mat-step>
   <mat-step>
-    <mat-radio-group
-      aria-label="Select an option"
-      (click)="onSelectedDiagram($event)"
-    >
+    <mat-radio-group aria-label="Select an option" (click)="onSelectedDiagram($event)">
       <mat-radio-button value="bpmn">BPMN</mat-radio-button>
       <mat-radio-button value="petri-net">Petri-Netz</mat-radio-button>
     </mat-radio-group>
@@ -80,13 +54,7 @@
         <button type="button" mat-button matStepperPrevious class="card">
           Back
         </button>
-        <button
-          type="button"
-          mat-button
-          matStepperNext
-          class="card"
-          (click)="generateProcess(modelInput.value)"
-        >
+        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess(modelInput.value)">
           Generate
         </button>
       </div>
@@ -116,8 +84,8 @@
   <!-- display input from textfield in label -->
   <label> <b>Your Input:</b> {{ textResult }}</label>
 </div>
+<button (click)="onDownloadImage()" class="card">Download Process as .png</button>
 <div id="error-container">
   <p id="error-container-text"></p>
 </div>
 <div id="model-container"></div>
-<button (click)="onDownloadImage()" class="card" >Download Process as .png</button>
