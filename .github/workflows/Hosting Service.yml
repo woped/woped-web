@@ -63,6 +63,8 @@ jobs:
     #    body: ${{ steps.changelog.outputs.clean_changelog }}
 
     - name: Deploy
+      env:
+        GITHUB_TOKEN: ${{secrets.REPO_TOKEN}}
       run: |
         npm run deploy
 
