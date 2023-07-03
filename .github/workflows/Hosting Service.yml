@@ -64,5 +64,5 @@ jobs:
 
     - name: Deploy
       run: |
-        npm run deploy --no-silent
+        npm run deploy
 
