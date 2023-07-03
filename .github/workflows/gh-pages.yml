@@ -22,6 +22,6 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ./
+          folder: woped-frontend/dist/angular-starter
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
