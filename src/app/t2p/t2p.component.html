@@ -68,9 +68,7 @@
       <div>
         <br />
         <button mat-button matStepperPrevious class="card">Back</button>
-        <button (click)="onDownloadText()" class="card">
-          Download Process as File
-        </button>
+
       </div>
     </form>
     <div id="loading">
@@ -85,6 +83,9 @@
   <label> <b>Your Input:</b> {{ textResult }}</label>
 </div>
 <button (click)="onDownloadImage()" class="card">Download Process as .png</button>
+<button (click)="onDownloadText()" class="card">
+  Download Process as File
+</button>
 <div id="error-container">
   <p id="error-container-text"></p>
 </div>

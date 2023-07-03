@@ -28,6 +28,8 @@ export class t2pHttpService {
   ) {}
   //Makes the HTTP request and returns the HTTP response for the BPMN model. Triggers the display of the model at the same time.
   public postT2PBPMN(text: string) {
+    //Reset Model Container Div, so that only valid/current model will be displayed.
+    document.getElementById('model-container').innerHTML = '';
     return this.t2phttpClient
       .post<string>(this.urlBPMN, text, httpOptions)
       .subscribe(
@@ -70,6 +72,8 @@ export class t2pHttpService {
   //Makes the HTTP request and returns the HTTP response for the  Petri net. Triggers the display of the model at the same time.
   //The Petri net is displayed in the same way as the BPMN model.
   public postT2PPetriNet(text: string) {
+    //Reset Model Container Div, so that only valid/current model will be displayed.
+    document.getElementById('model-container').innerHTML = '';
     return this.t2phttpClient
       .post<string>(this.urlPetriNet, text, httpOptions)
       .subscribe(
