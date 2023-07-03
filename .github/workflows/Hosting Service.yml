@@ -33,34 +33,23 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
     - name: Install Dependencies
-      #  if: steps.cache-nodemodules.outputs.cache-hit != 'true'
       run: |
-        npm ci
-    #- name: Build
-    #  run: |
-    #    npm run build 
-    #- name: Lint
-    #  run: |
-    #    npm run lint
-    #- name: Test
-    #  run: |
-    #    npm run test       
+        npm ci 
+        
+    - name: Lint
+      run: |
+        npm run lint
+        
+    - name: Test
+      run: |
+        npm run test  
+        
     - name: Conventional Changelog Action
       id: changelog
       uses: TriPSs/conventional-changelog-action@v3
       with:
         github-token: ${{ secrets.REPO_TOKEN }}
         output-file: "false"
-
-    #- name: Create Release
-    #  uses: actions/create-release@v1
-      #if: ${{ steps.changelog.outputs.skipped == 'false' }}
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  with:
-    #    tag_name: Name
-    #    release_name: Release 
-    #    body: ${{ steps.changelog.outputs.clean_changelog }}
 
     - name: Deploy
       env:
