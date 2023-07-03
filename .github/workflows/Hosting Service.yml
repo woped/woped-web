@@ -32,10 +32,10 @@ jobs:
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
-    #- name: Install Dependencies
+    - name: Install Dependencies
       #  if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-    #  run: |
-    #    npm ci
+      run: |
+        npm ci
     #- name: Build
     #  run: |
     #    npm run build 
