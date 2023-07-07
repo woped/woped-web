@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
+import { p2tHttpService } from './Services/p2tHttpService';
+import { t2pHttpService } from './Services/t2pHttpService';
 
 import { RouterModule, Routes } from '@angular/router';
 import { T2PComponent } from './t2p/t2p.component';
@@ -51,6 +53,12 @@ const routes: Routes = [
       multi: true,
       useValue: { appearance: 'outline' },
     },
+    p2tHttpService,
+    t2pHttpService,
+    P2tComponent,
+    T2PComponent,
+    HomeComponent,
+    AppComponent,
   ],
   bootstrap: [AppComponent],
 })

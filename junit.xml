@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="6" failures="0" errors="0" time="19.789">
+  <testsuite name="t2pHttpService" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="10.105" tests="1">
+    <testcase classname="t2pHttpService should be created" name="t2pHttpService should be created" time="0.099">
+    </testcase>
+  </testsuite>
+  <testsuite name="HomeComponent" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="10.543" tests="1">
+    <testcase classname="HomeComponent should create" name="HomeComponent should create" time="0.987">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppComponent" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="10.722" tests="2">
+    <testcase classname="AppComponent should create the app" name="AppComponent should create the app" time="0.937">
+    </testcase>
+    <testcase classname="AppComponent should have as title &apos;angular-starter&apos;" name="AppComponent should have as title &apos;angular-starter&apos;" time="0.033">
+    </testcase>
+  </testsuite>
+  <testsuite name="p2thttpService" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="14.131" tests="1">
+    <testcase classname="p2thttpService should be created" name="p2thttpService should be created" time="0.055">
+    </testcase>
+  </testsuite>
+  <testsuite name="P2tComponent" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="14.81" tests="1">
+    <testcase classname="P2tComponent should create" name="P2tComponent should create" time="0.09">
+    </testcase>
+  </testsuite>
+</testsuites>

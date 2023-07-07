@@ -4,6 +4,7 @@ import {catchError, retry} from 'rxjs/operators'
 import { throwError } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 import { SpinnerService } from './SpinnerService';
+
 declare global {
   interface Window {
       text: string;

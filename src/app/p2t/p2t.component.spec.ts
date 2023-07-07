@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { P2tComponent } from './p2t.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('P2tComponent', () => {
   let component: P2tComponent;
@@ -8,7 +8,8 @@ describe('P2tComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [P2tComponent]
+      declarations: [P2tComponent],
+      imports: [HttpClientTestingModule],
     });
     fixture = TestBed.createComponent(P2tComponent);
     component = fixture.componentInstance;
