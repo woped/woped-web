@@ -19,12 +19,7 @@
         "prettier"
       ],
       "rules": {
-        "@angular-eslint/component-class-suffix": [
-          "error",
-          {
-            "suffixes": ["Component", "Page"]
-          }
-        ],
+        "@angular-eslint/component-class-suffix": 1,
         "@angular-eslint/directive-selector": [
           "error",
           { "type": "attribute", "prefix": "app", "style": "camelCase" }
@@ -32,7 +27,8 @@
         "@angular-eslint/component-selector": [
           "error",
           { "type": "element", "prefix": "app", "style": "kebab-case" }
-        ]
+        ],
+        "prefer-const": 1
       }
     },
     {

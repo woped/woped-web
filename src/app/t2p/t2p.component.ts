@@ -12,16 +12,16 @@ import html2canvas from 'html2canvas';
   styleUrls: ['./t2p.component.css'],
 })
 export class T2PComponent {
-  protected text: string = '';
+  protected text = '';
   protected selectedDiagram = 'bpmn';
   protected textResult = '';
 
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
-  protected isFiledDropped: boolean = false;
-  protected droppedFileName: string = '';
+  protected isFiledDropped = false;
+  protected droppedFileName = '';
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
-  isFileDropped: boolean = false;
+  isFileDropped = false;
   constructor(
     private http: t2pHttpService,
     public spinnerService: SpinnerService

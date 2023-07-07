@@ -29,7 +29,7 @@ const httpOptions = {
 
 export class p2tHttpService {
   private url= 'http://localhost:8080/p2t/generateText' // Specifies the interface through which the text is displayed.
-  asyncText: String;
+  asyncText: string;
 
   constructor(
     private http: HttpClient,

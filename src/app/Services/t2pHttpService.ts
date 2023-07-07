@@ -96,7 +96,7 @@ export class t2pHttpService {
   //Displays the Petri net??
   public async generatePetriNet(modelAsPetriNet: string) {
     try {
-      let xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
+      const xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
       ModelDisplayer.displayPNMLModel(xmlDoc);
     } catch (err) {}
   }

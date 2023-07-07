@@ -37,8 +37,8 @@ declare global {
 })
 export class P2tComponent {
   response: any;
-  test: String;
-  fileType: String;
+  test: string;
+  fileType: string;
 
   // ViewChild decorator to get a reference to MatStepper
   @ViewChild('stepperRef') stepper!: MatStepper;
@@ -46,8 +46,8 @@ export class P2tComponent {
   // ViewChild decorator to get a reference to the drop zone element
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
 
-  isFileDropped: boolean = false;
-  droppedFileName: string = '';
+  isFileDropped = false;
+  droppedFileName = '';
 
   // ViewChild decorator to get a reference to the HTML file input element
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
@@ -135,9 +135,9 @@ export class P2tComponent {
 
   // Download the generated text as a txt file
   downloadText() {
-    let text = this.p2tHttpService.getText();
-    let filename = 'p2t';
-    var element = document.createElement('a');
+    const text = this.p2tHttpService.getText();
+    const filename = 'p2t';
+    const element = document.createElement('a');
     element.setAttribute(
       'href',
       'data:text/plain;charset=utf-8,' + encodeURIComponent(text)
@@ -184,16 +184,16 @@ export class P2tComponent {
     }
   }
   public static displayPNMLModel(petrinet: any) {
-    var generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
-    let prettyPetriNet = getPetriNet(petrinet);
+    let generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
+    const prettyPetriNet = getPetriNet(petrinet);
     generatePetrinetConfig(prettyPetriNet);
     function generatePetrinetConfig(petrinet) {
-      var data = getVisElements(petrinet);
+      const data = getVisElements(petrinet);
 
       // create a network
-      var container = document.getElementById('model-container');
+      const container = document.getElementById('model-container');
 
-      var options = {
+      const options = {
         layout: {
           randomSeed: undefined,
           improvedLayout: true,
@@ -248,22 +248,22 @@ export class P2tComponent {
         },
       };
       // initialize your network!
-      var network = new vis.Network(container, data, options);
+      const network = new vis.Network(container, data, options);
     }
-    var gateways = [];
+    let gateways = [];
     function getPetriNet(PNML) {
-      var places = PNML.getElementsByTagName('place');
-      var transitions = PNML.getElementsByTagName('transition');
-      var arcs = PNML.getElementsByTagName('arc');
+      const places = PNML.getElementsByTagName('place');
+      const transitions = PNML.getElementsByTagName('transition');
+      const arcs = PNML.getElementsByTagName('arc');
 
-      var petrinet = {
+      const petrinet = {
         places: [],
         transitions: [],
         arcs: [],
       };
 
-      for (var x = 0; x < arcs.length; x++) {
-        var arc = arcs[x];
+      for (let x = 0; x < arcs.length; x++) {
+        const arc = arcs[x];
         petrinet.arcs.push({
           id: arc.getAttribute('id'),
           source: arc.getAttribute('source'),
@@ -271,19 +271,19 @@ export class P2tComponent {
         });
       }
 
-      for (var x = 0; x < places.length; x++) {
-        var place = places[x];
+      for (let x = 0; x < places.length; x++) {
+        const place = places[x];
         petrinet.places.push({
           id: place.getAttribute('id'),
           label: place.getElementsByTagName('text')[0].textContent,
         });
       }
 
-      for (var x = 0; x < transitions.length; x++) {
-        var transition = transitions[x];
-        var isGateway = transition.getElementsByTagName('operator').length > 0;
-        var gatewayType = undefined;
-        var gatewayID = undefined;
+      for (let x = 0; x < transitions.length; x++) {
+        const transition = transitions[x];
+        const isGateway = transition.getElementsByTagName('operator').length > 0;
+        let gatewayType = undefined;
+        let gatewayID = undefined;
         if (isGateway) {
           gatewayType = transition
             .getElementsByTagName('operator')[0]
@@ -308,7 +308,7 @@ export class P2tComponent {
     }
 
     function logContainsGateway(transition) {
-      for (var x = 0; x < gateways.length; x++) {
+      for (let x = 0; x < gateways.length; x++) {
         if (gateways[x].gatewayID === transition.gatewayID) return true;
       }
       return false;
@@ -316,7 +316,7 @@ export class P2tComponent {
     // Identifies the Gateways
     function logGatewayTransition(transition) {
       if (logContainsGateway(transition) === true) {
-        for (var x = 0; x < gateways.length; x++) {
+        for (let x = 0; x < gateways.length; x++) {
           if (gateways[x].gatewayID === transition.gatewayID)
             gateways[x].transitionIDs.push({ transitionID: transition.id });
         }
@@ -329,9 +329,9 @@ export class P2tComponent {
     }
     
     function getGatewayIDsforReplacement(arc) {
-      var replacement = { source: null, target: null };
-      for (var x = 0; x < gateways.length; x++) {
-        for (var i = 0; i < gateways[x].transitionIDs.length; i++) {
+      const replacement = { source: null, target: null };
+      for (let x = 0; x < gateways.length; x++) {
+        for (let i = 0; i < gateways[x].transitionIDs.length; i++) {
           if (arc.source === gateways[x].transitionIDs[i].transitionID) {
             replacement.source = gateways[x].gatewayID;
           }
@@ -344,8 +344,8 @@ export class P2tComponent {
     }
 
     function replaceGatewayArcs(arcs) {
-      for (var x = 0; x < arcs.length; x++) {
-        var replacement = getGatewayIDsforReplacement(arcs[x]);
+      for (let x = 0; x < arcs.length; x++) {
+        const replacement = getGatewayIDsforReplacement(arcs[x]);
         if (replacement.source !== null) {
           arcs[x].source = replacement.source;
         }
@@ -357,9 +357,9 @@ export class P2tComponent {
 
     function getVisElements(PetriNet) {
       // provide the data in the vis format
-      var edges = new vis.DataSet([]);
-      var nodes = new vis.DataSet([]);
-      for (var x = 0; x < PetriNet.places.length; x++) {
+      const edges = new vis.DataSet([]);
+      const nodes = new vis.DataSet([]);
+      for (let x = 0; x < PetriNet.places.length; x++) {
         nodes.add({
           id: PetriNet.places[x].id,
           group: 'places',
@@ -367,7 +367,7 @@ export class P2tComponent {
         });
       }
 
-      for (var x = 0; x < PetriNet.transitions.length; x++) {
+      for (let x = 0; x < PetriNet.transitions.length; x++) {
         if (
           !PetriNet.transitions[x].isGateway ||
           generateWorkFlowNet === false
@@ -379,8 +379,8 @@ export class P2tComponent {
             title: PetriNet.transitions[x].label,
           });
         } else {
-          var gatewayGroup = '';
-          var label = '';
+          let gatewayGroup = '';
+          const label = '';
           switch (PetriNet.transitions[x].gatewayType) {
             case '101':
               gatewayGroup = 'andSplit';
@@ -411,7 +411,7 @@ export class P2tComponent {
         replaceGatewayArcs(PetriNet.arcs);
       }
 
-      for (var x = 0; x < PetriNet.arcs.length; x++) {
+      for (let x = 0; x < PetriNet.arcs.length; x++) {
         edges.add({
           from: PetriNet.arcs[x].source,
           to: PetriNet.arcs[x].target,
