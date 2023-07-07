@@ -147,7 +147,7 @@ export class ModelDisplayer {
         });
       }
     }
-    
+
     function getGatewayIDsforReplacement(arc) {
       var replacement = { source: null, target: null };
       for (var x = 0; x < gateways.length; x++) {
@@ -248,11 +248,19 @@ export class ModelDisplayer {
     document.getElementById('model-container').innerHTML = '';
 
     // Create a new Viewer
-    const viewer = new BpmnJS({ container: '#model-container' });
+    const viewer = new BpmnJS({
+      container: '#model-container',
+      keyboard: {
+        bindTo: window,
+      },
+    });
+    console.log(viewer);
+    debugger;
 
     try {
       // Display the BPMN Model
       viewer.importXML(modelAsBPMN);
+      viewer.get('canvas').zoom('fit-viewport');
     } catch (err) {}
   }
 }
