@@ -61,36 +61,29 @@ export class P2tComponent {
     private p2tHttpService: p2tHttpService,
     private t2phttpService: t2pHttpService,
     public spinnerService: SpinnerService
-  ) {}
+  ) { }
 
   // This method generates the text based on the selected file type and content.Allows only pnml and bpmn files
   generateText() {
-    console.log("Ich bin generate Text");
-
     const paragraph = document.createElement('p');
-    if (this.fileType == 'bpmn'){
-      console.log("Ich bin im fileType pnml und der Text ist: " + window.dropfileContent);
+    if (this.fileType == 'bpmn') {
       ModelDisplayer.displayBPMNModel(window.dropfileContent);
     }
- 
-    else if (this.fileType == 'pnml'){
-      console.log("Ich bin im fileType pnml und der Text ist: " + window.dropfileContent);
+    else if (this.fileType == 'pnml') {
       //P2tComponent.displayPNMLModel(window.dropfileContent);
       this.t2phttpService.generatePetriNet(window.dropfileContent);
     }
- 
+    // check if the file content or dropfile is not empty, then calls the postP2T method and the loading spinner is displayed
     if (
       window.fileContent !== undefined ||
       window.dropfileContent !== undefined
     ) {
       this.spinnerService.show();
-      //  this.p2tHttpService.postP2T(window.fileContent);
       this.p2tHttpService.postP2T(window.dropfileContent);
     } else {
       this.p2tHttpService.displayText('No files uploaded');
     }
     event.preventDefault();
-
     this.stepper.next();
   }
 
@@ -98,6 +91,7 @@ export class P2tComponent {
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
+    // check if the files are not empty and the file type is allowed
     if (files && files.length > 0) {
       const allowedExtensions = ['pnml', 'bpmn'];
       const hasAllowedFiles = Array.from(files).some((file) => {
@@ -106,9 +100,8 @@ export class P2tComponent {
           .toLowerCase();
         return allowedExtensions.includes(fileExtension);
       });
+      // if the file type is allowed, then process the dropped files
       if (hasAllowedFiles) {
-        console.log('Hallo');
-
         this.processDroppedFiles(files);
         this.isFileDropped = true;
         this.droppedFileName = files.item(0)?.name || '';
@@ -119,17 +112,14 @@ export class P2tComponent {
   }
   // Process the dropped files and read their contents
   processDroppedFiles(files: FileList) {
+    // read the file content
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      console.log(file.name);
       const reader = new FileReader();
-
       reader.onload = (e) => {
         window.dropfileContent = reader.result as string;
       };
       reader.readAsText(file);
-      console.log("Der Text ist: " + file );
-      
     }
   }
 
@@ -143,10 +133,8 @@ export class P2tComponent {
       'data:text/plain;charset=utf-8,' + encodeURIComponent(text)
     );
     element.setAttribute('download', filename);
-
     element.style.display = 'none';
     document.body.appendChild(element);
-
     element.click();
     document.body.removeChild(element);
   }
@@ -160,20 +148,22 @@ export class P2tComponent {
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
     const files = fileInput.files;
+    // check if the files are not empty and the file type is allowed
     if (files && files.length > 0) {
       this.processDroppedFiles(files);
       this.isFileDropped = true;
       this.droppedFileName = files[0].name;
-
       const allowedExtensions = ['pnml', 'bpmn'];
       const hasAllowedFiles = Array.from(files).some((file) => {
         const fileExtension = file.name
           .substring(file.name.lastIndexOf('.') + 1)
           .toLowerCase();
+          //check if the file extension is allowed
         if (fileExtension == 'pnml') this.fileType = 'pnml';
         else if (fileExtension == 'bpmn') this.fileType = 'bpmn';
         return allowedExtensions.includes(fileExtension);
       });
+      // if the file type is allowed, then process the dropped files
       if (hasAllowedFiles) {
         this.processDroppedFiles(files);
         this.isFileDropped = true;
@@ -183,6 +173,7 @@ export class P2tComponent {
       }
     }
   }
+  //method is called, when a pnml file is displayed
   public static displayPNMLModel(petrinet: any) {
     let generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
     const prettyPetriNet = getPetriNet(petrinet);
@@ -192,7 +183,6 @@ export class P2tComponent {
 
       // create a network
       const container = document.getElementById('model-container');
-
       const options = {
         layout: {
           randomSeed: undefined,
@@ -255,7 +245,6 @@ export class P2tComponent {
       const places = PNML.getElementsByTagName('place');
       const transitions = PNML.getElementsByTagName('transition');
       const arcs = PNML.getElementsByTagName('arc');
-
       const petrinet = {
         places: [],
         transitions: [],
@@ -327,7 +316,7 @@ export class P2tComponent {
         });
       }
     }
-    
+
     function getGatewayIDsforReplacement(arc) {
       const replacement = { source: null, target: null };
       for (let x = 0; x < gateways.length; x++) {
