@@ -15,7 +15,7 @@ import {
   tap,
   windowWhen,
 } from 'rxjs';
-import { SpinnerService } from '../Services/SpinnerService';
+import { SpinnerService } from '../utilities/SpinnerService';
 import { t2pHttpService } from '../Services/t2pHttpService';
 import { ModelDisplayer } from '../utilities/modelDisplayer';
 
@@ -61,17 +61,16 @@ export class P2tComponent {
     private p2tHttpService: p2tHttpService,
     private t2phttpService: t2pHttpService,
     public spinnerService: SpinnerService
-  ) { }
+  ) {}
 
   // This method generates the text based on the selected file type and content.Allows only pnml and bpmn files
   generateText() {
     const paragraph = document.createElement('p');
     if (this.fileType == 'bpmn') {
       ModelDisplayer.displayBPMNModel(window.dropfileContent);
-    }
-    else if (this.fileType == 'pnml') {
+    } else if (this.fileType == 'pnml') {
       //P2tComponent.displayPNMLModel(window.dropfileContent);
-      this.t2phttpService.generatePetriNet(window.dropfileContent);
+      ModelDisplayer.generatePetriNet(window.dropfileContent);
     }
     // check if the file content or dropfile is not empty, then calls the postP2T method and the loading spinner is displayed
     if (
@@ -158,7 +157,7 @@ export class P2tComponent {
         const fileExtension = file.name
           .substring(file.name.lastIndexOf('.') + 1)
           .toLowerCase();
-          //check if the file extension is allowed
+        //check if the file extension is allowed
         if (fileExtension == 'pnml') this.fileType = 'pnml';
         else if (fileExtension == 'bpmn') this.fileType = 'bpmn';
         return allowedExtensions.includes(fileExtension);
@@ -270,7 +269,8 @@ export class P2tComponent {
 
       for (let x = 0; x < transitions.length; x++) {
         const transition = transitions[x];
-        const isGateway = transition.getElementsByTagName('operator').length > 0;
+        const isGateway =
+          transition.getElementsByTagName('operator').length > 0;
         let gatewayType = undefined;
         let gatewayID = undefined;
         if (isGateway) {

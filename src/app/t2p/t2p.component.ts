@@ -3,7 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { t2pHttpService } from '../Services/t2pHttpService';
 import { MatStepper } from '@angular/material/stepper';
 // import { SpinnerService } from './t2p.SpinnerService';
-import { SpinnerService } from '../Services/SpinnerService';
+import { SpinnerService } from '../utilities/SpinnerService';
 import html2canvas from 'html2canvas';
 
 @Component({
@@ -29,17 +29,15 @@ export class T2PComponent {
   //Triggers a corresponding HTTP request to the backend depending on the selection of the radio buttons.
   //The input text is first revised (all umlauts are removed) and then sent with the request.
   protected generateProcess(inputText: string) {
-    document.getElementById('error-container-text').style.display = 'none';
+    document.getElementById('error-container-text')!.style.display = 'none';
     this.spinnerService.show();
     let text = inputText;
     text = this.replaceUmlaut(text);
     if (this.selectedDiagram === 'bpmn') {
-      this.http.postT2PBPMN(text); //Send request
-      this.setTextResult(text); //Show input text as input in the last step
-      this.replaceUmlaut(
-        //Revise the text
-        'Der Manager öffnet sein Outlook und überlegt sich ob alles passt' // hier noch in zeile 31 einfügen
-      );
+      //Send request to backend
+      this.http.postT2PBPMN(text);
+      //Show input text as input in the last step
+      this.setTextResult(text);
     }
     if (this.selectedDiagram === 'petri-net') {
       this.http.postT2PPetriNet(text);
@@ -66,23 +64,18 @@ export class T2PComponent {
       case 'petri-net':
         this.selectedDiagram = 'petri-net';
         break;
-      default: {
-        //hier noch etwas rein schreiben?
-      }
     }
   }
   //Registers that a document has been entered in the drag & drop field and displays its name. Causes the input file to be read out.
   protected onDrop(event: DragEvent) {
     event.preventDefault();
-    const files = event.dataTransfer?.files;
-    // if (files && files.length > 0) {
-    //   // Handle dropped files here
-    // }
-    //was machen wir damit?
+    const files = event.dataTransfer?.files!;
+
     this.processDroppedFiles(files);
     this.isFiledDropped = true;
     this.droppedFileName = files[0].name;
   }
+
   protected onDragOver(event: DragEvent) {
     event.preventDefault();
   }
@@ -128,9 +121,10 @@ export class T2PComponent {
   protected onDownloadText() {
     this.http.downloadModelAsText();
   }
-  //Triggers the download of a image of the diagram
-  onDownloadImage(){
-    const element = document.getElementById('model-container'); // ID of the div to be converted
+  //Triggers the download of a image (png) of the diagram.
+  // Method makes use of html2canvas library (locally imported)
+  onDownloadImage() {
+    const element = document.getElementById('model-container')!; // ID of the div to be converted
 
     html2canvas(element).then((canvas) => {
       // Convert the canvas into an image data URL
@@ -147,6 +141,4 @@ export class T2PComponent {
       document.body.removeChild(link);
     });
   }
-  }
-
-
+}

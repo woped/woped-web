@@ -3,10 +3,23 @@ import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
 // Model Display Class
 export class ModelDisplayer {
+  // Preprocessing of the Petri net model. The model is converted into a format (domparser) that can be displayed by the library.
+  public static async generatePetriNet(modelAsPetriNet: string) {
+    try {
+      let domparser = new DOMParser();
+      const xmlDoc = domparser.parseFromString(modelAsPetriNet, 'text/xml');
+      ModelDisplayer.displayPNMLModel(xmlDoc);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   // Displays the BPMN model. Sets the representation in the HTML element "model-container".
   public static displayPNMLModel(petrinet: any) {
     let generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
     const prettyPetriNet = getPetriNet(petrinet);
+    let gateways = [];
+
     generatePetrinetConfig(prettyPetriNet);
     function generatePetrinetConfig(petrinet) {
       const data = getVisElements(petrinet);
@@ -71,7 +84,7 @@ export class ModelDisplayer {
       // initialize your network!
       const network = new vis.Network(container, data, options);
     }
-    let gateways = [];
+
     function getPetriNet(PNML) {
       const places = PNML.getElementsByTagName('place');
       const transitions = PNML.getElementsByTagName('transition');
@@ -256,8 +269,6 @@ export class ModelDisplayer {
         bindTo: window,
       },
     });
-    console.log(viewer);
-    debugger;
 
     try {
       // Display the BPMN Model

@@ -17,7 +17,7 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { T2PComponent } from './t2p.component';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { SpinnerService } from '../Services/SpinnerService';
+import { SpinnerService } from '../utilities/SpinnerService';
 
 @NgModule({
   declarations: [T2PComponent],

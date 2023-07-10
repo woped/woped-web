@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { SpinnerService } from './SpinnerService';
+import { SpinnerService } from '../utilities/SpinnerService';
 
 import { ModelDisplayer } from '../utilities/modelDisplayer';
 
@@ -19,7 +19,7 @@ const httpOptions = {
 export class t2pHttpService {
   private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2'; // Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .bpmn Datei zurück?
   private urlPetriNet = 'http://localhost:8081/t2p/generatePNML'; //Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .pnml Datei zurück?
-  public domparser = new DOMParser();
+
   private plainDocumentForDownload: string;
 
   constructor(
@@ -29,7 +29,7 @@ export class t2pHttpService {
   //Makes the HTTP request and returns the HTTP response for the BPMN model. Triggers the display of the model at the same time.
   public postT2PBPMN(text: string) {
     //Reset Model Container Div, so that only valid/current model will be displayed.
-    document.getElementById('model-container').innerHTML = '';
+    document.getElementById('model-container')!.innerHTML = '';
     return this.t2phttpClient
       .post<string>(this.urlBPMN, text, httpOptions)
       .subscribe(
@@ -44,9 +44,9 @@ export class t2pHttpService {
           console.log(error);
           // Error Handling User Feedback
           this.spinnerService.hide();
-          document.getElementById('error-container-text').innerHTML =
+          document.getElementById('error-container-text')!.innerHTML =
             error.status + ' ' + error.statusText + ' ' + error.error;
-          document.getElementById('error-container-text').style.display =
+          document.getElementById('error-container-text')!.style.display =
             'block';
         }
       );
@@ -73,31 +73,24 @@ export class t2pHttpService {
   //The Petri net is displayed in the same way as the BPMN model.
   public postT2PPetriNet(text: string) {
     //Reset Model Container Div, so that only valid/current model will be displayed.
-    document.getElementById('model-container').innerHTML = '';
+    document.getElementById('model-container')!.innerHTML = '';
     return this.t2phttpClient
       .post<string>(this.urlPetriNet, text, httpOptions)
       .subscribe(
         (response: any) => {
           this.spinnerService.hide();
           // Call Method to Display the BPMN Model.
-          this.generatePetriNet(response);
+          ModelDisplayer.generatePetriNet(response);
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
           this.spinnerService.hide();
           // Error Handling User Feedback
-          document.getElementById('error-container-text').innerHTML =
+          document.getElementById('error-container-text')!.innerHTML =
             error.status + ' ' + error.statusText + ' ' + error.error;
-          document.getElementById('error-container-text').style.display =
+          document.getElementById('error-container-text')!.style.display =
             'block';
         }
       );
-  }
-  //Displays the Petri net??
-  public async generatePetriNet(modelAsPetriNet: string) {
-    try {
-      const xmlDoc = this.domparser.parseFromString(modelAsPetriNet, 'text/xml');
-      ModelDisplayer.displayPNMLModel(xmlDoc);
-    } catch (err) {}
   }
 }
