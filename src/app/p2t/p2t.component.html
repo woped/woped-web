@@ -46,16 +46,17 @@
                 <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
                 </mat-spinner>
             </div>
-            <div>
-                <p>Your input: <br></p>
-                <div class="test1" id="model-container"></div>
-                <p>Your Text: <br></p>
-                <div id="result"></div>
-                <button mat-button matStepperPrevious class="card">Back</button>
-                <button mat-button matStepperNext class="card" (click)="downloadText()">Download Text as .txt</button>
-            </div>
+            
         </mat-step>
     </mat-stepper>
+    <div>
+        <label><b>Your input: <br></b></label>
+        <div id="model-container"></div>
+        <label><b>Your text: <br></b></label>
+        <div id="result"></div>
+        <button class="card" (click)="downloadText()">Download Text as .txt</button>
+    </div>
+
     <div id="error-box">
         <p id="error-content"></p>
     </div>
