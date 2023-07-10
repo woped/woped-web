@@ -69,7 +69,7 @@ export class T2PComponent {
   //Registers that a document has been entered in the drag & drop field and displays its name. Causes the input file to be read out.
   protected onDrop(event: DragEvent) {
     event.preventDefault();
-    const files = event.dataTransfer?.files!;
+    const files = event.dataTransfer?.files;
 
     this.processDroppedFiles(files);
     this.isFiledDropped = true;
