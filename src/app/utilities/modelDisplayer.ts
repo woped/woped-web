@@ -1,6 +1,7 @@
 import * as vis from 'vis';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
+// Model Display Class
 export class ModelDisplayer {
   // Displays the BPMN model. Sets the representation in the HTML element "model-container".
   public static displayPNMLModel(petrinet: any) {
@@ -101,7 +102,8 @@ export class ModelDisplayer {
 
       for (let x = 0; x < transitions.length; x++) {
         const transition = transitions[x];
-        const isGateway = transition.getElementsByTagName('operator').length > 0;
+        const isGateway =
+          transition.getElementsByTagName('operator').length > 0;
         let gatewayType = undefined;
         let gatewayID = undefined;
         if (isGateway) {
