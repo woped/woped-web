@@ -48,7 +48,7 @@ jobs:
       id: changelog
       uses: TriPSs/conventional-changelog-action@v3
       with:
-        github-token: ${{ secrets.REPO_TOKEN }}
+        github-token: ${{ secrets.GH_TOKEN }}
         output-file: "false"
 
     - name: Deploy
