@@ -48,12 +48,12 @@ jobs:
       id: changelog
       uses: TriPSs/conventional-changelog-action@v3
       with:
-        github-token: ${{ secrets.GH_TOKEN }}
+        github-token: ${{ secrets.github_token }}
         output-file: "false"
 
     - name: Deploy
       env:
-        GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
+        GITHUB_TOKEN: ${{ secrets.github_token }}
       run: |
         npm run ng deploy --base-href=/woped-frontend/ --name="${{secrets.UNAME}}" --email=${{secrets.EMAIL}} --no-silent
 
