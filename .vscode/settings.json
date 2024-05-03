@@ -1,0 +1,11 @@
+{
+  "git.ignoreLimitWarning": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "peacock.color": "#b52e31"
+}

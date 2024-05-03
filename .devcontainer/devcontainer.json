@@ -1,0 +1,60 @@
+{
+    "name": "woped-frontend",
+    "dockerFile": "./Dockerfile",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    "forwardPorts": [
+        4200
+    ],
+    "postCreateCommand": "npm install",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.formatOnPaste": true,
+                "[typescript]": {
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": true
+                    }
+                },
+                "workbench.colorCustomizations": {
+                    "activityBar.activeBackground": "#d04649",
+                    "activityBar.background": "#d04649",
+                    "activityBar.foreground": "#e7e7e7",
+                    "activityBar.inactiveForeground": "#e7e7e799",
+                    "activityBarBadge.background": "#37cb34",
+                    "activityBarBadge.foreground": "#15202b",
+                    "commandCenter.border": "#e7e7e799",
+                    "sash.hoverBorder": "#d04649",
+                    "statusBar.background": "#b52e31",
+                    "statusBar.foreground": "#e7e7e7",
+                    "statusBarItem.hoverBackground": "#d04649",
+                    "statusBarItem.remoteBackground": "#b52e31",
+                    "statusBarItem.remoteForeground": "#e7e7e7",
+                    "titleBar.activeBackground": "#b52e31",
+                    "titleBar.activeForeground": "#e7e7e7",
+                    "titleBar.inactiveBackground": "#b52e3199",
+                    "titleBar.inactiveForeground": "#e7e7e799"
+                },
+                "peacock.color": "#b52e31"
+            },
+            "extensions": [
+                "angular.ng-template",
+                "steoates.autoimport",
+                "pkief.material-icon-theme",
+                "christian-kohler.path-intellisense",
+                "esbenp.prettier-vscode",
+                "mohsen1.prettify-json",
+                "dbaeumer.vscode-eslint",
+                "firsttris.vscode-jest-runner",
+                "stylelint.vscode-stylelint",
+                "hediet.vscode-drawio",
+                "natewallace.angular2-inline",
+                "johnpapa.vscode-peacock",
+                "ms-azuretools.vscode-docker",
+                "alphabotsec.vscode-eclipse-keybindings"
+            ]
+        }
+    }
+}
