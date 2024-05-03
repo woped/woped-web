@@ -19,10 +19,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": [
-              "src/custom-theme.scss",
-              "src/styles.css"
-            ],
+            "styles": ["src/custom-theme.scss", "src/styles.css"],
             "scripts": [],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -86,7 +83,12 @@
           }
         },
         "deploy": {
-          "builder": "angular-cli-ghpages:deploy"
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "/woped-frontend/",
+            "name": "WoPeD Team",
+            "email": "info@woped.org"
+          }
         }
       }
     }
