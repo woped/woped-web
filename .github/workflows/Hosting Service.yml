@@ -1,4 +1,3 @@
-
 name: Hosting Service
 
 on:
@@ -6,54 +5,53 @@ on:
     branches:
       - main
   workflow_dispatch:
-  
+
 jobs:
   ci:
     name: CI/CD
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Use Node.js 18
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Cache node modules
-      id: cache-nodemodules
-      uses: actions/cache@v2
-      env:
-       cache-name: cache-node-modules
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-    - name: Install Dependencies
-      run: |
-        npm ci 
-        
-    - name: Lint
-      run: |
-        npm run lint
-        
-    - name: Test
-      run: |
-        npm run test  
-        
-    - name: Conventional Changelog Action
-      id: changelog
-      uses: TriPSs/conventional-changelog-action@v3
-      with:
-        github-token: ${{ secrets.GH_TOKEN }}
-        output-file: "false"
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Dependencies
+        run: |
+          npm ci
 
-    - name: Deploy
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        npm run ng deploy --base-href=/woped-frontend/ --name="${{secrets.UNAME}}" --email=${{secrets.EMAIL}} --no-silent
+      - name: Lint
+        run: |
+          npm run lint
 
+      - name: Test
+        run: |
+          npm run test
+
+      # - name: Conventional Changelog Action
+      #   id: changelog
+      #   uses: TriPSs/conventional-changelog-action@v3
+      #   with:
+      #     github-token: ${{ secrets.GH_TOKEN }}
+      #     output-file: "false"
+
+      - name: Deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          npm run ng deploy --base-href=/woped-frontend/ --name="${{secrets.UNAME}}" --email=${{secrets.EMAIL}} --no-silent
