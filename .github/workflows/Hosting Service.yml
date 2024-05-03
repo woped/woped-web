@@ -55,5 +55,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
       run: |
-        npm run ng deploy --base-href=/woped-frontend/ --name="${{secrets.UNAME}}" --email=${{secrets.EMAIL}}
+        npm run ng deploy --base-href=/woped-frontend/ --name="${{secrets.UNAME}}" --email=${{secrets.EMAIL}} --no-silent
 
