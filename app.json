@@ -1,6 +1,6 @@
 {
-  "name": "Angular 14 Starter",
-  "description": "Angular 14 Starter project with Material, Transloco, Jest & Compodoc",
-  "repository": "https://github.com/wlucha/angular-starter",
+  "name": "WoPeD Webclient",
+  "description": "WoPeD Webclient",
+  "repository": "https://github.com/woped/woped-frontend",
   "keywords": ["angular", "jest", "compodoc", "transloco"]
 }

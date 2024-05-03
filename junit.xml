@@ -11,7 +11,7 @@
   <testsuite name="AppComponent" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="10.722" tests="2">
     <testcase classname="AppComponent should create the app" name="AppComponent should create the app" time="0.937">
     </testcase>
-    <testcase classname="AppComponent should have as title &apos;angular-starter&apos;" name="AppComponent should have as title &apos;angular-starter&apos;" time="0.033">
+    <testcase classname="AppComponent should have as title &apos;woped-frontend&apos;" name="AppComponent should have as title &apos;woped-frontend&apos;" time="0.033">
     </testcase>
   </testsuite>
   <testsuite name="p2thttpService" errors="0" failures="0" skipped="0" timestamp="2023-07-07T18:58:00" time="14.131" tests="1">

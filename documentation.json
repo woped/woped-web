@@ -95,7 +95,7 @@
       "propertiesClass": [
         {
           "name": "title",
-          "defaultValue": "'angular-starter'",
+          "defaultValue": "'woped-frontend'",
           "deprecated": false,
           "deprecationMessage": "",
           "type": "string",
@@ -112,7 +112,7 @@
       "description": "",
       "rawdescription": "\n",
       "type": "component",
-      "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'app-root',\r\n  templateUrl: './app.component.html',\r\n  styleUrls: ['./app.component.css']\r\n})\r\nexport class AppComponent {\r\n  title = 'angular-starter';\r\n}\r\n",
+      "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'app-root',\r\n  templateUrl: './app.component.html',\r\n  styleUrls: ['./app.component.css']\r\n})\r\nexport class AppComponent {\r\n  title = 'woped-frontend';\r\n}\r\n",
       "assetsDirs": [],
       "styleUrlsData": [
         {
