@@ -1,22 +1,8 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { p2tHttpService } from '../Services/p2tHttpService';
 import { MatStepper } from '@angular/material/stepper';
-import * as vis from 'vis';
-import { HttpResponse } from '@angular/common/http';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import {
-  defer,
-  first,
-  fromEvent,
-  merge,
-  mergeMap,
-  switchMap,
-  takeUntil,
-  tap,
-  windowWhen,
-} from 'rxjs';
-import { SpinnerService } from '../utilities/SpinnerService';
+import { p2tHttpService } from '../Services/p2tHttpService';
 import { t2pHttpService } from '../Services/t2pHttpService';
+import { SpinnerService } from '../utilities/SpinnerService';
 import { ModelDisplayer } from '../utilities/modelDisplayer';
 
 //global variable to store the file content
