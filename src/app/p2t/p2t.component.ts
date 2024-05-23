@@ -74,10 +74,30 @@ export class P2tComponent {
   }
 
   // This method is called when the toggle button is changed
-  toggleText = 'Algorithmisch'; // Initial text
+  toggleText = 'Algorithm'; // Initial text
+  apiKey: string;
+  apiKeyExample = 'sk-proj-ABcdEFghIJklMNopQRstUVwxYZabCDefghIJklMNopQRstu'; // Add this line
 
   onToggleChange(event: MatSlideToggleChange) {
-    this.toggleText = event.checked ? 'LLM' : 'Algorithmisch';
+    if (event.checked) {
+      let apiKey = window.prompt('Please enter your API key');
+      while (apiKey !== null && apiKey.length !== this.apiKeyExample.length) {
+        // If the user didn't enter an API key or the key is not the correct length, show an alert and ask again
+        window.alert('Invalid API key');
+        apiKey = window.prompt('Please enter your API key');
+      }
+      if (apiKey !== null) {
+        // Save the API key and use it for the LLM backend
+        this.apiKey = apiKey;
+        this.toggleText = 'LLM';
+      } else {
+        // If the user closed the prompt, switch back to "Algorithmisch"
+        event.source.checked = false;
+        this.toggleText = 'Algorithm';
+      }
+    } else {
+      this.toggleText = 'Algorithm';
+    }
     console.log('Toggle changed to: ', event.checked);
   }
 
