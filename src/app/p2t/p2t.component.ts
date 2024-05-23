@@ -1,4 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatStepper } from '@angular/material/stepper';
 import { p2tHttpService } from '../Services/p2tHttpService';
 import { t2pHttpService } from '../Services/t2pHttpService';
@@ -70,6 +71,14 @@ export class P2tComponent {
     }
     event.preventDefault();
     this.stepper.next();
+  }
+
+  // This method is called when the toggle button is changed
+  toggleText = 'Algorithmisch'; // Initial text
+
+  onToggleChange(event: MatSlideToggleChange) {
+    this.toggleText = event.checked ? 'LLM' : 'Algorithmisch';
+    console.log('Toggle changed to: ', event.checked);
   }
 
   // This method is called when files are dropped on the drop zone

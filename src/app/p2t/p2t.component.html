@@ -14,7 +14,9 @@
                     be analyzed and translated into natural language. This allows the creation of detailed
                     descriptions
                     of processes that can be used for various purposes, such as training documentation, user
-                    documentation, or compliance reports.</p>
+                    documentation, or compliance reports.
+                    Das ist ein Test!
+                </p>
             </form>
             <button mat-button matStepperNext class="card">Next</button>
         </mat-step>
@@ -37,6 +39,7 @@
                     </div>
                 </form>
                 <button button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>
+                <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
             </form>
         </mat-step>
 
@@ -46,7 +49,7 @@
                 <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
                 </mat-spinner>
             </div>
-            
+
         </mat-step>
     </mat-stepper>
     <div>

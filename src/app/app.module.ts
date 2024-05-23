@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule, Routes } from '@angular/router';
@@ -40,6 +41,7 @@ const routes: Routes = [
     HttpClientModule,
     MatTabsModule,
     MatStepperModule,
+    MatSlideToggleModule,
     MatFormFieldModule,
     MatInputModule,
     MatGridListModule,
