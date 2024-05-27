@@ -18,7 +18,7 @@ declare global {
   selector: 'app-p2t',
   templateUrl: './p2t.component.html',
   styleUrls: ['./p2t.component.css'],
-  template: `'
+    template: `'
     <p>p2t works!</p>
     '`,
 })
@@ -29,28 +29,36 @@ export class P2tComponent {
 
   // ViewChild decorator to get a reference to MatStepper
   @ViewChild('stepperRef') stepper!: MatStepper;
-
   // ViewChild decorator to get a reference to the drop zone element
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
-
-  isFileDropped = false;
-  droppedFileName = '';
-
-  // ViewChild decorator to get a reference to the HTML file input element
+  // ViewChild decorator to get a reference to the file input element
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
-  // This method is called when a file is dragged on the drop zone
+   // This method is called when a file is dragged on the drop zone
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
+  
+  isFileDropped = false;
+  droppedFileName = '';
+  toggleText = 'Algorithm';
+  apiKey: string;
+  apiKeyExample = 'sk-proj-ABcdEFghIJklMNopQRstUVwxYZabCDefghIJklMNopQRstu';
 
   constructor(
     private p2tHttpService: p2tHttpService,
     private t2phttpService: t2pHttpService,
     public spinnerService: SpinnerService
   ) {}
-
-  // This method generates the text based on the selected file type and content.Allows only pnml and bpmn files
+  /**
+  * This method is responsible for generating text from the uploaded file content.
+  * It first checks the file type and displays the model accordingly.
+  * If there is any content in the file or if any file has been dropped, it shows a spinner,
+  * sends a POST request to the p2tHttpService with the dropped file content and the API key,
+  * and then clears the API key.
+  * If no files have been uploaded, it displays a message saying 'No files uploaded'.
+  * It then prevents the default event and moves to the next step in the stepper.
+  */
   generateText() {
     const paragraph = document.createElement('p');
     if (this.fileType == 'bpmn') {
@@ -59,39 +67,35 @@ export class P2tComponent {
       //P2tComponent.displayPNMLModel(window.dropfileContent);
       ModelDisplayer.generatePetriNet(window.dropfileContent);
     }
-    // check if the file content or dropfile is not empty, then calls the postP2T method and the loading spinner is displayed
-    if (
-      window.fileContent !== undefined ||
-      window.dropfileContent !== undefined
-    ) {
+    if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
       this.spinnerService.show();
-      this.p2tHttpService.postP2T(window.dropfileContent);
+      this.p2tHttpService.postP2T(window.dropfileContent, this.apiKey);
+      this.clearApiKey();
     } else {
       this.p2tHttpService.displayText('No files uploaded');
     }
     event.preventDefault();
     this.stepper.next();
   }
-
-  // This method is called when the toggle button is changed
-  toggleText = 'Algorithm'; // Initial text
-  apiKey: string;
-  apiKeyExample = 'sk-proj-ABcdEFghIJklMNopQRstUVwxYZabCDefghIJklMNopQRstu'; // Add this line
-
+  /**
+ * This method is called when the toggle switch state is changed.
+ * If the toggle is switched on, it prompts the user to enter their API key.
+ * It checks if the entered API key is valid (i.e., it has the same length as `apiKeyExample` and starts with 'sk-proj-').
+ * If the API key is valid, it is stored and the toggle's text is set to 'LLM'.
+ * If the API key is invalid, it prompts the user to enter their API key again.
+ * If the toggle is switched off, the toggle's text is set to 'Algorithm'.
+ */
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
       let apiKey = window.prompt('Please enter your API key');
       while (apiKey !== null && (apiKey.length !== this.apiKeyExample.length || !apiKey.startsWith('sk-proj-'))) {
-        // If the user didn't enter an API key or the key is not the correct length, show an alert and ask again
         window.alert('Invalid API key');
         apiKey = window.prompt('Please enter your API key');
       }
       if (apiKey !== null) {
-        // Save the API key and use it for the LLM backend
         this.apiKey = apiKey;
         this.toggleText = 'LLM';
       } else {
-        // If the user closed the prompt, switch back to "Algorithmisch"
         event.source.checked = false;
         this.toggleText = 'Algorithm';
       }
@@ -101,11 +105,15 @@ export class P2tComponent {
     console.log('Toggle changed to: ', event.checked);
   }
 
-  // This method is called when files are dropped on the drop zone
+  /**
+ * This method is called when a file is dropped into the drop zone.
+ * It prevents the default event behavior and retrieves the dropped files.
+ * If there are any files and at least one of them has an allowed extension ('pnml' or 'bpmn'),
+ * it processes the file(s) accordingly.
+ */
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
-    // check if the files are not empty and the file type is allowed
     if (files && files.length > 0) {
       const allowedExtensions = ['pnml', 'bpmn'];
       const hasAllowedFiles = Array.from(files).some((file) => {
@@ -114,7 +122,6 @@ export class P2tComponent {
           .toLowerCase();
         return allowedExtensions.includes(fileExtension);
       });
-      // if the file type is allowed, then process the dropped files
       if (hasAllowedFiles) {
         this.processDroppedFiles(files);
         this.isFileDropped = true;
@@ -124,9 +131,14 @@ export class P2tComponent {
       }
     }
   }
-  // Process the dropped files and read their contents
+
+  /**
+ * This method is called to process the files that have been dropped into the drop zone.
+ * It iterates over each file in the FileList.
+ * For each file, it creates a new FileReader and sets its onload function to store the file's content in `window.dropfileContent`.
+ * It then reads the file as text.
+ */
   processDroppedFiles(files: FileList) {
-    // read the file content
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const reader = new FileReader();
@@ -137,7 +149,6 @@ export class P2tComponent {
     }
   }
 
-  // Download the generated text as a txt file
   downloadText() {
     const text = this.p2tHttpService.getText();
     const filename = 'p2t';
@@ -153,16 +164,20 @@ export class P2tComponent {
     document.body.removeChild(element);
   }
 
-  // Trigger the file input to select files
   selectFiles() {
     this.fileInputRef.nativeElement.click();
   }
 
-  // Handle the file selection event
+  /**
+ * This method is called when a file is selected from the file input.
+ * It retrieves the selected files and checks if there are any.
+ * If there are files and at least one of them has an allowed extension ('pnml' or 'bpmn'),
+ * it processes the file(s) accordingly, sets `isFileDropped` to true, and stores the name of the first file in `droppedFileName`.
+ * It also sets `fileType` to the extension of the file if it is either 'pnml' or 'bpmn'.
+ */
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
     const files = fileInput.files;
-    // check if the files are not empty and the file type is allowed
     if (files && files.length > 0) {
       this.processDroppedFiles(files);
       this.isFileDropped = true;
@@ -172,12 +187,10 @@ export class P2tComponent {
         const fileExtension = file.name
           .substring(file.name.lastIndexOf('.') + 1)
           .toLowerCase();
-        //check if the file extension is allowed
         if (fileExtension == 'pnml') this.fileType = 'pnml';
         else if (fileExtension == 'bpmn') this.fileType = 'bpmn';
         return allowedExtensions.includes(fileExtension);
       });
-      // if the file type is allowed, then process the dropped files
       if (hasAllowedFiles) {
         this.processDroppedFiles(files);
         this.isFileDropped = true;
@@ -186,5 +199,9 @@ export class P2tComponent {
         alert('Please upload only files with .pnml or .bpmn format');
       }
     }
+  }
+
+  private clearApiKey() {
+    this.apiKey = '';
   }
 }

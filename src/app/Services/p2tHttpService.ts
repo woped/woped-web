@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
 import {
   HttpClient,
   HttpErrorResponse,
   HttpHeaders,
+  HttpParams,
 } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { SpinnerService } from '../utilities/SpinnerService';
 
 declare global {
@@ -13,13 +13,6 @@ declare global {
   }
 }
 
-const httpOptions = {
-  headers: new HttpHeaders({
-    Accept: 'text/plain, */*',
-    'Content-Type': 'text/plain', // We send Text
-  }),
-  responseType: 'text' as 'json', // We accept plain text as response.
-};
 @Injectable({
   providedIn: 'root',
 })
@@ -37,13 +30,20 @@ export class p2tHttpService {
   ) {}
 
   // This method is used to send the text to the server and to display the response.
-  postP2T(text: string) {
+  postP2T(text: string, apiKey: string) {
+    const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json', // We send JSON
+    'Accept': 'text/plain, */*'  // We send Text
+  }),
+  params: new HttpParams().set('apiKey', apiKey), // We send the API Key
+  responseType: 'text' as 'json', // We accept plain text as response.
+};
     return this.http.post<string>(this.url, text, httpOptions).subscribe(
       (response: any) => {
         // hides the spinner when the response is received.
         this.spinnerService.hide();
         this.displayText(response);
-        this.spinnerService.hide();
       },
       (error: any) => {
         this.spinnerService.hide();
