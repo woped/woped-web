@@ -81,7 +81,7 @@ export class P2tComponent {
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
       let apiKey = window.prompt('Please enter your API key');
-      while (apiKey !== null && apiKey.length !== this.apiKeyExample.length) {
+      while (apiKey !== null && (apiKey.length !== this.apiKeyExample.length || !apiKey.startsWith('sk-proj-'))) {
         // If the user didn't enter an API key or the key is not the correct length, show an alert and ask again
         window.alert('Invalid API key');
         apiKey = window.prompt('Please enter your API key');
