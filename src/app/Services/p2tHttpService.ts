@@ -33,7 +33,7 @@ export class p2tHttpService {
   postP2T(text: string, apiKey: string) {
     const httpOptions = {
   headers: new HttpHeaders({
-    'Content-Type': 'application/json', // We send JSON
+    'Content-Type': 'text/plain',
     'Accept': 'text/plain, */*'  // We send Text
   }),
   params: new HttpParams().set('apiKey', apiKey), // We send the API Key
