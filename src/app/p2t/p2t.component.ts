@@ -115,7 +115,7 @@ export class P2tComponent {
   }
 
   promptForApiKey() {
-    if (confirm('Möchten Sie den API-Schlüssel erneut eingeben?')) {
+    if (confirm('Would you like to enter the API key again?')) {
       this.enterApiKey(null);
     }
   }
@@ -129,7 +129,7 @@ export class P2tComponent {
   }
 
   editPrompt() {
-    if (confirm('Warnung: Änderungen am Prompt erfolgen auf eigene Gefahr. Möchten Sie fortfahren?')) {
+    if (confirm('Warning: Changes to the prompt are at your own risk. Would you like to continue?')) {
       this.isPromptReadonly = false;
     }
   }
