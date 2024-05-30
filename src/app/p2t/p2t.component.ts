@@ -97,7 +97,7 @@ export class P2tComponent {
 
   enterApiKey(event: MatSlideToggleChange) {
     let apiKey = window.prompt('Please enter your API key');
-    while (apiKey !== null && (apiKey.length !== this.apiKeyExample.length || !apiKey.startsWith('sk-proj-'))) {
+    while (apiKey !== null && !apiKey.startsWith('sk-proj-')) {
       window.alert('Invalid API key');
       apiKey = window.prompt('Please enter your API key');
     }
