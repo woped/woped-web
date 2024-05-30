@@ -20,6 +20,16 @@ Dokumentation eigener System verwenden Sie besser die *plain* Version.
 
 # Einführung und Ziele
 
+Dieses Projekt dient zur Erweiterung der bereits vorhandenen Funktionen des WoPed-Clients https://woped.dhbw-karlsruhe.de/. 
+Dabei soll der biherige Process to Text Service (P2T) um die Anbindung eines Large Language Models (LLM) ergänzt werden.
+
+![Kategorien von
+Qualitätsanforderungen](images/Arcitecture.png)
+
+Die wesentlichen Anforderungen des Projekts beschränken sich dabei auf die Integration von Chat.gpt als LLM. Dazu soll eine Rest-API Anbindung zwischen dem Webservice und dem P2T-Backend sowie zwischen dem LLM und dem Backend entstehen.
+
+
+
 Beschreibt die wesentlichen Anforderungen und treibenden Kräfte, die bei
 der Umsetzung der Softwarearchitektur und Entwicklung des Systems
 berücksichtigt werden müssen.
