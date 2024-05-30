@@ -7,6 +7,7 @@ import { p2tHttpService } from './Services/p2tHttpService';
 import { t2pHttpService } from './Services/t2pHttpService';
 import { AppComponent } from './app.component';
 
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
   MatFormFieldModule,
@@ -48,6 +49,8 @@ const routes: Routes = [
     MatSelectModule,
     MatRadioModule,
     MatProgressSpinnerModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [
     {

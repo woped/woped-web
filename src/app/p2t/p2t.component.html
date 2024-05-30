@@ -1,68 +1,98 @@
 <!DOCTYPE html>
 <html>
-<div>
-    <mat-stepper orientation="vertical" #stepperRef>
-        <mat-step>
-            <form>
-                <ng-template matStepLabel>Explanation</ng-template>
-                <p> <b>What is P2T?</b> <br>
-                    The process-to-text approach in the context of Business Process Management
-                    (BPM) and Natural Language Processing (NLP) refers to the automatic generation of text
-                    descriptions
-                    or documentations of business processes. Using BPM techniques and NLP algorithms, process models
-                    can
-                    be analyzed and translated into natural language. This allows the creation of detailed
-                    descriptions
-                    of processes that can be used for various purposes, such as training documentation, user
-                    documentation, or compliance reports.
-                    Das ist ein Test!
-                </p>
-            </form>
-            <button mat-button matStepperNext class="card">Next</button>
-        </mat-step>
 
-        <mat-step>
-            <form>
-                <ng-template matStepLabel>Insert your Model</ng-template>
-                <p>To upload your process model you can either select your file via a click in the Area in your
-                    explorer or drag and drop it into the right pane.<br></p>
-                <form method="POST Process Modell" enctype="multipart/form-data">
-                    <div class="insertModel">
-                        <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
-                            (click)="selectFiles()">
-                            <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn"
-                                (change)="onFileSelected($event)">
-                            <span *ngIf="isFileDropped">Uploaded file: {{ droppedFileName }}</span>
-                            <span *ngIf="!isFileDropped">Upload files via drag and drop or click into the
-                                textfield</span>
-                        </div>
-                    </div>
+<head>
+    <style>
+        .centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="centered">
+        <mat-stepper orientation="vertical" #stepperRef>
+            <mat-step>
+                <form>
+                    <ng-template matStepLabel>Explanation</ng-template>
+                    <p><b>What is P2T?</b> <br>
+                        The process-to-text approach in the context of Business Process Management
+                        (BPM) and Natural Language Processing (NLP) refers to the automatic generation of text
+                        descriptions or documentations of business processes. Using BPM techniques and NLP algorithms,
+                        process models
+                        can be analyzed and translated into natural language. This allows the creation of detailed
+                        descriptions
+                        of processes that can be used for various purposes, such as training documentation, user
+                        documentation, or compliance reports.
+                        Das ist ein Test!
+                    </p>
                 </form>
-                <button button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>
-                <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
-            </form>
-        </mat-step>
+                <button mat-button matStepperNext class="card">Next</button>
+            </mat-step>
 
-        <mat-step>
-            <ng-template matStepLabel>Text (Done)</ng-template>
-            <div id="loading">
-                <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
-                </mat-spinner>
-            </div>
+            <mat-step>
+                <form>
+                    <ng-template matStepLabel>Insert your Model</ng-template>
+                    <div *ngIf="showPromptInput" class="centered full-width">
+                        <mat-form-field appearance="fill" class="full-width">
+                            <mat-label>API-Schlüssel</mat-label>
+                            <input matInput [value]="getDisplayApiKey()" readonly (click)="promptForApiKey()">
+                        </mat-form-field>
+                        <mat-form-field appearance="fill" class="full-width">
+                            <mat-label>Eingabe-Prompt</mat-label>
+                            <textarea matInput [(ngModel)]="prompt" [readonly]="isPromptReadonly" cdkTextareaAutosize
+                                cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" (click)="editPrompt()">
+Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!
+              </textarea>
+                        </mat-form-field>
+                    </div>
+                    <p>To upload your process model you can either select your file via a click in the Area in your
+                        explorer or drag and drop it into the right pane.<br></p>
+                    <form method="POST Process Modell" enctype="multipart/form-data">
+                        <div class="insertModel">
+                            <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+                                (click)="selectFiles()">
+                                <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn"
+                                    (change)="onFileSelected($event)">
+                                <span *ngIf="isFileDropped">Uploaded file: {{ droppedFileName }}</span>
+                                <span *ngIf="!isFileDropped">Upload files via drag and drop or click into the
+                                    textfield</span>
+                            </div>
+                        </div>
+                    </form>
+                    <button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>
+                    <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
+                </form>
+            </mat-step>
 
-        </mat-step>
-    </mat-stepper>
-    <div>
-        <label><b>Your input: <br></b></label>
-        <div id="model-container"></div>
-        <label><b>Your text: <br></b></label>
-        <div id="result"></div>
-        <button class="card" (click)="downloadText()">Download Text as .txt</button>
+            <mat-step>
+                <ng-template matStepLabel>Text (Done)</ng-template>
+                <div id="loading">
+                    <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
+                    </mat-spinner>
+                </div>
+            </mat-step>
+        </mat-stepper>
+
+        <div>
+            <label><b>Your input: <br></b></label>
+            <div id="model-container"></div>
+            <label><b>Your text: <br></b></label>
+            <div id="result"></div>
+            <button class="card" (click)="downloadText()">Download Text as .txt</button>
+        </div>
+
+        <div id="error-box">
+            <p id="error-content"></p>
+        </div>
     </div>
-
-    <div id="error-box">
-        <p id="error-content"></p>
-    </div>
-</div>
+</body>
 
 </html>

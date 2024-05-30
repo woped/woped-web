@@ -6,7 +6,6 @@ import { t2pHttpService } from '../Services/t2pHttpService';
 import { SpinnerService } from '../utilities/SpinnerService';
 import { ModelDisplayer } from '../utilities/modelDisplayer';
 
-//global variable to store the file content
 declare global {
   interface Window {
     fileContent: string;
@@ -18,99 +17,123 @@ declare global {
   selector: 'app-p2t',
   templateUrl: './p2t.component.html',
   styleUrls: ['./p2t.component.css'],
-    template: `'
-    <p>p2t works!</p>
-    '`,
 })
 export class P2tComponent {
   response: any;
   test: string;
   fileType: string;
-
-  // ViewChild decorator to get a reference to MatStepper
-  @ViewChild('stepperRef') stepper!: MatStepper;
-  // ViewChild decorator to get a reference to the drop zone element
-  @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
-  // ViewChild decorator to get a reference to the file input element
-  @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
-
-   // This method is called when a file is dragged on the drop zone
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-  }
-  
   isFileDropped = false;
   droppedFileName = '';
   toggleText = 'Algorithm';
   apiKey: string;
   apiKeyExample = 'sk-proj-ABcdEFghIJklMNopQRstUVwxYZabCDefghIJklMNopQRstu';
+  showPromptInput = false;
+  useLLM = false;
+  prompt = `Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!`;
+  isPromptReadonly = true;
+
+  @ViewChild('stepperRef') stepper!: MatStepper;
+  @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
+  @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
   constructor(
     private p2tHttpService: p2tHttpService,
     private t2phttpService: t2pHttpService,
     public spinnerService: SpinnerService
   ) {}
-  /**
-  * This method is responsible for generating text from the uploaded file content.
-  * It first checks the file type and displays the model accordingly.
-  * If there is any content in the file or if any file has been dropped, it shows a spinner,
-  * sends a POST request to the p2tHttpService with the dropped file content and the API key,
-  * and then clears the API key.
-  * If no files have been uploaded, it displays a message saying 'No files uploaded'.
-  * It then prevents the default event and moves to the next step in the stepper.
-  */
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
   generateText() {
-    const paragraph = document.createElement('p');
     if (this.fileType == 'bpmn') {
       ModelDisplayer.displayBPMNModel(window.dropfileContent);
     } else if (this.fileType == 'pnml') {
-      //P2tComponent.displayPNMLModel(window.dropfileContent);
       ModelDisplayer.generatePetriNet(window.dropfileContent);
     }
     if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
       this.spinnerService.show();
-      this.p2tHttpService.postP2T(window.dropfileContent, this.apiKey);
-      this.clearApiKey();
+      if (this.useLLM) {
+        this.p2tHttpService.postP2T(window.dropfileContent, this.apiKey, this.prompt).subscribe(
+          (response: any) => {
+            this.spinnerService.hide();
+            this.displayText(response);
+          },
+          (error: any) => {
+            this.spinnerService.hide();
+            this.showError(this.p2tHttpService.handleError(error).toString());
+          }
+        );
+      } else {
+        this.p2tHttpService.postP2T(window.dropfileContent, '', this.prompt).subscribe(
+          (response: any) => {
+            this.spinnerService.hide();
+            this.displayText(response);
+          },
+          (error: any) => {
+            this.spinnerService.hide();
+            this.showError(this.p2tHttpService.handleError(error).toString());
+          }
+        );
+      }
     } else {
-      this.p2tHttpService.displayText('No files uploaded');
+      this.displayText('No files uploaded');
     }
-    event.preventDefault();
+    event?.preventDefault();
     this.stepper.next();
   }
-  /**
- * This method is called when the toggle switch state is changed.
- * If the toggle is switched on, it prompts the user to enter their API key.
- * It checks if the entered API key is valid (i.e., it has the same length as `apiKeyExample` and starts with 'sk-proj-').
- * If the API key is valid, it is stored and the toggle's text is set to 'LLM'.
- * If the API key is invalid, it prompts the user to enter their API key again.
- * If the toggle is switched off, the toggle's text is set to 'Algorithm'.
- */
+
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
-      let apiKey = window.prompt('Please enter your API key');
-      while (apiKey !== null && (apiKey.length !== this.apiKeyExample.length || !apiKey.startsWith('sk-proj-'))) {
-        window.alert('Invalid API key');
-        apiKey = window.prompt('Please enter your API key');
-      }
-      if (apiKey !== null) {
-        this.apiKey = apiKey;
-        this.toggleText = 'LLM';
-      } else {
-        event.source.checked = false;
-        this.toggleText = 'Algorithm';
-      }
+      this.enterApiKey(event);
     } else {
+      this.useLLM = false;
       this.toggleText = 'Algorithm';
+      this.showPromptInput = false;
     }
     console.log('Toggle changed to: ', event.checked);
   }
 
-  /**
- * This method is called when a file is dropped into the drop zone.
- * It prevents the default event behavior and retrieves the dropped files.
- * If there are any files and at least one of them has an allowed extension ('pnml' or 'bpmn'),
- * it processes the file(s) accordingly.
- */
+  enterApiKey(event: MatSlideToggleChange) {
+    let apiKey = window.prompt('Please enter your API key');
+    while (apiKey !== null && !apiKey.startsWith('sk-proj-')) {
+      window.alert('Invalid API key');
+      apiKey = window.prompt('Please enter your API key');
+    }
+    if (apiKey !== null) {
+      this.apiKey = apiKey;
+      this.useLLM = true;
+      this.toggleText = 'LLM';
+      this.showPromptInput = true;
+    } else {
+      this.useLLM = false;
+      this.toggleText = 'Algorithm';
+      this.showPromptInput = false;
+      event.source.checked = false;
+    }
+  }
+
+  promptForApiKey() {
+    if (confirm('Möchten Sie den API-Schlüssel erneut eingeben?')) {
+      this.enterApiKey(null);
+    }
+  }
+
+  getDisplayApiKey(): string {
+    return this.apiKey ? `...${this.apiKey.slice(-6)}` : '';
+  }
+
+  checkConditions() {
+    // Zusätzliche Logik zur Bedingungsprüfung (falls erforderlich)
+  }
+
+  editPrompt() {
+    if (confirm('Warnung: Änderungen am Prompt erfolgen auf eigene Gefahr. Möchten Sie fortfahren?')) {
+      this.isPromptReadonly = false;
+    }
+  }
+
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
@@ -132,12 +155,6 @@ export class P2tComponent {
     }
   }
 
-  /**
- * This method is called to process the files that have been dropped into the drop zone.
- * It iterates over each file in the FileList.
- * For each file, it creates a new FileReader and sets its onload function to store the file's content in `window.dropfileContent`.
- * It then reads the file as text.
- */
   processDroppedFiles(files: FileList) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -150,8 +167,8 @@ export class P2tComponent {
   }
 
   downloadText() {
-    const text = this.p2tHttpService.getText();
-    const filename = 'p2t';
+    const text = this.response;
+    const filename = 'p2t.txt';
     const element = document.createElement('a');
     element.setAttribute(
       'href',
@@ -168,13 +185,6 @@ export class P2tComponent {
     this.fileInputRef.nativeElement.click();
   }
 
-  /**
- * This method is called when a file is selected from the file input.
- * It retrieves the selected files and checks if there are any.
- * If there are files and at least one of them has an allowed extension ('pnml' or 'bpmn'),
- * it processes the file(s) accordingly, sets `isFileDropped` to true, and stores the name of the first file in `droppedFileName`.
- * It also sets `fileType` to the extension of the file if it is either 'pnml' or 'bpmn'.
- */
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
     const files = fileInput.files;
@@ -203,5 +213,24 @@ export class P2tComponent {
 
   private clearApiKey() {
     this.apiKey = '';
+  }
+
+  private displayText(response: string) {
+    this.response = this.p2tHttpService.formText(response);
+    const container = document.getElementById('result')!;
+    const paragraph = document.createElement('p');
+    paragraph.textContent = this.response;
+    if (container.firstChild) {
+      container.firstChild.remove();
+    }
+    container.appendChild(paragraph);
+  }
+
+  private showError(errorMessage: string) {
+    const errorBox = document.getElementById('error-box')!;
+    const errorContent = document.getElementById('error-content')!;
+    errorBox.style.visibility = 'visible';
+    errorContent.innerHTML = errorMessage;
+    errorContent.style.display = 'block';
   }
 }
