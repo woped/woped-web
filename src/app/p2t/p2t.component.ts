@@ -55,7 +55,7 @@ export class P2tComponent {
     if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
       this.spinnerService.show();
       if (this.useLLM) {
-        this.p2tHttpService.postP2T(window.dropfileContent, this.apiKey, this.prompt).subscribe(
+        this.p2tHttpService.postP2TLLM(window.dropfileContent, this.apiKey, this.prompt).subscribe(
           (response: any) => {
             this.spinnerService.hide();
             this.displayText(response);
@@ -66,7 +66,7 @@ export class P2tComponent {
           }
         );
       } else {
-        this.p2tHttpService.postP2T(window.dropfileContent, '', this.prompt).subscribe(
+        this.p2tHttpService.postP2T(window.dropfileContent).subscribe(
           (response: any) => {
             this.spinnerService.hide();
             this.displayText(response);
@@ -125,7 +125,7 @@ export class P2tComponent {
   }
 
   checkConditions() {
-    // Zusätzliche Logik zur Bedingungsprüfung (falls erforderlich)
+    // Additional logic to check conditions if needed
   }
 
   editPrompt() {
