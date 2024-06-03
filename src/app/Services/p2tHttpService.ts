@@ -12,19 +12,38 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class p2tHttpService {
-  private url = 'http://localhost:8080/p2t/generateText'; // Specifies the interface through which the text is displayed.
+  private url = '/p2t'; // Use the proxy path
 
   constructor(private http: HttpClient) {}
 
-  postP2T(text: string, apiKey: string, prompt: string): Observable<string> {
+  postP2T(text: string): Observable<string> {
     const headers = new HttpHeaders({
       'Content-Type': 'text/plain',
-      'Accept': 'text/plain, */*',
+      'Accept': 'text/plain',
+    });
+
+    const httpOptions = {
+      headers: headers,
+      responseType: 'text' as 'json',
+    };
+
+    return this.http.post<string>(`${this.url}/generateText`, text, httpOptions).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  postP2TLLM(text: string, apiKey: string, prompt: string): Observable<string> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'text/plain',
+      'Accept': 'text/plain',
     });
 
     let params = new HttpParams();
     if (apiKey) {
       params = params.set('apiKey', apiKey);
+    }
+    if (prompt) {
+      params = params.set('prompt', prompt);
     }
 
     const httpOptions = {
@@ -33,7 +52,7 @@ export class p2tHttpService {
       responseType: 'text' as 'json',
     };
 
-    return this.http.post<string>(this.url, text, httpOptions).pipe(
+    return this.http.post<string>(`${this.url}/generateTextLLM`, text, httpOptions).pipe(
       catchError(this.handleError)
     );
   }
