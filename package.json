@@ -12,7 +12,7 @@
   "readme": "https://github.com/woped/woped-frontend/blob/main/README.md",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config src/proxy.conf.json",
     "build": "ng build",
     "build:prod": "ng build --configuration production",
     "build:prod:stats": "ng build --configuration production --stats-json",
