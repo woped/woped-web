@@ -21,43 +21,44 @@ Dokumentation eigener System verwenden Sie besser die *plain* Version.
 # Einführung und Ziele
 
 Dieses Projekt dient zur Erweiterung der bereits vorhandenen Funktionen des WoPed-Clients https://woped.dhbw-karlsruhe.de/. 
-Dabei soll der biherige Process to Text Service (P2T) um die Anbindung eines Large Language Models (LLM) ergänzt werden.
+Dabei soll der biherige Process to Text Service (P2T) um die Anbindung eines Large Language Models (LLM) ergänzt werden. Der P2T-Servide dienet zur Umwandlung von BPMN- Diagrammen in menschlich verstehbaren Text.
 
 ![Kategorien von
 Qualitätsanforderungen](images/Arcitecture.png)
 
-Die wesentlichen Anforderungen des Projekts beschränken sich dabei auf die Integration von Chat.gpt als LLM. Dazu soll eine Rest-API Anbindung zwischen dem Webservice und dem P2T-Backend sowie zwischen dem LLM und dem Backend entstehen.
+Die Hauptidee des Projekts ist es, den bestehenden P2T-Service um die Integration eines Large Language Models (LLM) zu erweitern. Dies soll durch die Nutzung von REST-APIs erfolgen, um eine nahtlose Kommunikation zwischen den verschiedenen Komponenten zu ermöglichen.
 
+**Komponenten des Systems und ihre Interaktionen**
 
+Client-Web: Dies ist die webbasierte Benutzeroberfläche, die Benutzer zur Interaktion mit WoPed verwenden. Sie ermöglicht die Erstellung, Bearbeitung und Analyse von BPMN-Diagrammen (Business Process Model and Notation).
 
-Beschreibt die wesentlichen Anforderungen und treibenden Kräfte, die bei
-der Umsetzung der Softwarearchitektur und Entwicklung des Systems
-berücksichtigt werden müssen.
+Client-Fat: Dies ist eine lokal installierte, umfangreichere Version des Clients mit erweiterten Funktionalitäten im Vergleich zur Webversion.
 
-Dazu gehören:
+P2T: Der Process to Text Service, der derzeitige Dienst zur Umwandlung von BPMN-Diagrammen in Textbeschreibungen.
 
--   zugrunde liegende Geschäftsziele,
+LLM (Large Language Model): Ein leistungsfähiges Sprachmodell, das in der Lage ist, komplexe Texte zu generieren und zu verstehen. Es wird eingesetzt, um die Textgenerierung aus BPMN-Diagrammen zu verbessern und umgekehrt.
 
--   wesentliche Aufgabenstellungen,
+Transformer: Ein weiterer Dienst, der zur Konvertierung zwischen verschiedenen Prozessdarstellungen wie Petri-Netzen und BPMN verwendet wird.
 
--   wesentliche funktionale Anforderungen,
-
--   Qualitätsziele für die Architektur und
-
--   relevante Stakeholder und deren Erwartungshaltung.
 
 ## Aufgabenstellung
 
 <div class="formalpara-title">
 
+DIe Aufgabe des Teams besteht darin den Web-Client des WoPed-Projekts zu erweitern und die Integration eines LLM zu realisieren. 
+
 **Inhalt**
 
 </div>
 
-Kurzbeschreibung der fachlichen Aufgabenstellung, treibenden Kräfte,
-Extrakt (oder Abstract) der Anforderungen. Verweis auf (hoffentlich
-vorliegende) Anforderungsdokumente (mit Versionsbezeichnungen und
-Ablageorten).
+Erweiterung des Web-Clients: Verbesserung der Benutzeroberfläche, um neue Funktionen zu integrieren, die durch die Einbindung des LLM ermöglicht werden. Dazu zählen:
+
+1. Ein Toggle-Switch-Button zur Auswahl der al­go­rith­mischen Lösung oder der LLM-Lösung des P2T-Services.
+2. Eingabefenster für die Eingabe eines verwenderspezifischen API-Key für Chat-GPT.
+3. Ein ausgegrautes Fenster zur Darstellung des LLM-Prompt.
+4. Button zur Bearabreitung des LLM-Prompt.
+
+Anbindung des LLM: Entwicklung von Schnittstellen zur Kommunikation zwischen dem Web-Client und Chat.GPT mittels einer REST-API.
 
 <div class="formalpara-title">
 
@@ -65,25 +66,11 @@ Ablageorten).
 
 </div>
 
-Aus Sicht der späteren Nutzung ist die Unterstützung einer fachlichen
-Aufgabe oder Verbesserung der Qualität der eigentliche Beweggrund, ein
-neues System zu schaffen oder ein bestehendes zu modifizieren.
+Verbesserte Textgenerierung: Durch die Einbindung eines LLM kann die Qualität und Genauigkeit der Textbeschreibungen aus BPMN-Diagrammen erheblich verbessert werden.
 
-<div class="formalpara-title">
+Erweiterte Analysemöglichkeiten: Mit den Fähigkeiten des LLM können komplexere Analysen und Verarbeitungen der Prozessbeschreibungen durchgeführt werden.
 
-**Form**
-
-</div>
-
-Kurze textuelle Beschreibung, eventuell in tabellarischer Use-Case Form.
-Sofern vorhanden, sollte die Aufgabenstellung Verweise auf die
-entsprechenden Anforderungsdokumente enthalten.
-
-Halten Sie diese Auszüge so knapp wie möglich und wägen Sie Lesbarkeit
-und Redundanzfreiheit gegeneinander ab.
-
-Siehe [Anforderungen und Ziele](https://docs.arc42.org/section-1/) in
-der online-Dokumentation (auf Englisch!).
+Flexibilität bei der Prozessdarstellung: Die Möglichkeit, zwischen verschiedenen Prozessdarstellungen (BPMN und Petri-Netze) zu konvertieren, erhöht die Flexibilität und Anpassungsfähigkeit des Systems.
 
 ## Qualitätsziele
 
@@ -93,83 +80,72 @@ der online-Dokumentation (auf Englisch!).
 
 </div>
 
-Die Top-3 bis Top-5 der Qualitätsanforderungen für die Architektur,
-deren Erfüllung oder Einhaltung den maßgeblichen Stakeholdern besonders
-wichtig sind. Gemeint sind hier wirklich Qualitätsziele, die nicht
-unbedingt mit den Zielen des Projekts übereinstimmen. Beachten Sie den
-Unterschied.
+Die ISO 25010 Norm definiert acht Qualitätsmerkmale für Softwareprodukte. Für das Projekt zur Erweiterung des WoPed-Clients und der Integration eines Large Language Models (LLM) sind die folgenden fünf Qualitätskriterien besonders relevant:
 
 Hier ein Überblick möglicher Themen (basierend auf dem ISO 25010
 Standard):
-
-![Kategorien von
+![Kategorien von 
 Qualitätsanforderungen](images/01_2_iso-25010-topics-DE.drawio.png)
+
+1. Funktionalität: Die Fähigkeit des Systems, die festgelegten Aufgaben zu erfüllen. Dies umfasst die Korrektheit der Konvertierung von BPMN-Diagrammen in Text und umgekehrt sowie die Integration des LLM.
+
+2. Zuverlässigkeit: Die Fähigkeit des Systems, unter festgelegten Bedingungen über einen festgelegten Zeitraum hinweg eine fehlerfreie Leistung zu erbringen. Dies umfasst die Verfügbarkeit des Systems und die Fähigkeit zur Fehlerbehebung.
+3. Benutzbarkeit (Usability): Die Fähigkeit des Systems, von bestimmten Benutzern in einem bestimmten Nutzungskontext effizient und zufriedenstellend genutzt zu werden. Dies umfasst die Benutzeroberfläche und die Benutzerfreundlichkeit.
+
+4. Effizienz: Die Fähigkeit des Systems, angemessene Leistung relativ zu der Menge der verwendeten Ressourcen zu erbringen. Dies umfasst die Reaktionszeit und die Ressourcennutzung.
+
+5. Sicherheit: Die Fähigkeit des Systems, Informationen und Daten so zu schützen, dass nur autorisierte Benutzer darauf zugreifen können. Dies umfasst die Authentifizierung, Autorisierung und Datenverschlüsselung.
 
 <div class="formalpara-title">
 
-**Motivation**
+**Stakeholder und deren Qualitätsziele**
 
 </div>
 
-Weil Qualitätsziele grundlegende Architekturentscheidungen oft
-maßgeblich beeinflussen, sollten Sie die für Ihre Stakeholder relevanten
-Qualitätsziele kennen, möglichst konkret und operationalisierbar.
+ Verwender (Benutzer): 
+
+Benutzbarkeit (Usability): <br> Die Benutzer erwarten eine intuitive und leicht verständliche Benutzeroberfläche. Dies beeinflusst die Wahl der Frontend-Technologien und die Gestaltung der Benutzeroberfläche.
+
+Funktionalität:<br>  Die Benutzer benötigen zuverlässige und korrekte Konvertierungen zwischen BPMN-Diagrammen und Texten. Dies beeinflusst die Qualitätssicherungsmaßnahmen und die Integration des LLM.
+
+Programmierer (Entwickler):
+
+Wartbarkeit:<br>  Die Entwickler müssen den Code leicht verstehen, modifizieren und erweitern können. Dies beeinflusst die Wahl der Programmiersprachen, Frameworks und die Struktur des Codes.
+
+Zuverlässigkeit:<br>  Die Entwickler müssen sicherstellen, dass das System unter verschiedenen Bedingungen zuverlässig funktioniert. Dies beeinflusst die Implementierung von Logging, Monitoring und Teststrategien.
+
+Veröffentlicher (Betreiber):
+
+Effizienz:<br>  Die Betreiber müssen sicherstellen, dass das System ressourceneffizient arbeitet, um Kosten zu minimieren. Dies beeinflusst die Wahl der Hosting-Umgebung und die Skalierungsstrategien.
+
+Sicherheit:<br>  Die Betreiber müssen sicherstellen, dass das System vor unbefugtem Zugriff geschützt ist. Dies beeinflusst die Implementierung von Sicherheitsprotokollen und Datenschutzmaßnahmen.
+
 
 <div class="formalpara-title">
 
 **Form**
 
-</div>
 
-Tabellarische Darstellung der Qualitätsziele mit möglichst konkreten
-Szenarien, geordnet nach Prioritäten.
+
+| Priorität | Stakeholder       | Qualitätsziel       | Szenario                                                                                              | Einfluss auf Architekturentscheidungen                                              |
+|-----------|-------------------|---------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| 1         | Verwender         | Funktionalität      | BPMN-Diagramme werden korrekt in Text und umgekehrt konvertiert.                                       | Implementierung robuster Testfälle und Validierungsmechanismen für die Konvertierungen. |
+| 2         | Verwender         | Benutzbarkeit       | Die Benutzeroberfläche ist intuitiv und einfach zu bedienen.                                           | Einsatz von UX-Design-Prinzipien und modernen Frontend-Frameworks (z.B. React, Angular). |
+| 3         | Programmierer     | Wartbarkeit         | Der Code ist gut strukturiert und dokumentiert, sodass Änderungen leicht vorgenommen werden können.     | Einsatz von Clean Code-Prinzipien und Erstellung umfassender Dokumentationen.       |
+| 4         | Veröffentlicher   | Effizienz           | Das System reagiert schnell auf Benutzeranfragen und nutzt Ressourcen effizient.                       | Nutzung skalierbarer Cloud-Dienste und Optimierung der API-Kommunikation.           |
+| 5         | Veröffentlicher   | Sicherheit          | Nur autorisierte Benutzer können auf die neuen Funktionen zugreifen.                                    | Implementierung von Authentifizierungs- und Autorisierungsmechanismen (z.B. OAuth). |
+
 
 ## Stakeholder
 
 <div class="formalpara-title">
 
-**Inhalt**
-
-</div>
-
-Expliziter Überblick über die Stakeholder des Systems – über alle
-Personen, Rollen oder Organisationen –, die
-
--   die Architektur kennen sollten oder
-
--   von der Architektur überzeugt werden müssen,
-
--   mit der Architektur oder dem Code arbeiten (z.B. Schnittstellen
-    nutzen),
-
--   die Dokumentation der Architektur für ihre eigene Arbeit benötigen,
-
--   Entscheidungen über das System und dessen Entwicklung treffen.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Sie sollten die Projektbeteiligten und -betroffenen kennen, sonst
-erleben Sie später im Entwicklungsprozess Überraschungen. Diese
-Stakeholder bestimmen unter anderem Umfang und Detaillierungsgrad der
-von Ihnen zu leistenden Arbeit und Ergebnisse.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Tabelle mit Rollen- oder Personennamen, sowie deren Erwartungshaltung
-bezüglich der Architektur und deren Dokumentation.
 
 | Rolle        | Kontakt        | Erwartungshaltung |
 |--------------|----------------|-------------------|
-| *\<Rolle-1>* | *\<Kontakt-1>* | *\<Erwartung-1>*  |
-| *\<Rolle-2>* | *\<Kontakt-2>* | *\<Erwartung-2>*  |
+| Verwender    | Benutzer       | Intuitive und leicht verständliche Benutzeroberfläche. Zuverlässige und korrekte Konvertierungen zwischen BPMN-Diagrammen und Texten. |
+| Programmierer| Entwickler     | Leicht verständlicher, modifizierbarer und erweiterbarer Code. Zuverlässiges Funktionieren des Systems unter verschiedenen Bedingungen. |
+| Veröffentlicher| Betreiber     | Ressourceneffizientes Arbeiten des Systems. Schutz vor unbefugtem Zugriff auf die neuen Funktionen. |
 
 # Randbedingungen
 
@@ -183,6 +159,7 @@ Randbedingungen und Vorgaben, die ihre Freiheiten bezüglich Entwurf,
 Implementierung oder Ihres Entwicklungsprozesses einschränken. Diese
 Randbedingungen gelten manchmal organisations- oder firmenweit über die
 Grenzen einzelner Systeme hinweg.
+
 
 <div class="formalpara-title">
 
