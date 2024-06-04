@@ -151,41 +151,33 @@ Sicherheit:<br>  Die Betreiber müssen sicherstellen, dass das System vor unbefu
 
 <div class="formalpara-title">
 
-**Inhalt**
+## Technische Randbedingungen
 
-</div>
+| Randbedingung                | Erläuterung                                                                                          |
+|------------------------------|------------------------------------------------------------------------------------------------------|
+| Nutzung von REST-APIs        | Die Kommunikation zwischen Web-Client, P2T-Service und LLM erfolgt über standardisierte REST-APIs.   |
+| Web-Technologien             | Der Web-Client muss mit modernen Web-Technologien wie React oder Angular entwickelt werden.          |
+| Cloud-Infrastruktur          | Das System soll auf einer skalierbaren Cloud-Infrastruktur wie AWS oder Azure betrieben werden.      |
+| Sicherheit                   | Es müssen OAuth und HTTPS für Authentifizierung und Datenverschlüsselung verwendet werden.           |
+| API-Rate-Limits              | Die Nutzung der Chat-GPT API unterliegt bestimmten Rate-Limits, die berücksichtigt werden müssen.    |
 
-Randbedingungen und Vorgaben, die ihre Freiheiten bezüglich Entwurf,
-Implementierung oder Ihres Entwicklungsprozesses einschränken. Diese
-Randbedingungen gelten manchmal organisations- oder firmenweit über die
-Grenzen einzelner Systeme hinweg.
+## Organisatorische Randbedingungen
 
+| Randbedingung                | Erläuterung                                                                                          |
+|------------------------------|------------------------------------------------------------------------------------------------------|
+| Einhaltung von Unternehmensrichtlinien | Alle Entwicklungs- und Betriebsprozesse müssen den internen Unternehmensrichtlinien entsprechen. |
+| Datenschutzbestimmungen      | Das System muss den geltenden Datenschutzbestimmungen (z.B. DSGVO) entsprechen.                      |
+| Projektzeitplan              | Der Entwicklungszyklus und die Meilensteine müssen dem vorgegebenen Projektzeitplan entsprechen.     |
+| Budgetbeschränkungen         | Die Entwicklung und der Betrieb des Systems müssen innerhalb des festgelegten Budgets erfolgen.      |
 
-<div class="formalpara-title">
+## Politische Randbedingungen
 
-**Motivation**
+| Randbedingung                | Erläuterung                                                                                          |
+|------------------------------|------------------------------------------------------------------------------------------------------|
+| Open-Source-Vorgaben         | Der Einsatz von Open-Source-Software ist erwünscht, aber es müssen Lizenzbedingungen beachtet werden.|
+| Compliance-Richtlinien       | Das System muss den gesetzlichen und regulatorischen Vorgaben entsprechen, die für die Branche gelten.|
+| Firmenweite Technologievorgaben | Es gibt Vorgaben, welche Technologien und Tools firmenweit verwendet werden dürfen.                  |
 
-</div>
-
-Für eine tragfähige Architektur sollten Sie genau wissen, wo Ihre
-Freiheitsgrade bezüglich der Entwurfsentscheidungen liegen und wo Sie
-Randbedingungen beachten müssen. Sie können Randbedingungen vielleicht
-noch verhandeln, zunächst sind sie aber da.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Einfache Tabellen der Randbedingungen mit Erläuterungen. Bei Bedarf
-unterscheiden Sie technische, organisatorische und politische
-Randbedingungen oder übergreifende Konventionen (beispielsweise
-Programmier- oder Versionierungsrichtlinien, Dokumentations- oder
-Namenskonvention).
-
-Siehe [Randbedingungen](https://docs.arc42.org/section-2/) in der
-online-Dokumentation (auf Englisch!).
 
 # Kontextabgrenzung
 
@@ -233,532 +225,272 @@ online-Dokumentation (auf Englisch!).
 
 <div class="formalpara-title">
 
-**Inhalt**
+## Inhalt
 
-</div>
+Das System interagiert mit den folgenden externen Akteuren und Systemen:
 
-Festlegung **aller** Kommunikationsbeziehungen (Nutzer, IT-Systeme, …)
-mit Erklärung der fachlichen Ein- und Ausgabedaten oder Schnittstellen.
-Zusätzlich (bei Bedarf) fachliche Datenformate oder Protokolle der
-Kommunikation mit den Nachbarsystemen.
+- **Benutzer:** Erstellen und bearbeiten BPMN-Diagramme über den Web-Client.
+- **Chat-GPT API:** Zur Generierung von Texten aus BPMN-Diagrammen.
+- **P2T-Service:** Bestehender Dienst zur Umwandlung von BPMN-Diagrammen in Text.
+- **Transformationsdienst:** Konvertiert zwischen verschiedenen Prozessdarstellungen wie Petri-Netzen und BPMN.
 
-<div class="formalpara-title">
 
-**Motivation**
+## Kommunikationsbeziehungen
 
-</div>
+| Kommunikationsbeziehung           | Eingabe          | Ausgabe                  |
+|-----------------------------------|------------------|--------------------------|
+| Benutzer                          | BPMN-Diagramm    | Textbeschreibung         |
+| Web-Client -> Chat-GPT API        | BPMN-Diagramm    | Generierter Text         |
+| Web-Client -> P2T-Service         | BPMN-Diagramm    | Textbeschreibung         |
+| Web-Client -> Transformationsdienst | BPMN-Diagramm    | Konvertiertes Prozessmodell |
 
-Alle Beteiligten müssen verstehen, welche fachlichen Informationen mit
-der Umwelt ausgetauscht werden.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Alle Diagrammarten, die das System als Blackbox darstellen und die
-fachlichen Schnittstellen zu den Nachbarsystemen beschreiben.
-
-Alternativ oder ergänzend können Sie eine Tabelle verwenden. Der Titel
-gibt den Namen Ihres Systems wieder; die drei Spalten sind:
-Kommunikationsbeziehung, Eingabe, Ausgabe.
-
-**\<Diagramm und/oder Tabelle>**
-
-**\<optional: Erläuterung der externen fachlichen Schnittstellen>**
 
 ## Technischer Kontext
 
 <div class="formalpara-title">
 
-**Inhalt**
+## Technisches Kontextdiagramm
 
-</div>
+- **Benutzer:** HTTP/S über Webbrowser
+- **Chat-GPT API:** REST API über HTTPS
+- **P2T-Service:** REST API über HTTPS
+- **Transformationsdienst:** REST API über HTTPS
 
-Technische Schnittstellen (Kanäle, Übertragungsmedien) zwischen dem
-System und seiner Umwelt. Zusätzlich eine Erklärung (*mapping*), welche
-fachlichen Ein- und Ausgaben über welche technischen Kanäle fließen.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Viele Stakeholder treffen Architekturentscheidungen auf Basis der
-technischen Schnittstellen des Systems zu seinem Kontext.
-
-Insbesondere bei der Entwicklung von Infrastruktur oder Hardware sind
-diese technischen Schnittstellen durchaus entscheidend.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Beispielsweise UML Deployment-Diagramme mit den Kanälen zu
-Nachbarsystemen, begleitet von einer Tabelle, die Kanäle auf
-Ein-/Ausgaben abbildet.
-
-**\<Diagramm oder Tabelle>**
-
-**\<optional: Erläuterung der externen technischen Schnittstellen>**
-
-**\<Mapping fachliche auf technische Schnittstellen>**
 
 # Lösungsstrategie
 
 <div class="formalpara-title">
 
-**Inhalt**
+## Technologieentscheidungen
 
-</div>
+### Technologieentscheidungen
 
-Kurzer Überblick über die grundlegenden Entscheidungen und
-Lösungsansätze, die Entwurf und Implementierung des Systems prägen.
-Hierzu gehören:
+- **Verwendung von React.js** für die Web-Client-Entwicklung.
+- **Integration von REST-APIs** für die Kommunikation mit Chat-GPT und P2T-Service.
+- **Nutzung von Node.js** für serverseitige Logik.
 
--   Technologieentscheidungen
+### Top-Level-Zerlegung
 
--   Entscheidungen über die Top-Level-Zerlegung des Systems,
-    beispielsweise die Verwendung gesamthaft prägender Entwurfs- oder
-    Architekturmuster,
+- **Aufteilung des Systems** in Frontend (Web-Client) und Backend (Server, REST-APIs).
+- **Verwendung des MVC-Architekturmusters**.
 
--   Entscheidungen zur Erreichung der wichtigsten Qualitätsanforderungen
-    sowie
+### Erreichung der wichtigsten Qualitätsanforderungen
 
--   relevante organisatorische Entscheidungen, beispielsweise für
-    bestimmte Entwicklungsprozesse oder Delegation bestimmter Aufgaben
-    an andere Stakeholder.
+- **Einsatz von Unit-Tests und Integrationstests** zur Sicherstellung der Funktionalität.
+- **Nutzung von OAuth** für Authentifizierung und Autorisierung zur Erhöhung der Sicherheit.
 
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Diese wichtigen Entscheidungen bilden wesentliche „Eckpfeiler“ der
-Architektur. Von ihnen hängen viele weitere Entscheidungen oder
-Implementierungsregeln ab.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Fassen Sie die zentralen Entwurfsentscheidungen **kurz** zusammen.
-Motivieren Sie, ausgehend von Aufgabenstellung, Qualitätszielen und
-Randbedingungen, was Sie entschieden haben und warum Sie so entschieden
-haben. Vermeiden Sie redundante Beschreibungen und verweisen Sie eher
-auf weitere Ausführungen in Folgeabschnitten.
-
-Siehe [Lösungsstrategie](https://docs.arc42.org/section-4/) in der
-online-Dokumentation (auf Englisch!).
 
 # Bausteinsicht
 
 <div class="formalpara-title">
 
-**Inhalt**
+## Bausteinsicht
 
-</div>
 
-Die Bausteinsicht zeigt die statische Zerlegung des Systems in Bausteine
-(Module, Komponenten, Subsysteme, Klassen, Schnittstellen, Pakete,
-Bibliotheken, Frameworks, Schichten, Partitionen, Tiers, Funktionen,
-Makros, Operationen, Datenstrukturen, …) sowie deren Abhängigkeiten
-(Beziehungen, Assoziationen, …)
+#### Enthaltene Bausteine
 
-Diese Sicht sollte in jeder Architekturdokumentation vorhanden sein. In
-der Analogie zum Hausbau bildet die Bausteinsicht den *Grundrissplan*.
+| **Name**             | **Verantwortung**                                                                         |
+|----------------------|-------------------------------------------------------------------------------------------|
+| Web-Client           | Bietet eine Benutzeroberfläche zur Erstellung und Bearbeitung von BPMN-Diagrammen.        |
+| API-Gateway          | Verwaltet die REST-API-Kommunikation zwischen Frontend und Backend.                       |
+| P2T-Service          | Konvertiert BPMN-Diagramme in Text.                                                       |
+| Chat-GPT Adapter     | Schnittstelle zur Kommunikation mit der Chat-GPT API zur Textgenerierung.                 |
+| Transformationsdienst| Konvertiert zwischen verschiedenen Prozessmodellen (BPMN und Petri-Netze).                |
 
-<div class="formalpara-title">
+#### Wichtige Schnittstellen
+- **Web-Client zu API-Gateway**: HTTP/S
+- **API-Gateway zu P2T-Service**: REST API über HTTPS
+- **API-Gateway zu Chat-GPT Adapter**: REST API über HTTPS
+- **API-Gateway zu Transformationsdienst**: REST API über HTTPS
 
-**Motivation**
+### Web-Client
 
-</div>
+#### Zweck/Verantwortung
+Der Web-Client bietet eine intuitive Benutzeroberfläche zur Erstellung, Bearbeitung und Analyse von BPMN-Diagrammen.
 
-Behalten Sie den Überblick über den Quellcode, indem Sie die statische
-Struktur des Systems durch Abstraktion verständlich machen.
+#### Schnittstellen
+- **HTTP/S**: Kommunikation mit dem API-Gateway
+- **Benutzerinteraktionen**: über das Webinterface
 
-Damit ermöglichen Sie Kommunikation auf abstrakterer Ebene, ohne zu
-viele Implementierungsdetails offenlegen zu müssen.
+### API-Gateway
 
-<div class="formalpara-title">
+#### Zweck/Verantwortung
+Das API-Gateway verwaltet die REST-API-Kommunikation zwischen dem Frontend und den Backend-Diensten.
 
-**Form**
+#### Schnittstellen
+- **REST API**: Kommunikation mit Web-Client, P2T-Service, Chat-GPT Adapter und Transformationsdienst
 
-</div>
+### P2T-Service
 
-Die Bausteinsicht ist eine hierarchische Sammlung von Blackboxen und
-Whiteboxen (siehe Abbildung unten) und deren Beschreibungen.
+#### Zweck/Verantwortung
+Der P2T-Service konvertiert BPMN-Diagramme in menschenlesbaren Text.
 
-![Hierarchie in der Bausteinsicht](images/05_building_blocks-DE.png)
+#### Schnittstellen
+- **REST API**: Eingabe von BPMN-Diagrammen und Ausgabe von Textbeschreibungen
 
-**Ebene 1** ist die Whitebox-Beschreibung des Gesamtsystems, zusammen
-mit Blackbox-Beschreibungen der darin enthaltenen Bausteine.
+### Chat-GPT Adapter
 
-**Ebene 2** zoomt in einige Bausteine der Ebene 1 hinein. Sie enthält
-somit die Whitebox-Beschreibungen ausgewählter Bausteine der Ebene 1,
-jeweils zusammen mit Blackbox-Beschreibungen darin enthaltener
-Bausteine.
+#### Zweck/Verantwortung
+Der Chat-GPT Adapter ermöglicht die Kommunikation mit der Chat-GPT API zur Generierung von Texten aus BPMN-Diagrammen.
 
-**Ebene 3** zoomt in einige Bausteine der Ebene 2 hinein, usw.
+#### Schnittstellen
+- **REST API**: Übertragung der BPMN-Diagramme an die Chat-GPT API und Empfang der generierten Texte
 
-Siehe [Bausteinsicht](https://docs.arc42.org/section-5/) in der
-online-Dokumentation (auf Englisch!).
+### Transformationsdienst
 
-## Whitebox Gesamtsystem
+#### Zweck/Verantwortung
+Der Transformationsdienst konvertiert zwischen verschiedenen Prozessmodellen wie Petri-Netzen und BPMN.
 
-An dieser Stelle beschreiben Sie die Zerlegung des Gesamtsystems anhand
-des nachfolgenden Whitebox-Templates. Dieses enthält:
+#### Schnittstellen
+- **REST API**: Eingabe von BPMN-Diagrammen und Ausgabe von konvertierten Prozessmodellen
 
--   Ein Übersichtsdiagramm
+### Ebene 2
 
--   die Begründung dieser Zerlegung
+#### Whitebox Web-Client
 
--   Blackbox-Beschreibungen der hier enthaltenen Bausteine. Dafür haben
-    Sie verschiedene Optionen:
+Der Web-Client enthält mehrere Unterkomponenten, die für spezifische Funktionen verantwortlich sind. 
 
-    -   in *einer* Tabelle, gibt einen kurzen und pragmatischen
-        Überblick über die enthaltenen Bausteine sowie deren
-        Schnittstellen.
+##### Komponenten
 
-    -   als Liste von Blackbox-Beschreibungen der Bausteine, gemäß dem
-        Blackbox-Template (siehe unten). Diese Liste können Sie, je nach
-        Werkzeug, etwa in Form von Unterkapiteln (Text), Unter-Seiten
-        (Wiki) oder geschachtelten Elementen (Modellierungswerkzeug)
-        darstellen.
+| **Name**              | **Verantwortung**                                                          |
+|-----------------------|----------------------------------------------------------------------------|
+| Diagrammeditor        | Ermöglicht das Erstellen und Bearbeiten von BPMN-Diagrammen                |
+| Textanzeige           | Zeigt die aus den BPMN-Diagrammen generierten Texte an                     |
+| Einstellungsverwaltung| Verwaltung der Benutzereinstellungen und API-Keys                          |
+| Kommunikationsmodul   | Handhabt die Kommunikation mit dem API-Gateway                             |
 
--   (optional:) wichtige Schnittstellen, die nicht bereits im
-    Blackbox-Template eines der Bausteine erläutert werden, aber für das
-    Verständnis der Whitebox von zentraler Bedeutung sind. Aufgrund der
-    vielfältigen Möglichkeiten oder Ausprägungen von Schnittstellen
-    geben wir hierzu kein weiteres Template vor. Im schlimmsten Fall
-    müssen Sie Syntax, Semantik, Protokolle, Fehlerverhalten,
-    Restriktionen, Versionen, Qualitätseigenschaften, notwendige
-    Kompatibilitäten und vieles mehr spezifizieren oder beschreiben. Im
-    besten Fall kommen Sie mit Beispielen oder einfachen Signaturen
-    zurecht.
+#### Whitebox API-Gateway
 
-***\<Übersichtsdiagramm>***
+Das API-Gateway ist in mehrere Module unterteilt, die jeweils für bestimmte Aspekte der API-Verwaltung verantwortlich sind.
 
-Begründung  
-*\<Erläuternder Text>*
+##### Module
 
-Enthaltene Bausteine  
-*\<Beschreibung der enthaltenen Bausteine (Blackboxen)>*
+| **Name**            | **Verantwortung**                                                   |
+|---------------------|---------------------------------------------------------------------|
+| Routing-Modul       | Leitet Anfragen an die entsprechenden Backend-Services weiter       |
+| Sicherheitsmodul    | Stellt die Authentifizierung und Autorisierung sicher               |
+| Überwachungsmodul   | Überwacht die API-Nutzung und protokolliert relevante Ereignisse    |
 
-Wichtige Schnittstellen  
-*\<Beschreibung wichtiger Schnittstellen>*
+#### Whitebox P2T-Service
 
-Hier folgen jetzt Erläuterungen zu Blackboxen der Ebene 1.
+Der P2T-Service umfasst verschiedene Verarbeitungsschritte, die zur Konvertierung von BPMN-Diagrammen in Text notwendig sind.
 
-Falls Sie die tabellarische Beschreibung wählen, so werden Blackboxen
-darin nur mit Name und Verantwortung nach folgendem Muster beschrieben:
+##### Verarbeitungsschritte
 
-| **Name**        | **Verantwortung** |
-|-----------------|-------------------|
-| *\<Blackbox 1>* |  *\<Text>*        |
-| *\<Blackbox 2>* |  *\<Text>*        |
+| **Name**             | **Verantwortung**                                                              |
+|----------------------|--------------------------------------------------------------------------------|
+| Parser               | Analysiert die BPMN-Diagramme und extrahiert relevante Informationen           |
+| Textgenerator        | Generiert aus den extrahierten Informationen menschenlesbare Textbeschreibungen|
 
-Falls Sie die ausführliche Liste von Blackbox-Beschreibungen wählen,
-beschreiben Sie jede wichtige Blackbox in einem eigenen
-Blackbox-Template. Dessen Überschrift ist jeweils der Namen dieser
-Blackbox.
+### Ebene 3
 
-### \<Name Blackbox 1>
+#### Whitebox Diagrammeditor
 
-Beschreiben Sie die \<Blackbox 1> anhand des folgenden
-Blackbox-Templates:
+Der Diagrammeditor des Web-Clients ist in verschiedene Funktionsmodule unterteilt, die spezifische Bearbeitungsaufgaben ermöglichen.
 
--   Zweck/Verantwortung
+##### Funktionsmodule
 
--   Schnittstelle(n), sofern diese nicht als eigenständige
-    Beschreibungen herausgezogen sind. Hierzu gehören eventuell auch
-    Qualitäts- und Leistungsmerkmale dieser Schnittstelle.
+| **Name**             | **Verantwortung**                                            |
+|----------------------|--------------------------------------------------------------|
+| Zeichenwerkzeuge     | Bietet Werkzeuge zum Zeichnen und Anpassen von Diagrammelementen|
+| Speichermodul        | Ermöglicht das Speichern und Laden von Diagrammen            |
+| Validierungsmodul    | Überprüft die Korrektheit der Diagramme                      |
 
--   (Optional) Qualitäts-/Leistungsmerkmale der Blackbox, beispielsweise
-    Verfügbarkeit, Laufzeitverhalten o. Ä.
+#### Whitebox Routing-Modul
 
--   (Optional) Ablageort/Datei(en)
+Das Routing-Modul des API-Gateways enthält mehrere Komponenten, die zusammenarbeiten, um Anfragen effizient weiterzuleiten.
 
--   (Optional) Erfüllte Anforderungen, falls Sie Traceability zu
-    Anforderungen benötigen.
+##### Komponenten
 
--   (Optional) Offene Punkte/Probleme/Risiken
+| **Name**             | **Verantwortung**                                  |
+|----------------------|----------------------------------------------------|
+| Anfrageparser        | Analysiert eingehende Anfragen und extrahiert Parameter|
+| Weiterleitungslogik  | Bestimmt den Ziel-Service für die Anfrage          |
+| Antworthandler       | Verarbeitet die Antworten der Backend-Services     |
 
-*\<Zweck/Verantwortung>*
+Diese hierarchische Beschreibung der Bausteine ermöglicht eine detaillierte Sicht auf die Systemarchitektur, die sowohl für Entwickler als auch für andere Stakeholder von Nutzen ist.
 
-*\<Schnittstelle(n)>*
-
-*\<(Optional) Qualitäts-/Leistungsmerkmale>*
-
-*\<(Optional) Ablageort/Datei(en)>*
-
-*\<(Optional) Erfüllte Anforderungen>*
-
-*\<(optional) Offene Punkte/Probleme/Risiken>*
-
-### \<Name Blackbox 2>
-
-*\<Blackbox-Template>*
-
-### \<Name Blackbox n>
-
-*\<Blackbox-Template>*
-
-### \<Name Schnittstelle 1>
-
-…
-
-### \<Name Schnittstelle m>
-
-## Ebene 2
-
-Beschreiben Sie den inneren Aufbau (einiger) Bausteine aus Ebene 1 als
-Whitebox.
-
-Welche Bausteine Ihres Systems Sie hier beschreiben, müssen Sie selbst
-entscheiden. Bitte stellen Sie dabei Relevanz vor Vollständigkeit.
-Skizzieren Sie wichtige, überraschende, riskante, komplexe oder
-besonders volatile Bausteine. Normale, einfache oder standardisierte
-Teile sollten Sie weglassen.
-
-### Whitebox *\<Baustein 1>*
-
-…zeigt das Innenleben von *Baustein 1*.
-
-*\<Whitebox-Template>*
-
-### Whitebox *\<Baustein 2>*
-
-*\<Whitebox-Template>*
-
-…
-
-### Whitebox *\<Baustein m>*
-
-*\<Whitebox-Template>*
-
-## Ebene 3
-
-Beschreiben Sie den inneren Aufbau (einiger) Bausteine aus Ebene 2 als
-Whitebox.
-
-Bei tieferen Gliederungen der Architektur kopieren Sie diesen Teil von
-arc42 für die weiteren Ebenen.
-
-### Whitebox \<\_Baustein x.1\_\>
-
-…zeigt das Innenleben von *Baustein x.1*.
-
-*\<Whitebox-Template>*
-
-### Whitebox \<\_Baustein x.2\_\>
-
-*\<Whitebox-Template>*
-
-### Whitebox \<\_Baustein y.1\_\>
-
-*\<Whitebox-Template>*
 
 # Laufzeitsicht
 
 <div class="formalpara-title">
 
-**Inhalt**
+## Laufzeitsicht
 
-</div>
+### Inhalt
 
-Diese Sicht erklärt konkrete Abläufe und Beziehungen zwischen Bausteinen
-in Form von Szenarien aus den folgenden Bereichen:
+Diese Sicht erklärt konkrete Abläufe und Beziehungen zwischen Bausteinen in Form von Szenarien aus den folgenden Bereichen:
 
--   Wichtige Abläufe oder *Features*: Wie führen die Bausteine der
-    Architektur die wichtigsten Abläufe durch?
+- **Wichtige Abläufe oder Features**: Wie führen die Bausteine der Architektur die wichtigsten Abläufe durch?
+- **Interaktionen an kritischen externen Schnittstellen**: Wie arbeiten Bausteine mit Nutzern und Nachbarsystemen zusammen?
+- **Betrieb und Administration**: Inbetriebnahme, Start, Stop.
+- **Fehler- und Ausnahmeszenarien**
 
--   Interaktionen an kritischen externen Schnittstellen: Wie arbeiten
-    Bausteine mit Nutzern und Nachbarsystemen zusammen?
+Anmerkung: Das Kriterium für die Auswahl der möglichen Szenarien (d.h. Abläufe) des Systems ist deren Architekturrelevanz. Es geht nicht darum, möglichst viele Abläufe darzustellen, sondern eine angemessene Auswahl zu dokumentieren.
 
--   Betrieb und Administration: Inbetriebnahme, Start, Stop.
+### Motivation
 
--   Fehler- und Ausnahmeszenarien
+Sie sollten verstehen, wie (Instanzen von) Bausteine(n) Ihres Systems ihre jeweiligen Aufgaben erfüllen und zur Laufzeit miteinander kommunizieren.
 
-Anmerkung: Das Kriterium für die Auswahl der möglichen Szenarien (d.h.
-Abläufe) des Systems ist deren Architekturrelevanz. Es geht nicht darum,
-möglichst viele Abläufe darzustellen, sondern eine angemessene Auswahl
-zu dokumentieren.
+Nutzen Sie diese Szenarien in der Dokumentation hauptsächlich für eine verständlichere Kommunikation mit denjenigen Stakeholdern, die die statischen Modelle (z.B. Bausteinsicht, Verteilungssicht) weniger verständlich finden.
 
-<div class="formalpara-title">
+### Form
 
-**Motivation**
+Für die Beschreibung von Szenarien gibt es zahlreiche Ausdrucksmöglichkeiten. Nutzen Sie beispielsweise:
 
-</div>
+- Nummerierte Schrittfolgen oder Aufzählungen in Umgangssprache
+- Aktivitäts- oder Flussdiagramme
+- Sequenzdiagramme
+- BPMN (Geschäftsprozessmodell und -notation) oder EPKs (Ereignis-Prozessketten)
+- Zustandsautomaten
 
-Sie sollten verstehen, wie (Instanzen von) Bausteine(n) Ihres Systems
-ihre jeweiligen Aufgaben erfüllen und zur Laufzeit miteinander
-kommunizieren.
+Siehe [Laufzeitsicht](https://docs.arc42.org/section-6/) in der online-Dokumentation (auf Englisch!).
 
-Nutzen Sie diese Szenarien in der Dokumentation hauptsächlich für eine
-verständlichere Kommunikation mit denjenigen Stakeholdern, die die
-statischen Modelle (z.B. Bausteinsicht, Verteilungssicht) weniger
-verständlich finden.
+### Textgenerierungsszenario
 
-<div class="formalpara-title">
+1. Benutzer erstellt ein BPMN-Diagramm im Web-Client.
+2. Benutzer wählt die LLM-Option und sendet das Diagramm zur Verarbeitung.
+3. Web-Client sendet das BPMN-Diagramm an das API-Gateway.
+4. API-Gateway leitet die Anfrage an den Chat-GPT Adapter weiter.
+5. Chat-GPT Adapter kommuniziert mit der Chat-GPT API und erhält den generierten Text.
+6. Der generierte Text wird an den Web-Client zurückgesendet und dem Benutzer angezeigt.
 
-**Form**
+#### Besonderheiten bei dem Zusammenspiel der Bausteine in diesem Szenario
+- **Web-Client**: Bietet die Benutzeroberfläche und initiiert die Anfragen.
+- **API-Gateway**: Leitet die Anfragen an die entsprechenden Dienste weiter.
+- **Chat-GPT Adapter**: Vermittelt zwischen dem API-Gateway und der Chat-GPT API.
+- **Chat-GPT API**: Generiert den Text basierend auf dem übermittelten BPMN-Diagramm.
 
-</div>
+### Fehlerbehandlungsszenario
 
-Für die Beschreibung von Szenarien gibt es zahlreiche
-Ausdrucksmöglichkeiten. Nutzen Sie beispielsweise:
+1. Benutzer sendet ein fehlerhaftes BPMN-Diagramm zur Verarbeitung.
+2. Web-Client sendet das BPMN-Diagramm an das API-Gateway.
+3. API-Gateway leitet die Anfrage an den P2T-Service weiter.
+4. P2T-Service erkennt den Fehler im BPMN-Diagramm und sendet eine Fehlermeldung zurück an das API-Gateway.
+5. API-Gateway leitet die Fehlermeldung an den Web-Client weiter.
+6. Web-Client zeigt die Fehlermeldung dem Benutzer an und fordert zur Korrektur des Diagramms auf.
 
--   Nummerierte Schrittfolgen oder Aufzählungen in Umgangssprache
+#### Besonderheiten bei dem Zusammenspiel der Bausteine in diesem Szenario
+- **P2T-Service**: Führt eine Validierung des BPMN-Diagramms durch und erkennt Fehler.
+- **API-Gateway**: Handhabt die Fehlerkommunikation zwischen dem P2T-Service und dem Web-Client.
 
--   Aktivitäts- oder Flussdiagramme
+### Inbetriebnahmeszenario
 
--   Sequenzdiagramme
+1. Administrator startet das System.
+2. API-Gateway wird zuerst gestartet und stellt sicher, dass alle Verbindungen zu den Backend-Diensten korrekt konfiguriert sind.
+3. Web-Client wird gestartet und überprüft die Verbindung zum API-Gateway.
+4. P2T-Service und Chat-GPT Adapter werden nacheinander gestartet und ihre Verfügbarkeit wird durch das API-Gateway geprüft.
+5. Administrator überprüft die Systemlogs und stellt sicher, dass alle Dienste ordnungsgemäß laufen.
 
--   BPMN (Geschäftsprozessmodell und -notation) oder EPKs
-    (Ereignis-Prozessketten)
+#### Besonderheiten bei dem Zusammenspiel der Bausteine in diesem Szenario
+- **Administrator**: Führt den Start des Systems durch und überwacht die Logs.
+- **API-Gateway**: Stellt sicher, dass alle Dienste verfügbar und korrekt konfiguriert sind.
 
--   Zustandsautomaten
-
--   …
-
-Siehe [Laufzeitsicht](https://docs.arc42.org/section-6/) in der
-online-Dokumentation (auf Englisch!).
-
-## *\<Bezeichnung Laufzeitszenario 1>*
-
--   \<hier Laufzeitdiagramm oder Ablaufbeschreibung einfügen>
-
--   \<hier Besonderheiten bei dem Zusammenspiel der Bausteine in diesem
-    Szenario erläutern>
-
-## *\<Bezeichnung Laufzeitszenario 2>*
-
-…
-
-## *\<Bezeichnung Laufzeitszenario n>*
-
-…
 
 # Verteilungssicht
 
 <div class="formalpara-title">
 
-**Inhalt**
-
-</div>
-
-Die Verteilungssicht beschreibt:
-
-1.  die technische Infrastruktur, auf der Ihr System ausgeführt wird,
-    mit Infrastrukturelementen wie Standorten, Umgebungen, Rechnern,
-    Prozessoren, Kanälen und Netztopologien sowie sonstigen
-    Bestandteilen, und
-
-2.  die Abbildung von (Software-)Bausteinen auf diese Infrastruktur.
-
-Häufig laufen Systeme in unterschiedlichen Umgebungen, beispielsweise
-Entwicklung-/Test- oder Produktionsumgebungen. In solchen Fällen sollten
-Sie alle relevanten Umgebungen aufzeigen.
-
-Nutzen Sie die Verteilungssicht insbesondere dann, wenn Ihre Software
-auf mehr als einem Rechner, Prozessor, Server oder Container abläuft
-oder Sie Ihre Hardware sogar selbst konstruieren.
-
-Aus Softwaresicht genügt es, auf die Aspekte zu achten, die für die
-Softwareverteilung relevant sind. Insbesondere bei der
-Hardwareentwicklung kann es notwendig sein, die Infrastruktur mit
-beliebigen Details zu beschreiben.
-
-<div class="formalpara-title">
-
-**Motivation**
-
-</div>
-
-Software läuft nicht ohne Infrastruktur. Diese zugrundeliegende
-Infrastruktur beeinflusst Ihr System und/oder querschnittliche
-Lösungskonzepte, daher müssen Sie diese Infrastruktur kennen.
-
-<div class="formalpara-title">
-
-**Form**
-
-</div>
-
-Das oberste Verteilungsdiagramm könnte bereits in Ihrem technischen
-Kontext enthalten sein, mit Ihrer Infrastruktur als EINE Blackbox. Jetzt
-zoomen Sie in diese Infrastruktur mit weiteren Verteilungsdiagrammen
-hinein:
-
--   Die UML stellt mit Verteilungsdiagrammen (Deployment diagrams) eine
-    Diagrammart zur Verfügung, um diese Sicht auszudrücken. Nutzen Sie
-    diese, evtl. auch geschachtelt, wenn Ihre Verteilungsstruktur es
-    verlangt.
-
--   Falls Ihre Infrastruktur-Stakeholder andere Diagrammarten
-    bevorzugen, die beispielsweise Prozessoren und Kanäle zeigen, sind
-    diese hier ebenfalls einsetzbar.
-
-Siehe [Verteilungssicht](https://docs.arc42.org/section-7/) in der
-online-Dokumentation (auf Englisch!).
-
-## Infrastruktur Ebene 1
-
-An dieser Stelle beschreiben Sie (als Kombination von Diagrammen mit
-Tabellen oder Texten):
-
--   die Verteilung des Gesamtsystems auf mehrere Standorte, Umgebungen,
-    Rechner, Prozessoren o. Ä., sowie die physischen Verbindungskanäle
-    zwischen diesen,
-
--   wichtige Begründungen für diese Verteilungsstruktur,
-
--   Qualitäts- und/oder Leistungsmerkmale dieser Infrastruktur,
-
--   Zuordnung von Softwareartefakten zu Bestandteilen der Infrastruktur
-
-Für mehrere Umgebungen oder alternative Deployments kopieren Sie diesen
-Teil von arc42 für alle wichtigen Umgebungen/Varianten.
-
-***\<Übersichtsdiagramm>***
-
-Begründung  
-*\<Erläuternder Text>*
-
-Qualitäts- und/oder Leistungsmerkmale  
-*\<Erläuternder Text>*
-
-Zuordnung von Bausteinen zu Infrastruktur  
-*\<Beschreibung der Zuordnung>*
-
-## Infrastruktur Ebene 2
-
-An dieser Stelle können Sie den inneren Aufbau (einiger)
-Infrastrukturelemente aus Ebene 1 beschreiben.
-
-Für jedes Infrastrukturelement kopieren Sie die Struktur aus Ebene 1.
-
-### *\<Infrastrukturelement 1>*
-
-*\<Diagramm + Erläuterungen>*
-
-### *\<Infrastrukturelement 2>*
-
-*\<Diagramm + Erläuterungen>*
-
-…
-
-### *\<Infrastrukturelement n>*
-
-*\<Diagramm + Erläuterungen>*
 
 # Querschnittliche Konzepte
 
