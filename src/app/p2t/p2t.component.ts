@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatStepper } from '@angular/material/stepper';
 import { p2tHttpService } from '../Services/p2tHttpService';
@@ -18,7 +18,7 @@ declare global {
   templateUrl: './p2t.component.html',
   styleUrls: ['./p2t.component.css'],
 })
-export class P2tComponent {
+export class P2tComponent implements OnInit {
   response: any;
   test: string;
   fileType: string;
@@ -31,6 +31,8 @@ export class P2tComponent {
   useLLM = false;
   prompt = `Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!`;
   isPromptReadonly = true;
+  models: string[] = [];
+  selectedModel: string;
 
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
@@ -42,47 +44,60 @@ export class P2tComponent {
     public spinnerService: SpinnerService
   ) {}
 
+  ngOnInit(): void {
+    this.p2tHttpService.getModels().subscribe(models => {
+      this.models = models;
+    });
+  }
+
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
 
-  generateText() {
-    if (this.fileType == 'bpmn') {
-      ModelDisplayer.displayBPMNModel(window.dropfileContent);
-    } else if (this.fileType == 'pnml') {
-      ModelDisplayer.generatePetriNet(window.dropfileContent);
-    }
-    if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
-      this.spinnerService.show();
-      if (this.useLLM) {
-        this.p2tHttpService.postP2TLLM(window.dropfileContent, this.apiKey, this.prompt).subscribe(
-          (response: any) => {
-            this.spinnerService.hide();
-            this.displayText(response);
-          },
-          (error: any) => {
-            this.spinnerService.hide();
-            this.showError(this.p2tHttpService.handleError(error).toString());
-          }
-        );
-      } else {
-        this.p2tHttpService.postP2T(window.dropfileContent).subscribe(
-          (response: any) => {
-            this.spinnerService.hide();
-            this.displayText(response);
-          },
-          (error: any) => {
-            this.spinnerService.hide();
-            this.showError(this.p2tHttpService.handleError(error).toString());
-          }
-        );
-      }
-    } else {
-      this.displayText('No files uploaded');
-    }
-    event?.preventDefault();
-    this.stepper.next();
+generateText() {
+  if (this.fileType == 'bpmn') {
+    ModelDisplayer.displayBPMNModel(window.dropfileContent);
+  } else if (this.fileType == 'pnml') {
+    ModelDisplayer.generatePetriNet(window.dropfileContent);
   }
+  if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
+    this.spinnerService.show();
+    if (this.useLLM) {
+      console.log('Sending LLM request with:', {
+        text: window.dropfileContent,
+        apiKey: this.apiKey,
+        prompt: this.prompt,
+        model: this.selectedModel
+      });
+      this.p2tHttpService.postP2TLLM(window.dropfileContent, this.apiKey, this.prompt, this.selectedModel).subscribe(
+        (response: any) => {
+          this.spinnerService.hide();
+          this.displayText(response);
+        },
+        (error: any) => {
+          this.spinnerService.hide();
+          console.error('Error response:', error);
+          this.showError(this.p2tHttpService.handleError(error).toString());
+        }
+      );
+    } else {
+      this.p2tHttpService.postP2T(window.dropfileContent).subscribe(
+        (response: any) => {
+          this.spinnerService.hide();
+          this.displayText(response);
+        },
+        (error: any) => {
+          this.spinnerService.hide();
+          console.error('Error response:', error);
+          this.showError(this.p2tHttpService.handleError(error).toString());
+        }
+      );
+    }
+  } else {
+    this.displayText('No files uploaded');
+  }
+  this.stepper.next();
+}
 
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
@@ -92,7 +107,6 @@ export class P2tComponent {
       this.toggleText = 'Algorithm';
       this.showPromptInput = false;
     }
-    console.log('Toggle changed to: ', event.checked);
   }
 
   enterApiKey(event: MatSlideToggleChange) {
@@ -122,10 +136,6 @@ export class P2tComponent {
 
   getDisplayApiKey(): string {
     return this.apiKey ? `...${this.apiKey.slice(-6)}` : '';
-  }
-
-  checkConditions() {
-    // Additional logic to check conditions if needed
   }
 
   editPrompt() {
@@ -211,10 +221,6 @@ export class P2tComponent {
     }
   }
 
-  private clearApiKey() {
-    this.apiKey = '';
-  }
-
   private displayText(response: string) {
     this.response = this.p2tHttpService.formText(response);
     const container = document.getElementById('result')!;
@@ -232,5 +238,9 @@ export class P2tComponent {
     errorBox.style.visibility = 'visible';
     errorContent.innerHTML = errorMessage;
     errorContent.style.display = 'block';
+  }
+
+  onModelChange(model: string): void {
+    this.selectedModel = model;
   }
 }

@@ -1,18 +1,14 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-  HttpParams,
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class p2tHttpService {
-  private url = '/p2t'; // Use the proxy path
+  private apiUrl = '/p2t'; // This should match the proxy configuration
+  private gptModelsUrl = '/p2t/gptModels'; // This should also match the proxy configuration
 
   constructor(private http: HttpClient) {}
 
@@ -27,12 +23,12 @@ export class p2tHttpService {
       responseType: 'text' as 'json',
     };
 
-    return this.http.post<string>(`${this.url}/generateText`, text, httpOptions).pipe(
+    return this.http.post<string>(`${this.apiUrl}/generateText`, text, httpOptions).pipe(
       catchError(this.handleError)
     );
   }
 
-  postP2TLLM(text: string, apiKey: string, prompt: string): Observable<string> {
+  postP2TLLM(text: string, apiKey: string, prompt: string, model: string): Observable<string> {
     const headers = new HttpHeaders({
       'Content-Type': 'text/plain',
       'Accept': 'text/plain',
@@ -45,6 +41,9 @@ export class p2tHttpService {
     if (prompt) {
       params = params.set('prompt', prompt);
     }
+    if (model) {
+      params = params.set('gptModel', model);
+    }
 
     const httpOptions = {
       headers: headers,
@@ -52,7 +51,13 @@ export class p2tHttpService {
       responseType: 'text' as 'json',
     };
 
-    return this.http.post<string>(`${this.url}/generateTextLLM`, text, httpOptions).pipe(
+    return this.http.post<string>(`${this.apiUrl}/generateTextLLM`, text, httpOptions).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getModels(): Observable<string[]> {
+    return this.http.get<string[]>(this.gptModelsUrl).pipe(
       catchError(this.handleError)
     );
   }
