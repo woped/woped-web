@@ -1,5 +1,7 @@
 <div class="centered">
+    <!-- Stepper for guiding the user through different steps of the process -->
     <mat-stepper orientation="vertical" #stepperRef>
+        <!-- Step 1: Explanation of P2T -->
         <mat-step>
             <ng-template matStepLabel>Explanation</ng-template>
             <p><b>What is P2T?</b> <br>
@@ -15,8 +17,10 @@
             <button mat-button matStepperNext class="card">Next</button>
         </mat-step>
 
+        <!-- Step 2: Model input and configuration -->
         <mat-step>
             <ng-template matStepLabel>Insert your Model</ng-template>
+            <!-- API key and prompt input fields -->
             <div *ngIf="showPromptInput" class="centered full-width">
                 <mat-form-field appearance="fill" class="full-width">
                     <mat-label>API Key</mat-label>
@@ -32,6 +36,7 @@ Create a clearly structured and comprehensible continuous text from the given BP
             </div>
             <p>To upload your process model you can either select your file via a click in the Area in your
                 explorer or drag and drop it into the right pane.<br></p>
+            <!-- Dropzone for file upload -->
             <div class="insertModel">
                 <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
                     (click)="selectFiles()">
@@ -41,7 +46,9 @@ Create a clearly structured and comprehensible continuous text from the given BP
                     <span *ngIf="!isFileDropped">Upload files via drag and drop or click into the textfield</span>
                 </div>
             </div>
+            <!-- Button to generate text from the process model -->
             <button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>
+            <!-- Toggle switch for selecting between algorithm and LLM, and dropdown for selecting GPT model -->
             <div class="horizontal-center">
                 <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
                 <mat-form-field appearance="fill" class="dropdown-field">
@@ -53,6 +60,7 @@ Create a clearly structured and comprehensible continuous text from the given BP
             </div>
         </mat-step>
 
+        <!-- Step 3: Display the generated text and any errors -->
         <mat-step>
             <ng-template matStepLabel>Text (Done)</ng-template>
             <div id="loading">
@@ -64,6 +72,7 @@ Create a clearly structured and comprehensible continuous text from the given BP
         </mat-step>
     </mat-stepper>
 
+    <!-- Section to display the user's input and generated text -->
     <div>
         <label><b>Your input: <br></b></label>
         <div id="model-container"></div>
@@ -72,27 +81,3 @@ Create a clearly structured and comprehensible continuous text from the given BP
         <button class="card" (click)="downloadText()">Download Text as .txt</button>
     </div>
 </div>
-
-<style>
-    .centered {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-
-    .full-width {
-        width: 100%;
-    }
-
-    .horizontal-center {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .dropdown-field {
-        width: 200px;
-    }
-</style>

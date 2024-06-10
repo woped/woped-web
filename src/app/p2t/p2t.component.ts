@@ -13,6 +13,10 @@ declare global {
   }
 }
 
+/**
+ * Component for the process-to-text translation UI.
+ * Allows users to upload process models, configure API settings, and retrieve translated text.
+ */
 @Component({
   selector: 'app-p2t',
   templateUrl: './p2t.component.html',
@@ -46,6 +50,9 @@ export class P2tComponent implements OnInit {
     public spinnerService: SpinnerService
   ) {}
 
+  /**
+   * Initializes the component, fetching available GPT models from the backend.
+   */
   ngOnInit(): void {
     this.p2tHttpService.getModels().subscribe(models => {
       this.models = models;
@@ -56,51 +63,54 @@ export class P2tComponent implements OnInit {
     event.preventDefault();
   }
 
-generateText() {
-  if (this.fileType == 'bpmn') {
-    ModelDisplayer.displayBPMNModel(window.dropfileContent);
-  } else if (this.fileType == 'pnml') {
-    ModelDisplayer.generatePetriNet(window.dropfileContent);
-  }
-  if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
-    this.spinnerService.show();
-    if (this.useLLM) {
-      console.log('Sending LLM request with:', {
-        text: window.dropfileContent,
-        apiKey: this.apiKey,
-        prompt: this.prompt,
-        model: this.selectedModel
-      });
-      this.p2tHttpService.postP2TLLM(window.dropfileContent, this.apiKey, this.prompt, this.selectedModel).subscribe(
-        (response: any) => {
-          this.spinnerService.hide();
-          this.displayText(response);
-        },
-        (error: any) => {
-          this.spinnerService.hide();
-          console.error('Error response:', error);
-          this.showError(error);
-        }
-      );
-    } else {
-      this.p2tHttpService.postP2T(window.dropfileContent).subscribe(
-        (response: any) => {
-          this.spinnerService.hide();
-          this.displayText(response);
-        },
-        (error: any) => {
-          this.spinnerService.hide();
-          console.error('Error response:', error);
-          this.showError(error);
-        }
-      );
+  /**
+   * Generates text based on the uploaded process model.
+   * Depending on the useLLM flag, it calls the appropriate backend endpoint.
+   */
+  generateText() {
+    if (this.fileType == 'bpmn') {
+      ModelDisplayer.displayBPMNModel(window.dropfileContent);
+    } else if (this.fileType == 'pnml') {
+      ModelDisplayer.generatePetriNet(window.dropfileContent);
     }
-  } else {
-    this.displayText('No files uploaded');
+    if (window.fileContent !== undefined || window.dropfileContent !== undefined) {
+      this.spinnerService.show();
+      if (this.useLLM) {
+        console.log('Sending LLM request with:', {
+          text: window.dropfileContent,
+          apiKey: this.apiKey,
+          prompt: this.prompt,
+          model: this.selectedModel
+        });
+        this.p2tHttpService.postP2TLLM(window.dropfileContent, this.apiKey, this.prompt, this.selectedModel).subscribe(
+          (response: any) => {
+            this.spinnerService.hide();
+            this.displayText(response);
+          },
+          (error: any) => {
+            this.spinnerService.hide();
+            console.error('Error response:', error);
+            this.showError(error);
+          }
+        );
+      } else {
+        this.p2tHttpService.postP2T(window.dropfileContent).subscribe(
+          (response: any) => {
+            this.spinnerService.hide();
+            this.displayText(response);
+          },
+          (error: any) => {
+            this.spinnerService.hide();
+            console.error('Error response:', error);
+            this.showError(error);
+          }
+        );
+      }
+    } else {
+      this.displayText('No files uploaded');
+    }
+    this.stepper.next();
   }
-  this.stepper.next();
-}
-
 
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
@@ -112,6 +122,10 @@ generateText() {
     }
   }
 
+  /**
+   * Prompts the user to enter their API key and updates the state accordingly.
+   * @param event The toggle change event.
+   */
   enterApiKey(event: MatSlideToggleChange) {
     let apiKey = window.prompt('Please enter your API key');
     while (apiKey !== null && !apiKey.startsWith('sk-proj-')) {
@@ -141,6 +155,9 @@ generateText() {
     return this.apiKey ? `...${this.apiKey.slice(-6)}` : '';
   }
 
+  /**
+   * Enables the prompt text area for editing if the user confirms the warning message.
+   */
   editPrompt() {
     if (!this.hasPromptWarningShown) {
       if (confirm('Warning: Changes to the prompt are at your own risk. Would you like to continue?')) {
@@ -229,6 +246,11 @@ generateText() {
     }
   }
 
+  /**
+   * Displays the response content in the UI.
+   *
+   * @param response The response text to be displayed.
+   */
   private displayText(response: string) {
     this.response = this.p2tHttpService.formText(response);
     const container = document.getElementById('result')!;
@@ -240,10 +262,20 @@ generateText() {
     container.appendChild(paragraph);
   }
 
+  /**
+   * Displays an error message in the UI.
+   *
+   * @param errorMessage The error message to be displayed.
+   */
   private showError(errorMessage: string) {
     this.error = errorMessage;
   }
 
+  /**
+   * Updates the selected model when the dropdown value changes.
+   *
+   * @param model The selected model.
+   */
   onModelChange(model: string): void {
     this.selectedModel = model;
   }
