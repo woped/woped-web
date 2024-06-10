@@ -30,14 +30,6 @@ Create a clearly structured and comprehensible continuous text from the given BP
                     </textarea>
                 </mat-form-field>
             </div>
-            <div class="centered full-width">
-                <mat-form-field appearance="fill">
-                    <mat-label>Select GPT Model</mat-label>
-                    <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
-                        <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
             <p>To upload your process model you can either select your file via a click in the Area in your
                 explorer or drag and drop it into the right pane.<br></p>
             <div class="insertModel">
@@ -50,14 +42,24 @@ Create a clearly structured and comprehensible continuous text from the given BP
                 </div>
             </div>
             <button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>
-            <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
+            <div class="horizontal-center">
+                <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
+                <mat-form-field appearance="fill" class="dropdown-field">
+                    <mat-label>Select GPT Model</mat-label>
+                    <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
+                        <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
         </mat-step>
 
         <mat-step>
             <ng-template matStepLabel>Text (Done)</ng-template>
             <div id="loading">
-                <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
-                </mat-spinner>
+                <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async"></mat-spinner>
+            </div>
+            <div id="error-box" *ngIf="error">
+                <p id="error-content">{{error}}</p>
             </div>
         </mat-step>
     </mat-stepper>
@@ -69,8 +71,28 @@ Create a clearly structured and comprehensible continuous text from the given BP
         <div id="result"></div>
         <button class="card" (click)="downloadText()">Download Text as .txt</button>
     </div>
-
-    <div id="error-box">
-        <p id="error-content"></p>
-    </div>
 </div>
+
+<style>
+    .centered {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    .horizontal-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .dropdown-field {
+        width: 200px;
+    }
+</style>

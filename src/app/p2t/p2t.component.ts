@@ -33,6 +33,8 @@ export class P2tComponent implements OnInit {
   isPromptReadonly = true;
   models: string[] = [];
   selectedModel: string;
+  error: string;
+  hasPromptWarningShown = false; // Flag to track if the warning has been shown
 
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
@@ -77,7 +79,7 @@ generateText() {
         (error: any) => {
           this.spinnerService.hide();
           console.error('Error response:', error);
-          this.showError(this.p2tHttpService.handleError(error).toString());
+          this.showError(error);
         }
       );
     } else {
@@ -89,7 +91,7 @@ generateText() {
         (error: any) => {
           this.spinnerService.hide();
           console.error('Error response:', error);
-          this.showError(this.p2tHttpService.handleError(error).toString());
+          this.showError(error);
         }
       );
     }
@@ -98,6 +100,7 @@ generateText() {
   }
   this.stepper.next();
 }
+
 
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
@@ -139,7 +142,12 @@ generateText() {
   }
 
   editPrompt() {
-    if (confirm('Warning: Changes to the prompt are at your own risk. Would you like to continue?')) {
+    if (!this.hasPromptWarningShown) {
+      if (confirm('Warning: Changes to the prompt are at your own risk. Would you like to continue?')) {
+        this.isPromptReadonly = false;
+        this.hasPromptWarningShown = true; // Set the flag to true after the warning is shown
+      }
+    } else {
       this.isPromptReadonly = false;
     }
   }
@@ -233,11 +241,7 @@ generateText() {
   }
 
   private showError(errorMessage: string) {
-    const errorBox = document.getElementById('error-box')!;
-    const errorContent = document.getElementById('error-content')!;
-    errorBox.style.visibility = 'visible';
-    errorContent.innerHTML = errorMessage;
-    errorContent.style.display = 'block';
+    this.error = errorMessage;
   }
 
   onModelChange(model: string): void {
