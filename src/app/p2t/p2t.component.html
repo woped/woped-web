@@ -47,11 +47,12 @@ Create a clearly structured and comprehensible continuous text from the given BP
                 </div>
             </div>
             <!-- Button to generate text from the process model -->
-            <button mat-button matStepperNext class="card" (click)="generateText()">Generate</button>
+            <button mat-button matStepperNext class="card" (click)="generateText()"
+                [disabled]="isGenerateButtonDisabled()">Generate</button>
             <!-- Toggle switch for selecting between algorithm and LLM, and dropdown for selecting GPT model -->
             <div class="horizontal-center">
                 <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
-                <mat-form-field appearance="fill" class="dropdown-field">
+                <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered">
                     <mat-label>Select GPT Model</mat-label>
                     <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
                         <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>

@@ -39,6 +39,7 @@ export class P2tComponent implements OnInit {
   selectedModel: string;
   error: string;
   hasPromptWarningShown = false; // Flag to track if the warning has been shown
+  isApiKeyEntered = false; // New flag to track if API key is entered
 
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
@@ -119,6 +120,7 @@ export class P2tComponent implements OnInit {
       this.useLLM = false;
       this.toggleText = 'Algorithm';
       this.showPromptInput = false;
+      this.isApiKeyEntered = false; // Reset API key flag
     }
   }
 
@@ -137,10 +139,12 @@ export class P2tComponent implements OnInit {
       this.useLLM = true;
       this.toggleText = 'LLM';
       this.showPromptInput = true;
+      this.isApiKeyEntered = true; // Set API key flag to true
     } else {
       this.useLLM = false;
       this.toggleText = 'Algorithm';
       this.showPromptInput = false;
+      this.isApiKeyEntered = false; // Reset API key flag
       event.source.checked = false;
     }
   }
@@ -278,5 +282,14 @@ export class P2tComponent implements OnInit {
    */
   onModelChange(model: string): void {
     this.selectedModel = model;
+  }
+
+  /**
+   * Determines if the "Generate" button should be disabled.
+   *
+   * @return A boolean indicating if the "Generate" button is disabled.
+   */
+  isGenerateButtonDisabled(): boolean {
+    return !this.selectedModel;
   }
 }
