@@ -59,7 +59,10 @@ export class P2tComponent implements OnInit {
       this.models = models;
     });
   }
-
+  /**
+   * Prevents default drag over behavior.
+   * @param event The drag event.
+   */
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
@@ -112,7 +115,10 @@ export class P2tComponent implements OnInit {
     }
     this.stepper.next();
   }
-
+/**
+   * Handles the toggle change event to switch between Algorithm and LLM modes.
+   * @param event The toggle change event.
+   */
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
       this.enterApiKey(event);
@@ -148,17 +154,21 @@ export class P2tComponent implements OnInit {
       event.source.checked = false;
     }
   }
-
+/**
+   * Prompts the user to enter the API key again.
+   */
   promptForApiKey() {
     if (confirm('Would you like to enter the API key again?')) {
       this.enterApiKey(null);
     }
   }
-
+/**
+   * Returns the last 6 characters of the API key for display purposes.
+   * @return The formatted API key string.
+   */
   getDisplayApiKey(): string {
     return this.apiKey ? `...${this.apiKey.slice(-6)}` : '';
   }
-
   /**
    * Enables the prompt text area for editing if the user confirms the warning message.
    */
@@ -172,7 +182,10 @@ export class P2tComponent implements OnInit {
       this.isPromptReadonly = false;
     }
   }
-
+/**
+   * Handles the file drop event and processes the dropped files.
+   * @param event The drop event.
+   */
   onDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
@@ -193,7 +206,10 @@ export class P2tComponent implements OnInit {
       }
     }
   }
-
+/**
+   * Processes the dropped files and reads their content.
+   * @param files The list of dropped files.
+   */
   processDroppedFiles(files: FileList) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -204,7 +220,9 @@ export class P2tComponent implements OnInit {
       reader.readAsText(file);
     }
   }
-
+ /**
+   * Initiates the download of the translated text as a .txt file.
+   */
   downloadText() {
     const text = this.response;
     const filename = 'p2t.txt';
@@ -219,11 +237,16 @@ export class P2tComponent implements OnInit {
     element.click();
     document.body.removeChild(element);
   }
-
+/**
+   * Opens the file input dialog for selecting files.
+   */
   selectFiles() {
     this.fileInputRef.nativeElement.click();
   }
-
+/**
+   * Handles the file selection event and processes the selected files.
+   * @param event The file input change event.
+   */
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
     const files = fileInput.files;
@@ -249,7 +272,6 @@ export class P2tComponent implements OnInit {
       }
     }
   }
-
   /**
    * Displays the response content in the UI.
    *
@@ -265,7 +287,6 @@ export class P2tComponent implements OnInit {
     }
     container.appendChild(paragraph);
   }
-
   /**
    * Displays an error message in the UI.
    *
@@ -274,7 +295,6 @@ export class P2tComponent implements OnInit {
   private showError(errorMessage: string) {
     this.error = errorMessage;
   }
-
   /**
    * Updates the selected model when the dropdown value changes.
    *
@@ -283,7 +303,6 @@ export class P2tComponent implements OnInit {
   onModelChange(model: string): void {
     this.selectedModel = model;
   }
-
   /**
    * Determines if the "Generate" button should be disabled.
    *
