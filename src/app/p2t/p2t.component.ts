@@ -55,10 +55,14 @@ export class P2tComponent implements OnInit {
    * Initializes the component, fetching available GPT models from the backend.
    */
   ngOnInit(): void {
-    this.p2tHttpService.getModels().subscribe(models => {
-      this.models = models;
-    });
+    // Ensure apiKey is set before fetching models
+    if (this.apiKey) {
+      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+        this.models = models;
+      });
+    }
   }
+
   /**
    * Prevents default drag over behavior.
    * @param event The drag event.
@@ -115,7 +119,8 @@ export class P2tComponent implements OnInit {
     }
     this.stepper.next();
   }
-/**
+
+  /**
    * Handles the toggle change event to switch between Algorithm and LLM modes.
    * @param event The toggle change event.
    */
@@ -146,6 +151,10 @@ export class P2tComponent implements OnInit {
       this.toggleText = 'LLM';
       this.showPromptInput = true;
       this.isApiKeyEntered = true; // Set API key flag to true
+      // Fetch models once API key is entered
+      this.p2tHttpService.getModels(apiKey).subscribe(models => {
+        this.models = models;
+      });
     } else {
       this.useLLM = false;
       this.toggleText = 'Algorithm';
@@ -154,7 +163,8 @@ export class P2tComponent implements OnInit {
       event.source.checked = false;
     }
   }
-/**
+
+  /**
    * Prompts the user to enter the API key again.
    */
   promptForApiKey() {
@@ -162,13 +172,15 @@ export class P2tComponent implements OnInit {
       this.enterApiKey(null);
     }
   }
-/**
+
+  /**
    * Returns the last 6 characters of the API key for display purposes.
    * @return The formatted API key string.
    */
   getDisplayApiKey(): string {
     return this.apiKey ? `...${this.apiKey.slice(-6)}` : '';
   }
+
   /**
    * Enables the prompt text area for editing if the user confirms the warning message.
    */
@@ -182,7 +194,8 @@ export class P2tComponent implements OnInit {
       this.isPromptReadonly = false;
     }
   }
-/**
+
+  /**
    * Handles the file drop event and processes the dropped files.
    * @param event The drop event.
    */
@@ -206,7 +219,8 @@ export class P2tComponent implements OnInit {
       }
     }
   }
-/**
+
+  /**
    * Processes the dropped files and reads their content.
    * @param files The list of dropped files.
    */
@@ -220,7 +234,8 @@ export class P2tComponent implements OnInit {
       reader.readAsText(file);
     }
   }
- /**
+
+  /**
    * Initiates the download of the translated text as a .txt file.
    */
   downloadText() {
@@ -237,13 +252,15 @@ export class P2tComponent implements OnInit {
     element.click();
     document.body.removeChild(element);
   }
-/**
+
+  /**
    * Opens the file input dialog for selecting files.
    */
   selectFiles() {
     this.fileInputRef.nativeElement.click();
   }
-/**
+
+  /**
    * Handles the file selection event and processes the selected files.
    * @param event The file input change event.
    */
@@ -272,6 +289,7 @@ export class P2tComponent implements OnInit {
       }
     }
   }
+
   /**
    * Displays the response content in the UI.
    *
@@ -287,6 +305,7 @@ export class P2tComponent implements OnInit {
     }
     container.appendChild(paragraph);
   }
+
   /**
    * Displays an error message in the UI.
    *
@@ -295,6 +314,7 @@ export class P2tComponent implements OnInit {
   private showError(errorMessage: string) {
     this.error = errorMessage;
   }
+
   /**
    * Updates the selected model when the dropdown value changes.
    *
@@ -303,12 +323,13 @@ export class P2tComponent implements OnInit {
   onModelChange(model: string): void {
     this.selectedModel = model;
   }
+
   /**
    * Determines if the "Generate" button should be disabled.
    *
    * @return A boolean indicating if the "Generate" button is disabled.
    */
   isGenerateButtonDisabled(): boolean {
-    return !this.selectedModel;
+    return false;
   }
 }
