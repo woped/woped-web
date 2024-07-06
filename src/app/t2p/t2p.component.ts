@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { t2pHttpService } from '../Services/t2pHttpService';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatStepper } from '@angular/material/stepper';
+import { t2pHttpService } from '../Services/t2pHttpService';
 // import { SpinnerService } from './t2p.SpinnerService';
-import { SpinnerService } from '../utilities/SpinnerService';
 import html2canvas from 'html2canvas';
+import { SpinnerService } from '../utilities/SpinnerService';
 
 @Component({
   selector: 'app-t2p',
@@ -15,6 +14,9 @@ export class T2PComponent {
   protected text = '';
   protected selectedDiagram = 'bpmn';
   protected textResult = '';
+  protected isLLMEnabled: boolean = false;
+  protected apiKey: string = '';
+  protected responseText: string = '';
 
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
@@ -22,6 +24,8 @@ export class T2PComponent {
   protected droppedFileName = '';
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
   isFileDropped = false;
+  @ViewChild('apiKeyInput') apiKeyInput!: ElementRef;
+  @ViewChild('llmSwitch') llmSwitch!: ElementRef;
   constructor(
     private http: t2pHttpService,
     public spinnerService: SpinnerService
@@ -33,15 +37,25 @@ export class T2PComponent {
     this.spinnerService.show();
     let text = inputText;
     text = this.replaceUmlaut(text);
-    if (this.selectedDiagram === 'bpmn') {
-      //Send request to backend
-      this.http.postT2PBPMN(text);
-      //Show input text as input in the last step
-      this.setTextResult(text);
-    }
-    if (this.selectedDiagram === 'petri-net') {
-      this.http.postT2PPetriNet(text);
-      this.setTextResult(text);
+
+    if (this.isLLMEnabled) {
+      this.apiKey = this.apiKeyInput.nativeElement.value;
+      this.http.postT2PWithLLM(text, this.apiKey, (response: any) => {
+        this.responseText = JSON.stringify(response, null, 2);
+
+        this.setTextResult(text);
+      });
+    } else {
+      if (this.selectedDiagram === 'bpmn') {
+        //Send request to backend
+        this.http.postT2PBPMN(text);
+        //Show input text as input in the last step
+        this.setTextResult(text);
+      }
+      if (this.selectedDiagram === 'petri-net') {
+        this.http.postT2PPetriNet(text);
+        this.setTextResult(text);
+      }
     }
   }
   //Revise the input text. The umlauts are replaced by normal letters so that the text can be read correctly by the backend.
