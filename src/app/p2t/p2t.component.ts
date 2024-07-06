@@ -203,20 +203,9 @@ export class P2tComponent implements OnInit {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      const allowedExtensions = ['pnml', 'bpmn'];
-      const hasAllowedFiles = Array.from(files).some((file) => {
-        const fileExtension = file.name
-          .substring(file.name.lastIndexOf('.') + 1)
-          .toLowerCase();
-        return allowedExtensions.includes(fileExtension);
-      });
-      if (hasAllowedFiles) {
-        this.processDroppedFiles(files);
-        this.isFileDropped = true;
-        this.droppedFileName = files.item(0)?.name || '';
-      } else {
-        alert('Please upload only files with .pnml or .bpmn format');
-      }
+      this.isFileDropped = true;
+      this.droppedFileName = files.item(0)?.name || '';
+      this.processDroppedFiles(files);
     }
   }
 
@@ -230,9 +219,27 @@ export class P2tComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         window.dropfileContent = reader.result as string;
+        this.fileType = this.getFileType(file.name);
+        // Display the model immediately after processing the file
+        this.displayModel();
       };
       reader.readAsText(file);
     }
+  }
+
+  /**
+   * Determines the file type based on the file extension.
+   * @param fileName The name of the file.
+   * @return The file type ('bpmn' or 'pnml').
+   */
+  getFileType(fileName: string): string {
+    const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+    if (fileExtension === 'pnml') {
+      return 'pnml';
+    } else if (fileExtension === 'bpmn') {
+      return 'bpmn';
+    }
+    return '';
   }
 
   /**
@@ -268,25 +275,20 @@ export class P2tComponent implements OnInit {
     const fileInput = event.target as HTMLInputElement;
     const files = fileInput.files;
     if (files && files.length > 0) {
-      this.processDroppedFiles(files);
       this.isFileDropped = true;
       this.droppedFileName = files[0].name;
-      const allowedExtensions = ['pnml', 'bpmn'];
-      const hasAllowedFiles = Array.from(files).some((file) => {
-        const fileExtension = file.name
-          .substring(file.name.lastIndexOf('.') + 1)
-          .toLowerCase();
-        if (fileExtension == 'pnml') this.fileType = 'pnml';
-        else if (fileExtension == 'bpmn') this.fileType = 'bpmn';
-        return allowedExtensions.includes(fileExtension);
-      });
-      if (hasAllowedFiles) {
-        this.processDroppedFiles(files);
-        this.isFileDropped = true;
-        this.droppedFileName = files.item(0)?.name || '';
-      } else {
-        alert('Please upload only files with .pnml or .bpmn format');
-      }
+      this.processDroppedFiles(files);
+    }
+  }
+
+  /**
+   * Displays the appropriate model based on the file type.
+   */
+  displayModel() {
+    if (this.fileType === 'bpmn') {
+      ModelDisplayer.displayBPMNModel(window.dropfileContent);
+    } else if (this.fileType === 'pnml') {
+      ModelDisplayer.generatePetriNet(window.dropfileContent);
     }
   }
 
