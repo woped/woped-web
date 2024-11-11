@@ -93,4 +93,32 @@ export class t2pHttpService {
         }
       );
   }
+  public postT2PWithLLM(
+    text: string,
+    apiKey: string,
+    callback: (response: any) => void
+  ) {
+    const llmUrl = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/api_call'; //Specifies the interface through which the BPMN model is displayed.
+
+    const body = {
+      text: text,
+      api_key: apiKey,
+    };
+    // Reset Model Container Div, so that only valid/current model will be displayed.
+    document.getElementById('model-container')!.innerHTML = '';
+
+    return this.t2phttpClient.post<string>(llmUrl, body, httpOptions).subscribe(
+      (response: any) => {
+        this.spinnerService.hide();
+        callback(response); // Call the callback function with the response
+      },
+      (error: any) => {
+        this.spinnerService.hide();
+        document.getElementById('error-container-text')!.innerHTML =
+          error.status + ' ' + error.statusText + ' ' + error.error;
+        document.getElementById('error-container-text')!.style.display =
+          'block';
+      }
+    );
+  }
 }
