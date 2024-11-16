@@ -14,9 +14,9 @@ export class T2PComponent {
   protected text = '';
   protected selectedDiagram = 'bpmn';
   protected textResult = '';
-  protected isLLMEnabled: boolean = false;
-  protected apiKey: string = '';
-  protected responseText: string = '';
+  protected isLLMEnabled = false;
+  protected apiKey = '';
+  protected responseText = '';
 
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
