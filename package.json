@@ -25,7 +25,7 @@
     "compodoc": "npx compodoc -p tsconfig.app.json",
     "analyze": "source-map-explorer dist/woped-frontend/**/*.js",
     "prettier": "prettier --write \"src/app/**/*.{js,json,css,scss,less,md,ts,html,component.html}\"",
-    "prepare": "husky install",
+    "prepare": "husky .woped-hooks/.husky",
     "audit": "auditjs ossi",
     "version": "auto-changelog -p && git add CHANGELOG.md",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d .",
@@ -68,8 +68,8 @@
     "@angular/cli": "16.0.0",
     "@angular/compiler-cli": "^16.0.0",
     "@babel/core": "^7.21.8",
-    "@commitlint/cli": "^17.6.3",
-    "@commitlint/config-conventional": "^17.6.3",
+    "@commitlint/cli": "^17.8.1",
+    "@commitlint/config-conventional": "^17.8.1",
     "@compodoc/compodoc": "^1.1.19",
     "@storybook/addon-actions": "^7.0.9",
     "@storybook/addon-essentials": "^7.0.9",
@@ -108,10 +108,5 @@
     "testcafe-reporter-html": "^1.4.6",
     "ts-node": "~10.9.1",
     "typescript": "^5.0.4"
-  },
-  "lint-staged": {
-    "*.{js,json,css,scss,less,md,ts,html,component.html}": [
-      "prettier --write"
-    ]
   }
 }
