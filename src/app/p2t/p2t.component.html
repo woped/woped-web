@@ -39,12 +39,8 @@
             <!-- Step 2: Model input and configuration -->
             <mat-step>
                 <ng-template matStepLabel>Insert your Model</ng-template>
-                <!-- API key and prompt input fields -->
+                <!-- prompt input fields -->
                 <div *ngIf="showPromptInput" class="centered full-width">
-                    <mat-form-field appearance="fill" class="full-width">
-                        <mat-label>API Key</mat-label>
-                        <input matInput [value]="getDisplayApiKey()" readonly (click)="promptForApiKey()" name="apiKey">
-                    </mat-form-field>
                     <mat-form-field appearance="fill" class="full-width">
                         <mat-label>Prompt</mat-label>
                         <textarea matInput [(ngModel)]="prompt" name="prompt" [readonly]="isPromptReadonly"
