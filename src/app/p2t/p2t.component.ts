@@ -75,6 +75,58 @@ export class P2tComponent implements OnInit {
   }
 
   /**
+   * Handles provider change and fetches appropriate models
+   * @param provider The selected provider
+  */
+  onProviderChange(provider: string): void {
+    this.selectedProvider = provider;
+    this.models = []; // Clear existing models
+    this.selectedModel = ''; // Reset model selection
+    
+    // LMStudio doesn't need API key
+    if (provider === 'lmStudio') {
+      this.isApiKeyEntered = true;
+      this.fetchModelsForProvider(provider);
+    } else {
+      // For providers that need API key, only fetch models if key is entered
+      this.isApiKeyEntered = !!this.apiKey;
+      if (this.isApiKeyEntered) {
+        this.fetchModelsForProvider(provider);
+      }
+    }
+  }
+
+  /**
+   * Fetches models available for the selected provider
+   * @param provider The provider to fetch models for
+   */
+  fetchModelsForProvider(provider: string): void {
+    if (provider === 'LMStudio') {
+      // Hardcoded models for LMStudio, may need to change for variable function
+      this.models = ['Llama-2-7b', 'Mistral-7B', 'Mixtral-8x7B', 'Phi-2'];
+      this.selectedModel = this.models[0];
+    } else if (provider === 'Gemini') {
+      // Hardcoded models for Gemini, may need to change for getModels function
+      this.models = ['gemini-pro', 'gemini-1.5-pro'];
+      this.selectedModel = this.models[0];
+    } else {
+      // Fetch OpenAI models via API
+      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+        this.models = models;
+        this.selectedModel = models[0];
+      });
+    }
+  }
+
+  /**
+ * Toggles RAG feature on or off
+ * @param event The toggle change event
+ */
+onRagToggleChange(event: MatSlideToggleChange): void {
+  this.useRag = event.checked;
+}
+
+  /**
    * Generates text based on the uploaded process model.
    * Depending on the useLLM flag, it calls the appropriate backend endpoint.
    */
