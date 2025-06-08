@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatSlideToggle,MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatStepper } from '@angular/material/stepper';
 import { p2tHttpService } from '../Services/p2tHttpService';
 import { t2pHttpService } from '../Services/t2pHttpService';
@@ -34,8 +34,8 @@ export class P2tComponent implements OnInit {
   showPromptInput = false;
   useLLM = false;
   useRag: boolean = false;
-  providers: string[] = ['openai', 'gemini', 'lmStudio']; 
-  selectedProvider: string = 'openai'; // Default provider
+  providers: string[] = ['openAi', 'gemini', 'lmStudio']; 
+  selectedProvider: string = 'openAi'; // Default provider
   prompt = `Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!`;
   isPromptReadonly = true;
   models: string[] = [];
@@ -47,6 +47,7 @@ export class P2tComponent implements OnInit {
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('llmToggle') llmToggle!: MatSlideToggle;
 
   constructor(
     private p2tHttpService: p2tHttpService,
@@ -92,6 +93,8 @@ export class P2tComponent implements OnInit {
       this.isApiKeyEntered = !!this.apiKey;
       if (this.isApiKeyEntered) {
         this.fetchModelsForProvider(provider);
+      } else {
+        this.enterApiKey(); // Prompt for API key if not entered
       }
     }
   }
@@ -101,7 +104,7 @@ export class P2tComponent implements OnInit {
    * @param provider The provider to fetch models for
    */
   fetchModelsForProvider(provider: string): void {
-    if (provider === 'LMStudio') {
+    if (provider === 'lmStudio') {
       // Hardcoded models for LMStudio, may need to change for variable function
       this.models = ['Llama-2-7b', 'Mistral-7B', 'Mixtral-8x7B', 'Phi-2'];
       this.selectedModel = this.models[0];
@@ -188,10 +191,16 @@ export class P2tComponent implements OnInit {
    */
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
-      this.enterApiKey(event);
+      this.useLLM = true;
+      this.toggleText = 'LLM';
+      this.showPromptInput = true;
+      this.isApiKeyEntered = false;
+      this.selectedProvider = '';
     } else {
       this.useLLM = false;
       this.toggleText = 'Algorithm';
+      this.selectedModel = '';
+      this.selectedProvider = '';
       this.showPromptInput = false;
       this.isApiKeyEntered = false; // Reset API key flag
     }
@@ -201,7 +210,7 @@ export class P2tComponent implements OnInit {
    * Prompts the user to enter their API key and updates the state accordingly.
    * @param event The toggle change event.
    */
-  enterApiKey(event: MatSlideToggleChange) {
+  enterApiKey() {
  // If LMStudio is selected, no API key is needed
   if (this.selectedProvider === 'lmStudio') {
     this.useLLM = true;
@@ -218,7 +227,7 @@ export class P2tComponent implements OnInit {
   let isValidKey = false;
   if (this.selectedProvider === 'openAi' && apiKey?.startsWith('sk-proj-')) {
     isValidKey = true;
-  } else if (this.selectedProvider === 'gemini' && apiKey?.length > 10) {
+  } else if (this.selectedProvider === 'gemini' && apiKey?.length > 30) {
     isValidKey = true;
   }
   
@@ -227,7 +236,7 @@ export class P2tComponent implements OnInit {
     apiKey = window.prompt(`Please enter your ${this.selectedProvider} API key again`);
     
     // Recheck validation
-    if (this.selectedProvider === 'openAi' && apiKey?.startsWith('sk-')) {
+    if (this.selectedProvider === 'openAi' && apiKey?.startsWith('sk-proj-')) {
       isValidKey = true;
     } else if (this.selectedProvider === 'gemini' && apiKey?.length > 30) {
       isValidKey = true;
@@ -246,7 +255,9 @@ export class P2tComponent implements OnInit {
     this.toggleText = 'Algorithm';
     this.showPromptInput = false;
     this.isApiKeyEntered = false;
-    event.source.checked = false;
+    if(this.llmToggle) {
+      this.llmToggle.checked = false; // Reset toggle state
+    }
   }
 }
 
@@ -255,7 +266,7 @@ export class P2tComponent implements OnInit {
    */
   promptForApiKey() {
     if (confirm('Would you like to enter the API key again?')) {
-      this.enterApiKey(null);
+      this.enterApiKey();
     }
   }
 

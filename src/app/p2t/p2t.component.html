@@ -66,7 +66,7 @@ Create a clearly structured and comprehensible continuous text from the given BP
                     [disabled]="isGenerateButtonDisabled()">Generate</button>
                 <!-- Toggle switch for selecting between algorithm and LLM, and dropdown for selecting GPT model -->
                 <div class="horizontal-center">
-                    <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
+                    <mat-slide-toggle #llmToggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
                     
                     <!-- Provider selection appears when LLM is toggled on -->
                     <mat-form-field appearance="fill" class="dropdown-field" *ngIf="useLLM">
@@ -77,7 +77,7 @@ Create a clearly structured and comprehensible continuous text from the given BP
                     </mat-form-field>
                     
                     <!-- Model selection appears based on selected provider -->
-                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered || selectedProvider === 'LMStudio'">
+                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered || selectedProvider === 'lmStudio'">
                         <mat-label>Select Model</mat-label>
                         <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
                             <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>
