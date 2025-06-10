@@ -3,7 +3,11 @@
 This repository contains the WoPeD Webclient. <br>
 The application has been built based on [angular-starter](https://github.com/wlucha/angular-starter)
 
-Navigate to https://woped.github.io/woped-frontend/home to use the WoPeD Webclient.
+Navigate to <https://woped.github.io/woped-frontend/home> to use the WoPeD Webclient.
+
+## Development
+
+After cloning this repository, it's essential to [set up git hooks](https://github.com/woped/woped-git-hooks/blob/main/README.md#activating-git-hooks-after-cloning-a-repository) to ensure project standards.
 
 ## Docker Deployment
 
