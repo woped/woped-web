@@ -109,9 +109,11 @@ export class P2tComponent implements OnInit {
       this.models = ['Llama-2-7b', 'Mistral-7B', 'Mixtral-8x7B', 'Phi-2'];
       this.selectedModel = this.models[0];
     } else if (provider === 'Gemini') {
-      // Hardcoded models for Gemini, may need to change for getModels function
-      this.models = ['gemini-pro', 'gemini-1.5-pro'];
-      this.selectedModel = this.models[0];
+      // Fetch Gemini models via API
+      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+        this.models = models;
+        this.selectedModel = models[0];
+      });
     } else {
       // Fetch OpenAI models via API
       this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
