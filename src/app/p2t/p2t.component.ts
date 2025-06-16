@@ -61,7 +61,7 @@ export class P2tComponent implements OnInit {
   ngOnInit(): void {
     // Ensure apiKey is set before fetching models
     if (this.apiKey) {
-      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+      this.p2tHttpService.getModels(this.apiKey, this.selectedProvider).subscribe(models => {
         this.models = models;
       });
     }
@@ -105,18 +105,20 @@ export class P2tComponent implements OnInit {
    */
   fetchModelsForProvider(provider: string): void {
     if (provider === 'lmStudio') {
-      // Hardcoded models for LMStudio, may need to change for variable function
-      this.models = ['Llama-2-7b', 'Mistral-7B', 'Mixtral-8x7B', 'Phi-2'];
-      this.selectedModel = this.models[0];
-    } else if (provider === 'Gemini') {
+      
+      this.p2tHttpService.getModels(null, this.selectedProvider).subscribe(models => {
+        this.models = models;
+        this.selectedModel = this.models[0];
+      });  
+    } else if (provider === 'gemini') {
       // Fetch Gemini models via API
-      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+      this.p2tHttpService.getModels(this.apiKey, this.selectedProvider).subscribe(models => {
         this.models = models;
         this.selectedModel = models[0];
       });
     } else {
       // Fetch OpenAI models via API
-      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+      this.p2tHttpService.getModels(this.apiKey, this.selectedProvider).subscribe(models => {
         this.models = models;
         this.selectedModel = models[0];
       });

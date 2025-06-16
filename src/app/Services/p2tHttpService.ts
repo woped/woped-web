@@ -91,8 +91,10 @@ export class p2tHttpService {
    * @param apiKey The API key for OpenAI.
    * @return An Observable that emits the list of model names.
    */
-  getModels(apiKey: string): Observable<string[]> {
-    let params = new HttpParams().set('apiKey', apiKey);
+  getModels(apiKey: string, provider: string): Observable<string[]> {
+    let params = new HttpParams()
+    .set('apiKey', apiKey)
+    .set('provider', provider);
     return this.http.get<string[]>(this.gptModelsUrl, { params }).pipe(
       catchError(this.handleError)
     );
