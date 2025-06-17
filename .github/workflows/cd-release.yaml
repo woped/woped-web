@@ -1,19 +1,38 @@
-name: Build, Lint, Test, and Deploy
+name: CD Pipeline
+
+permissions:
+  contents: write
+  issues: write
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, master ]
 
 jobs:
-  ci:
-    name: CI/CD
+  semver:
+    uses: woped/devops/.github/workflows/semver-and-release-notes.yaml@main
+    
+  approval:
+    uses: woped/devops/.github/workflows/manual-approval.yaml@main
+    needs: semver
+    with:
+      VERSION: ${{ needs.semver.outputs.VERSION }}
+
+  gh_release:
+    uses: woped/devops/.github/workflows/github-release.yaml@main
+    needs: [ semver, approval ]
+    with:
+      VERSION: ${{ needs.semver.outputs.VERSION }}
+      RELEASE_NOTES: ${{ needs.semver.outputs.RELEASE_NOTES }}
+
+  deploy_pages:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
       - uses: actions/checkout@v3
+      
       - name: Use Node.js 18
         uses: actions/setup-node@v3
         with:
@@ -35,14 +54,6 @@ jobs:
       - name: Install Dependencies
         run: |
           npm ci
-
-      - name: Lint
-        run: |
-          npm run lint
-
-      - name: Test
-        run: |
-          npm run test
 
       - name: Deploy
         env:
