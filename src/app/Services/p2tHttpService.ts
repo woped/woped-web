@@ -45,23 +45,36 @@ export class p2tHttpService {
    * @param apiKey The API key for OpenAI.
    * @param prompt The prompt to guide the translation.
    * @param model The GPT model to be used.
+   * @param provider The provider for the LLM service (e.g., 'openai').
+   * @param useRag Indicates whether to use RAG (Retrieval-Augmented Generation).
    * @return An Observable that emits the response text.
    */
-  postP2TLLM(text: string, apiKey: string, prompt: string, model: string): Observable<string> {
+  postP2TLLM(text: string, apiKey: string, prompt: string, model: string, provider: string, useRag: boolean): Observable<string> {
     const headers = new HttpHeaders({
       'Content-Type': 'text/plain',
       'Accept': 'text/plain',
     });
 
     let params = new HttpParams();
-    if (apiKey) {
-      params = params.set('apiKey', apiKey);
-    }
-    if (prompt) {
+
+    // For LMStudio, the API key is not required
+    if (provider && provider === 'lmStudio') {
       params = params.set('prompt', prompt);
-    }
-    if (model) {
       params = params.set('gptModel', model);
+      params = params.set('provider', provider);
+      params = params.set('useRag', useRag.toString());
+    } else {
+      if (apiKey) {
+        params = params.set('apiKey', apiKey);
+      }
+      if (prompt) {
+        params = params.set('prompt', prompt);
+      }
+      if (model) {
+        params = params.set('gptModel', model);
+      }
+      params = params.set('provider', provider);
+      params = params.set('useRag', useRag.toString());
     }
 
     const httpOptions = {
@@ -81,8 +94,10 @@ export class p2tHttpService {
    * @param apiKey The API key for OpenAI.
    * @return An Observable that emits the list of model names.
    */
-  getModels(apiKey: string): Observable<string[]> {
-    let params = new HttpParams().set('apiKey', apiKey);
+  getModels(apiKey: string, provider: string): Observable<string[]> {
+    let params = new HttpParams()
+    .set('apiKey', apiKey)
+    .set('provider', provider);
     return this.http.get<string[]>(this.gptModelsUrl, { params }).pipe(
       catchError(this.handleError)
     );

@@ -28,7 +28,7 @@ describe('P2tComponent', () => {
 
   it('should enter API key', () => {
     promptSpy.mockReturnValue('sk-proj-123456');
-    component.enterApiKey(null);
+    component.enterApiKey();
     expect(component.apiKey).toEqual('sk-proj-123456');
     expect(component.useLLM).toBeTruthy();
     expect(component.toggleText).toEqual('LLM');
