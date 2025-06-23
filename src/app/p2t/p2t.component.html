@@ -39,12 +39,8 @@
             <!-- Step 2: Model input and configuration -->
             <mat-step>
                 <ng-template matStepLabel>Insert your Model</ng-template>
-                <!-- API key and prompt input fields -->
+                <!-- prompt input fields -->
                 <div *ngIf="showPromptInput" class="centered full-width">
-                    <mat-form-field appearance="fill" class="full-width">
-                        <mat-label>API Key</mat-label>
-                        <input matInput [value]="getDisplayApiKey()" readonly (click)="promptForApiKey()" name="apiKey">
-                    </mat-form-field>
                     <mat-form-field appearance="fill" class="full-width">
                         <mat-label>Prompt</mat-label>
                         <textarea matInput [(ngModel)]="prompt" name="prompt" [readonly]="isPromptReadonly"
@@ -70,12 +66,35 @@ Create a clearly structured and comprehensible continuous text from the given BP
                     [disabled]="isGenerateButtonDisabled()">Generate</button>
                 <!-- Toggle switch for selecting between algorithm and LLM, and dropdown for selecting GPT model -->
                 <div class="horizontal-center">
-                    <mat-slide-toggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
-                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered">
-                        <mat-label>Select GPT Model</mat-label>
+                    <mat-slide-toggle #llmToggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
+                    
+                    <!-- Provider selection appears when LLM is toggled on -->
+                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="useLLM">
+                        <mat-label>Select Provider</mat-label>
+                        <mat-select [(value)]="selectedProvider" (selectionChange)="onProviderChange($event.value)">
+                            <mat-option *ngFor="let provider of providers" [value]="provider">{{provider}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    
+                    <!-- Model selection appears based on selected provider -->
+                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered || selectedProvider === 'lmStudio'">
+                        <mat-label>Select Model</mat-label>
                         <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
                             <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>
                         </mat-select>
+                    </mat-form-field>
+                    
+                    <!-- RAG toggle switch (optional) -->
+                    <mat-slide-toggle *ngIf="useLLM" (change)="onRagToggleChange($event)" class="rag-toggle">
+                        {{useRag ? 'RAG Enabled' : 'RAG Disabled'}}
+                    </mat-slide-toggle>
+                </div>
+
+                <!-- API key input field shows only for providers that need it -->
+                <div *ngIf="useLLM && selectedProvider !== 'LMStudio'" class="api-key-container">
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>{{selectedProvider}} API Key</mat-label>
+                        <input matInput [value]="getDisplayApiKey()" readonly (click)="promptForApiKey()" name="apiKey">
                     </mat-form-field>
                 </div>
             </mat-step>

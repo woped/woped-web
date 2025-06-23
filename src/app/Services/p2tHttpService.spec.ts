@@ -40,18 +40,20 @@ describe('p2tHttpService', () => {
     req.flush(expectedResponse); // Simulate the response from the server
   });
 
-  it('should call postP2TLLM with correct parameters', () => {
+  it('should call postP2TLLM with correct parameters for OpenAi', () => {
     const text = 'test text';
     const apiKey = 'test key';
     const prompt = 'test prompt';
     const model = 'test model';
+    const provider = 'openAi';
+    const useRag = false; 
     const expectedResponse = 'expected response';
 
-    service.postP2TLLM(text, apiKey, prompt, model).subscribe(response => {
+    service.postP2TLLM(text, apiKey, prompt, model, provider, useRag).subscribe(response => {
       expect(response).toEqual(expectedResponse);
     });
 
-    const req = httpMock.expectOne(req => req.url === `${service['apiUrl']}/generateTextLLM` && req.params.has('apiKey') && req.params.has('prompt') && req.params.has('gptModel'));
+    const req = httpMock.expectOne(req => req.url === `${service['apiUrl']}/generateTextLLM` && req.params.has('apiKey') && req.params.has('prompt') && req.params.has('gptModel') && req.params.has('provider'));
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(text);
     expect(req.request.headers.get('Content-Type')).toEqual('text/plain');
@@ -59,22 +61,77 @@ describe('p2tHttpService', () => {
     expect(req.request.params.get('apiKey')).toEqual(apiKey);
     expect(req.request.params.get('prompt')).toEqual(prompt);
     expect(req.request.params.get('gptModel')).toEqual(model);
+    expect(req.request.params.get('provider')).toEqual(provider);
 
     req.flush(expectedResponse); // Simulate the response from the server
   });
 
+  it('should call postP2TLLM with correct parameters for LMStudio (no API key)', () => {
+    const text = 'test text';
+    const apiKey = 'test key'; // Should be ignored for LMStudio
+    const prompt = 'test prompt';
+    const model = 'test model';
+    const provider = 'lmStudio';
+    const useRag = false;
+    const expectedResponse = 'expected response';
+
+    service.postP2TLLM(text, apiKey, prompt, model, provider, useRag).subscribe(response => {
+      expect(response).toEqual(expectedResponse);
+    });
+
+    const req = httpMock.expectOne(req => 
+      req.url === `${service['apiUrl']}/generateTextLLM` && 
+      !req.params.has('apiKey') && // API key should NOT be present for LMStudio
+      req.params.has('prompt') && 
+      req.params.has('gptModel') &&
+      req.params.has('provider')
+    );
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(text);
+    expect(req.request.headers.get('Content-Type')).toEqual('text/plain');
+    expect(req.request.headers.get('Accept')).toEqual('text/plain');
+    expect(req.request.params.get('apiKey')).toBeNull(); // Should be null for LMStudio
+    expect(req.request.params.get('prompt')).toEqual(prompt);
+    expect(req.request.params.get('gptModel')).toEqual(model);
+    expect(req.request.params.get('provider')).toEqual(provider);
+
+    req.flush(expectedResponse);
+  });
+
   it('should call getModels with correct parameters', () => {
     const apiKey = 'test key';
+    const provider = 'openAi';
     const expectedModels = ['model1', 'model2'];
 
-    service.getModels(apiKey).subscribe(models => {
+    service.getModels(apiKey, provider).subscribe(models => {
       expect(models).toEqual(expectedModels);
     });
 
-    const req = httpMock.expectOne(req => req.url === `${service['gptModelsUrl']}` && req.params.get('apiKey') === apiKey);
+    const req = httpMock.expectOne(req => req.url === `${service['gptModelsUrl']}` && req.params.get('apiKey') === apiKey && req.params.get('provider') === provider);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('apiKey')).toEqual(apiKey);
+    expect(req.request.params.get('provider')).toEqual(provider);
 
     req.flush(expectedModels); // Simulate the response from the server
+  });
+
+  it('should call getModels for LMStudio with null API key', () => {
+    const apiKey = null;
+    const provider = 'lmStudio';
+    const expectedModels = ['Llama-2-7b', 'Mistral-7B'];
+
+    service.getModels(apiKey, provider).subscribe(models => {
+      expect(models).toEqual(expectedModels);
+    });
+
+    const req = httpMock.expectOne(req => 
+      req.url === `${service['gptModelsUrl']}` && 
+      req.params.get('apiKey') === 'null' && // null wird als String übertragen
+      req.params.get('provider') === provider
+    );
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('provider')).toEqual(provider);
+
+    req.flush(expectedModels);
   });
 });
