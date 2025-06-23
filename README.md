@@ -10,6 +10,7 @@ Navigate to <https://woped.github.io/woped-frontend/home> to use the WoPeD Webcl
 After cloning this repository, it's essential to [set up git hooks](https://github.com/woped/woped-git-hooks/blob/main/README.md#activating-git-hooks-after-cloning-a-repository) to ensure project standards.
 
 ## Docker Deployment
+sssssssssss
 
 ```bash
 # Build Docker image
