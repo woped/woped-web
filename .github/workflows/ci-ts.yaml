@@ -9,3 +9,9 @@ on:
 jobs:
   validate_commit_messages:
     uses: woped/devops/.github/workflows/validate-commit-msg.yaml@main
+  testing_ts:
+    uses: woped/devops/.github/workflows/testing_ts.yaml@main
+  sonar_ts:
+    needs: testing_ts
+    uses: woped/devops/.github/workflows/sonar_ts.yaml@main
+    secrets: inherit
