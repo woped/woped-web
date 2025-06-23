@@ -48,7 +48,7 @@ export class p2tHttpService {
    * @param provider The provider for the LLM service (e.g., 'openai').
    * @return An Observable that emits the response text.
    */
-  postP2TLLM(text: string, apiKey: string, prompt: string, model: string, provider: string): Observable<string> {
+  postP2TLLM(text: string, apiKey: string, prompt: string, model: string, provider: string, useRag: boolean): Observable<string> {
     const headers = new HttpHeaders({
       'Content-Type': 'text/plain',
       'Accept': 'text/plain',
@@ -61,6 +61,7 @@ export class p2tHttpService {
       params = params.set('prompt', prompt);
       params = params.set('gptModel', model);
       params = params.set('provider', provider);
+      params = params.set('useRag', useRag);
     } else {
       if (apiKey) {
         params = params.set('apiKey', apiKey);
@@ -72,6 +73,7 @@ export class p2tHttpService {
         params = params.set('gptModel', model);
       }
       params = params.set('provider', provider);
+      params = params.set('useRag', useRag);
     }
 
     const httpOptions = {
