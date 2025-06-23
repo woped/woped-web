@@ -46,9 +46,10 @@ describe('p2tHttpService', () => {
     const prompt = 'test prompt';
     const model = 'test model';
     const provider = 'openAi';
+    const useRag = false; 
     const expectedResponse = 'expected response';
 
-    service.postP2TLLM(text, apiKey, prompt, model, provider).subscribe(response => {
+    service.postP2TLLM(text, apiKey, prompt, model, provider, useRag).subscribe(response => {
       expect(response).toEqual(expectedResponse);
     });
 
@@ -71,9 +72,10 @@ describe('p2tHttpService', () => {
     const prompt = 'test prompt';
     const model = 'test model';
     const provider = 'lmStudio';
+    const useRag = false;
     const expectedResponse = 'expected response';
 
-    service.postP2TLLM(text, apiKey, prompt, model, provider).subscribe(response => {
+    service.postP2TLLM(text, apiKey, prompt, model, provider, useRag).subscribe(response => {
       expect(response).toEqual(expectedResponse);
     });
 
