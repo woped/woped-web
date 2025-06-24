@@ -96,6 +96,7 @@ export class t2pHttpService {
   public postT2PWithLLM(
     text: string,
     apiKey: string,
+    approach: string,
     callback: (response: any) => void
   ) {
     const llmUrl = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/api_call'; //Specifies the interface through which the BPMN model is displayed.
@@ -103,6 +104,7 @@ export class t2pHttpService {
     const body = {
       text: text,
       api_key: apiKey,
+      approach: approach,
     };
     // Reset Model Container Div, so that only valid/current model will be displayed.
     document.getElementById('model-container')!.innerHTML = '';
