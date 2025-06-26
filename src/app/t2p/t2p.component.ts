@@ -31,7 +31,7 @@ export class T2PComponent {
   constructor(
     private http: t2pHttpService,
     public spinnerService: SpinnerService
-  ) {}
+  ) { }
 
   protected generateProcess(inputText: string) {
     document.getElementById('error-container-text')!.style.display = 'none';
@@ -44,6 +44,7 @@ export class T2PComponent {
         text,
         this.apiKey,
         this.promptingStrategy,
+        this.selectedDiagram, // Add the missing modelType parameter
         (response: any) => {
           this.responseText = JSON.stringify(response, null, 2);
           this.setTextResult(text);

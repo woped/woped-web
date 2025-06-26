@@ -17,15 +17,15 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class t2pHttpService {
-  private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2'; // Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .bpmn Datei zurück?
-  private urlPetriNet = 'http://localhost:8081/t2p/generatePNML'; //Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .pnml Datei zurück?
+  private urlBPMN = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_BPMN';
+  private urlPetriNet = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_PNML';
 
   private plainDocumentForDownload: string;
 
   constructor(
     private t2phttpClient: HttpClient,
     public spinnerService: SpinnerService
-  ) {}
+  ) { }
   //Makes the HTTP request and returns the HTTP response for the BPMN model. Triggers the display of the model at the same time.
   public postT2PBPMN(text: string) {
     //Reset Model Container Div, so that only valid/current model will be displayed.
@@ -59,7 +59,7 @@ export class t2pHttpService {
     element.setAttribute(
       'href',
       'data:text/plain;charset=utf-8,' +
-        encodeURIComponent(this.plainDocumentForDownload)
+      encodeURIComponent(this.plainDocumentForDownload)
     );
     element.setAttribute('download', filename);
 
@@ -97,9 +97,27 @@ export class t2pHttpService {
     text: string,
     apiKey: string,
     approach: string,
+    modelType: string, // New parameter to specify BPMN or Petri Net
     callback: (response: any) => void
   ) {
-    const llmUrl = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/api_call'; //Specifies the interface through which the BPMN model is displayed.
+    // Determine the appropriate URL based on the modelType
+    let llmUrl: string;
+    console.log('Approach value:', approach);
+    console.log('Model type:', modelType);
+
+    if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
+      llmUrl = this.urlBPMN;
+      console.log('Using BPMN URL:', llmUrl);
+    } else if (modelType.toLowerCase().includes('petri') || modelType.toLowerCase().includes('pnml') || modelType === 'petri') {
+      llmUrl = this.urlPetriNet;
+      console.log('Using Petri Net URL:', llmUrl);
+    } else {
+      console.error('Unknown model type:', modelType);
+      this.spinnerService.hide();
+      document.getElementById('error-container-text')!.innerHTML = 'Unknown model type: ' + modelType;
+      document.getElementById('error-container-text')!.style.display = 'block';
+      return;
+    }
 
     const body = {
       text: text,
