@@ -45,6 +45,7 @@ export class T2PComponent {
         this.apiKey,
         this.promptingStrategy,
         this.selectedDiagram, // Add the missing modelType parameter
+        this.selectedLLMProvider, // Add the selected LLM provider
         (response: any) => {
           this.responseText = JSON.stringify(response, null, 2);
           this.setTextResult(text);

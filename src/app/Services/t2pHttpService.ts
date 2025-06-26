@@ -7,10 +7,9 @@ import { ModelDisplayer } from '../utilities/modelDisplayer';
 
 const httpOptions = {
   headers: new HttpHeaders({
-    Accept: '*/*',
-    'Content-Type': 'application/json', // We send Text
+    'Content-Type': 'application/json',
   }),
-  responseType: 'text' as 'json', // We accept plain text as response.
+  responseType: 'text' as 'json', // API returns text, not JSON
 };
 
 @Injectable({
@@ -98,6 +97,7 @@ export class t2pHttpService {
     apiKey: string,
     approach: string,
     modelType: string, // New parameter to specify BPMN or Petri Net
+    llmProvider: string, // Dynamic LLM provider from frontend
     callback: (response: any) => void
   ) {
     // Determine the appropriate URL based on the modelType
@@ -123,6 +123,7 @@ export class t2pHttpService {
       text: text,
       api_key: apiKey,
       approach: approach,
+      llm_provider: llmProvider // Use the dynamic llm_provider from frontend
     };
     // Reset Model Container Div, so that only valid/current model will be displayed.
     document.getElementById('model-container')!.innerHTML = '';
@@ -130,7 +131,28 @@ export class t2pHttpService {
     return this.t2phttpClient.post<string>(llmUrl, body, httpOptions).subscribe(
       (response: any) => {
         this.spinnerService.hide();
-        callback(response); // Call the callback function with the response
+
+        // Parse the JSON response since API returns JSON as text
+        let parsedResponse;
+        try {
+          parsedResponse = JSON.parse(response);
+        } catch (e) {
+          // If parsing fails, treat response as plain text
+          parsedResponse = { result: response };
+        }
+
+        // Extract the result from the parsed JSON response
+        const xmlContent = parsedResponse.result || parsedResponse;
+        this.plainDocumentForDownload = xmlContent;
+
+        // Determine which display method to use based on modelType
+        if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
+          ModelDisplayer.displayBPMNModel(xmlContent);
+        } else if (modelType.toLowerCase().includes('petri') || modelType.toLowerCase().includes('pnml') || modelType === 'petri') {
+          ModelDisplayer.generatePetriNet(xmlContent);
+        }
+
+        callback(parsedResponse); // Call the callback function with the parsed response
       },
       (error: any) => {
         this.spinnerService.hide();
