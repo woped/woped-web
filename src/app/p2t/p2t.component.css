@@ -19,10 +19,12 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
+
 /* Test commit */
 .dropzone span {
   margin: auto 0;
 }
+
 .generateButton {
   margin-top: 2em;
 }
@@ -46,6 +48,7 @@
   border-radius: 10px;
   display: none;
 }
+
 .card {
   border-radius: 4px;
   border: 1px solid #eee;
@@ -61,13 +64,14 @@
   transition: all 0.2s ease-in-out;
   line-height: 24px;
 }
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-    margin: 8px 0;
+  margin: 8px 0;
 }
 
 #model-container {
@@ -76,4 +80,17 @@ h6 {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Styles for the info icon */
+.info-icon {
+  margin-left: 8px;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.info-icon:hover {
+  color: #1976d2;
 }

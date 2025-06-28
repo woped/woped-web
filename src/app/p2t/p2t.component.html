@@ -38,7 +38,14 @@
 
             <!-- Step 2: Model input and configuration -->
             <mat-step>
-                <ng-template matStepLabel>Insert your Model</ng-template>
+                <ng-template matStepLabel>
+                    <span>Insert your Model</span>
+                    <mat-icon *ngIf="useLLM" class="info-icon"
+                        matTooltip="Make sure that the selected model's token limit is sufficient for the BPMN."
+                        matTooltipPosition="right">
+                        info
+                    </mat-icon>
+                </ng-template>
                 <!-- prompt input fields -->
                 <div *ngIf="showPromptInput" class="centered full-width">
                     <mat-form-field appearance="fill" class="full-width">
@@ -67,7 +74,7 @@ Create a clearly structured and comprehensible continuous text from the given BP
                 <!-- Toggle switch for selecting between algorithm and LLM, and dropdown for selecting GPT model -->
                 <div class="horizontal-center">
                     <mat-slide-toggle #llmToggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
-                    
+
                     <!-- Provider selection appears when LLM is toggled on -->
                     <mat-form-field appearance="fill" class="dropdown-field" *ngIf="useLLM">
                         <mat-label>Select Provider</mat-label>
@@ -75,15 +82,16 @@ Create a clearly structured and comprehensible continuous text from the given BP
                             <mat-option *ngFor="let provider of providers" [value]="provider">{{provider}}</mat-option>
                         </mat-select>
                     </mat-form-field>
-                    
+
                     <!-- Model selection appears based on selected provider -->
-                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered || selectedProvider === 'lmStudio'">
+                    <mat-form-field appearance="fill" class="dropdown-field"
+                        *ngIf="isApiKeyEntered || selectedProvider === 'lmStudio'">
                         <mat-label>Select Model</mat-label>
                         <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
                             <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>
                         </mat-select>
                     </mat-form-field>
-                    
+
                     <!-- RAG toggle switch (optional) -->
                     <mat-slide-toggle *ngIf="useLLM" (change)="onRagToggleChange($event)" class="rag-toggle">
                         {{useRag ? 'RAG Enabled' : 'RAG Disabled'}}
