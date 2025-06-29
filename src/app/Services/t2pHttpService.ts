@@ -7,25 +7,24 @@ import { ModelDisplayer } from '../utilities/modelDisplayer';
 
 const httpOptions = {
   headers: new HttpHeaders({
-    Accept: '*/*',
-    'Content-Type': 'application/json', // We send Text
+    'Content-Type': 'application/json',
   }),
-  responseType: 'text' as 'json', // We accept plain text as response.
+  responseType: 'text' as 'json', // API returns text, not JSON
 };
 
 @Injectable({
   providedIn: 'root',
 })
 export class t2pHttpService {
-  private urlBPMN = 'http://localhost:8081/t2p/generateBPMNv2'; // Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .bpmn Datei zurück?
-  private urlPetriNet = 'http://localhost:8081/t2p/generatePNML'; //Specifies the interface through which the BPMN model is displayed. Liefert als Ergebnis eine .pnml Datei zurück?
+  private urlBPMN = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_BPMN';
+  private urlPetriNet = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_PNML';
 
   private plainDocumentForDownload: string;
 
   constructor(
     private t2phttpClient: HttpClient,
     public spinnerService: SpinnerService
-  ) {}
+  ) { }
   //Makes the HTTP request and returns the HTTP response for the BPMN model. Triggers the display of the model at the same time.
   public postT2PBPMN(text: string) {
     //Reset Model Container Div, so that only valid/current model will be displayed.
@@ -59,7 +58,7 @@ export class t2pHttpService {
     element.setAttribute(
       'href',
       'data:text/plain;charset=utf-8,' +
-        encodeURIComponent(this.plainDocumentForDownload)
+      encodeURIComponent(this.plainDocumentForDownload)
     );
     element.setAttribute('download', filename);
 
@@ -96,13 +95,35 @@ export class t2pHttpService {
   public postT2PWithLLM(
     text: string,
     apiKey: string,
+    approach: string,
+    modelType: string, // New parameter to specify BPMN or Petri Net
+    llmProvider: string, // Dynamic LLM provider from frontend
     callback: (response: any) => void
   ) {
-    const llmUrl = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/api_call'; //Specifies the interface through which the BPMN model is displayed.
+    // Determine the appropriate URL based on the modelType
+    let llmUrl: string;
+    console.log('Approach value:', approach);
+    console.log('Model type:', modelType);
+
+    if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
+      llmUrl = this.urlBPMN;
+      console.log('Using BPMN URL:', llmUrl);
+    } else if (modelType.toLowerCase().includes('petri') || modelType.toLowerCase().includes('pnml') || modelType === 'petri') {
+      llmUrl = this.urlPetriNet;
+      console.log('Using Petri Net URL:', llmUrl);
+    } else {
+      console.error('Unknown model type:', modelType);
+      this.spinnerService.hide();
+      document.getElementById('error-container-text')!.innerHTML = 'Unknown model type: ' + modelType;
+      document.getElementById('error-container-text')!.style.display = 'block';
+      return;
+    }
 
     const body = {
       text: text,
       api_key: apiKey,
+      approach: approach,
+      llm_provider: llmProvider // Use the dynamic llm_provider from frontend
     };
     // Reset Model Container Div, so that only valid/current model will be displayed.
     document.getElementById('model-container')!.innerHTML = '';
@@ -110,7 +131,28 @@ export class t2pHttpService {
     return this.t2phttpClient.post<string>(llmUrl, body, httpOptions).subscribe(
       (response: any) => {
         this.spinnerService.hide();
-        callback(response); // Call the callback function with the response
+
+        // Parse the JSON response since API returns JSON as text
+        let parsedResponse;
+        try {
+          parsedResponse = JSON.parse(response);
+        } catch (e) {
+          // If parsing fails, treat response as plain text
+          parsedResponse = { result: response };
+        }
+
+        // Extract the result from the parsed JSON response
+        const xmlContent = parsedResponse.result || parsedResponse;
+        this.plainDocumentForDownload = xmlContent;
+
+        // Determine which display method to use based on modelType
+        if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
+          ModelDisplayer.displayBPMNModel(xmlContent);
+        } else if (modelType.toLowerCase().includes('petri') || modelType.toLowerCase().includes('pnml') || modelType === 'petri') {
+          ModelDisplayer.generatePetriNet(xmlContent);
+        }
+
+        callback(parsedResponse); // Call the callback function with the parsed response
       },
       (error: any) => {
         this.spinnerService.hide();
