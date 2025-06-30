@@ -1,79 +1,70 @@
 <mat-vertical-stepper [linear]="false" #stepper [animationDuration]="200">
+  <!-- Step 1: Explanation + LLM-Konfiguration -->
   <mat-step>
     <form>
       <ng-template matStepLabel>Explanation</ng-template>
       <p>
-        <b>What is T2P?</b> <br />
+        <b>What is T2P?</b><br />
         The text-to-process approach deals with the conversion of a text test
         into a model within the framework of business process management (BPM)
-        and natural language processing (NLP). With the help of various
-        algorithms, the desired text can be converted either into a BPMN model
-        or into a Petri net.
+        and natural language processing (NLP).
       </p>
+
       <label>
-        <input
-          type="checkbox"
-          [checked]="isLLMEnabled"
-          (change)="isLLMEnabled = $event.target.checked"
-        />
+        <input type="checkbox" [checked]="isLLMEnabled" (change)="isLLMEnabled = $event.target.checked" />
         Use LLM
       </label>
+
       <div *ngIf="isLLMEnabled">
-        <label for="apiKeyInput">API Key:</label>
-        <input
-          type="text"
-          id="apiKeyInput"
-          #apiKeyInput
-          placeholder="Enter API Key"
-        />
+        <!-- API Key Input -->
+        <mat-form-field appearance="outline" class="w-100 mt-2">
+          <mat-label>API Key</mat-label>
+          <input matInput #apiKeyInput [(ngModel)]="apiKey" name="apiKey" placeholder="Enter your LLM API key" />
+        </mat-form-field>
+
+        <!-- LLM Provider Auswahl -->
+        <div class="mt-2">
+          <label class="d-block mb-1"><strong>LLM Provider</strong></label>
+          <mat-radio-group [(ngModel)]="selectedLLMProvider" name="llmProvider">
+            <mat-radio-button value="openai" class="mr-4">OpenAI</mat-radio-button>
+            <mat-radio-button value="gemini">Gemini</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <!-- Prompting Strategy Auswahl -->
+        <div class="mt-2">
+          <label class="d-block mb-1"><strong>Prompting Strategy</strong></label>
+          <mat-radio-group [(ngModel)]="promptingStrategy" name="promptingStrategy">
+            <mat-radio-button value="few_shot" class="mr-4">Few-Shot</mat-radio-button>
+            <mat-radio-button value="zero_shot">Zero-Shot</mat-radio-button>
+          </mat-radio-group>
+        </div>
       </div>
     </form>
     <br />
     <button mat-button matStepperNext class="card">Next</button>
   </mat-step>
+
+  <!-- Step 2: Text Input -->
   <mat-step>
     <form>
       <ng-template matStepLabel>Insert your Text</ng-template>
-      <ng-template matStepLabel>Text</ng-template>
       <mat-form-field appearance="fill" [style.width.%]="50">
-        <mat-label>Enter Text to Transform </mat-label>
-        <div>
-          <textarea
-            class="textfeld"
-            [style.width.%]="100"
-            matInput
-            cdkTextareaAutosize
-            cdkAutosizeMinRows="4"
-            cdkAutosizeMaxRows="100"
-            id="text-input"
-            #modelInput
-            >{{ text }}</textarea
-          >
-        </div>
+        <mat-label>Enter Text to Transform</mat-label>
+        <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
+          cdkAutosizeMaxRows="100" id="text-input" #modelInput>{{ text }}</textarea>
       </mat-form-field>
-      <br />
-      <div
-        class="dropzone"
-        #dropzoneRef
-        (drop)="onDrop($event)"
-        (dragover)="onDragOver($event)"
-        (click)="selectFiles()"
-      >
-        <input
-          type="file"
-          style="display: none"
-          #fileInputRef
-          accept=".txt"
-          (change)="onFileSelected($event)"
-        />
-        <span *ngIf="isFiledDropped"
-          >Hochgeladene Datei: {{ droppedFileName }}
+
+      <!-- File Upload via Drag & Drop -->
+      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+        (click)="selectFiles()">
+        <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
+        <span *ngIf="isFiledDropped">Uploaded file: {{ droppedFileName }}</span>
+        <span *ngIf="!isFiledDropped">
+          Upload file via drag-and-drop or click here
         </span>
-        <span *ngIf="!isFiledDropped"
-          >Upload files via drag and drop or click into the textfield</span
-        >
       </div>
-      <br />
+
       <div>
         <button mat-button matStepperPrevious class="card">Back</button>
         <button type="button" mat-button matStepperNext class="card">
@@ -82,62 +73,53 @@
       </div>
     </form>
   </mat-step>
+
+  <!-- Step 3: Select Model -->
   <mat-step>
-    <mat-radio-group
-      aria-label="Select an option"
-      (click)="onSelectedDiagram($event)"
-    >
-      <mat-radio-button value="bpmn">BPMN</mat-radio-button>
-      <mat-radio-button value="petri-net">Petri-Netz</mat-radio-button>
-    </mat-radio-group>
     <form>
       <ng-template matStepLabel>Choose Your Model</ng-template>
-      <br />
+      <mat-radio-group aria-label="Select an option" (click)="onSelectedDiagram($event)">
+        <mat-radio-button value="bpmn">BPMN</mat-radio-button>
+        <mat-radio-button value="petri-net">Petri-Net</mat-radio-button>
+      </mat-radio-group>
+
       <div>
-        <button type="button" mat-button matStepperPrevious class="card">
-          Back
-        </button>
-        <button
-          type="button"
-          mat-button
-          matStepperNext
-          class="card"
-          (click)="generateProcess(modelInput.value)"
-        >
+        <button type="button" mat-button matStepperPrevious class="card">Back</button>
+        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess(modelInput.value)">
           Generate
         </button>
       </div>
     </form>
   </mat-step>
 
+  <!-- Step 4: Output -->
   <mat-step>
     <form>
       <ng-template matStepLabel>Process (Done)</ng-template>
-      You are now done.
+      <p>You are now done.</p>
       <div>
-        <br />
         <button mat-button matStepperPrevious class="card">Back</button>
       </div>
     </form>
+
     <div id="loading">
       <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
       </mat-spinner>
     </div>
   </mat-step>
 </mat-vertical-stepper>
-<!-- Container for displaying  -->
+
+<!-- Output -->
 <div>
-  <!-- display input from textfield in label -->
-  <label> <b>Your Input:</b> {{ textResult }}</label>
+  <label><b>Your Input:</b> {{ textResult }}</label>
 </div>
-<button (click)="onDownloadImage()" class="card">
-  Download Process as .png
-</button>
-<button (click)="onDownloadText()" class="card">
-  Download Process as File
-</button>
-<!-- Container for Error Handling -->
+<button (click)="onDownloadImage()" class="card">Download Process as .png</button>
+<button (click)="onDownloadText()" class="card">Download Process as File</button>
+
+<!-- Error Handling -->
 <div id="error-container">
   <p id="error-container-text"></p>
 </div>
+
+<!-- BPMN Container -->
 <div id="model-container"></div>
