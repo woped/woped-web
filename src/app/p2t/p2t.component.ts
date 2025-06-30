@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatSlideToggle,MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatStepper } from '@angular/material/stepper';
 import { p2tHttpService } from '../Services/p2tHttpService';
 import { t2pHttpService } from '../Services/t2pHttpService';
@@ -33,6 +33,9 @@ export class P2tComponent implements OnInit {
   apiKeyExample = 'sk-proj-ABcdEFghIJklMNopQRstUVwxYZabCDefghIJklMNopQRstu';
   showPromptInput = false;
   useLLM = false;
+  useRag: boolean = false; //default value for RAG toggle
+  providers: string[] = ['openAi', 'gemini', 'lmStudio']; 
+  selectedProvider: string = 'openAi'; // Default provider
   prompt = `Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!`;
   isPromptReadonly = true;
   models: string[] = [];
@@ -44,6 +47,7 @@ export class P2tComponent implements OnInit {
   @ViewChild('stepperRef') stepper!: MatStepper;
   @ViewChild('dropZone', { static: true }) dropZone: ElementRef<HTMLDivElement>;
   @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('llmToggle') llmToggle!: MatSlideToggle;
 
   constructor(
     private p2tHttpService: p2tHttpService,
@@ -57,7 +61,7 @@ export class P2tComponent implements OnInit {
   ngOnInit(): void {
     // Ensure apiKey is set before fetching models
     if (this.apiKey) {
-      this.p2tHttpService.getModels(this.apiKey).subscribe(models => {
+      this.p2tHttpService.getModels(this.apiKey, this.selectedProvider).subscribe(models => {
         this.models = models;
       });
     }
@@ -69,6 +73,64 @@ export class P2tComponent implements OnInit {
    */
   onDragOver(event: DragEvent) {
     event.preventDefault();
+  }
+
+  /**
+   * Handles provider change and fetches appropriate models
+   * @param provider The selected provider
+  */
+  onProviderChange(provider: string): void {
+    this.selectedProvider = provider;
+    this.models = []; // Clear existing models
+    this.selectedModel = ''; // Reset model selection
+    
+    // LMStudio doesn't need API key
+    if (provider === 'lmStudio') {
+      this.isApiKeyEntered = true;
+      this.fetchModelsForProvider(provider);
+    } else {
+      // For providers that need API key, only fetch models if key is entered
+      this.isApiKeyEntered = !!this.apiKey;
+      if (this.isApiKeyEntered) {
+        this.fetchModelsForProvider(provider);
+      } else {
+        this.enterApiKey(); // Prompt for API key if not entered
+      }
+    }
+  }
+
+  /**
+   * Fetches models available for the selected provider
+   * @param provider The provider to fetch models for
+   */
+  fetchModelsForProvider(provider: string): void {
+    if (provider === 'lmStudio') {
+      
+      this.p2tHttpService.getModels(null, this.selectedProvider).subscribe(models => {
+        this.models = models;
+        this.selectedModel = this.models[0];
+      });  
+    } else if (provider === 'gemini') {
+      // Fetch Gemini models via API
+      this.p2tHttpService.getModels(this.apiKey, this.selectedProvider).subscribe(models => {
+        this.models = models;
+        this.selectedModel = models[0];
+      });
+    } else {
+      // Fetch OpenAI models via API
+      this.p2tHttpService.getModels(this.apiKey, this.selectedProvider).subscribe(models => {
+        this.models = models;
+        this.selectedModel = models[0];
+      });
+    }
+  }
+
+  /**
+   * Toggles RAG feature on or off
+   * @param event The toggle change event
+   */
+  onRagToggleChange(event: MatSlideToggleChange): void {
+    this.useRag = event.checked;
   }
 
   /**
@@ -88,9 +150,17 @@ export class P2tComponent implements OnInit {
           text: window.dropfileContent,
           apiKey: this.apiKey,
           prompt: this.prompt,
-          model: this.selectedModel
+          model: this.selectedModel,
+          provider: this.selectedProvider
         });
-        this.p2tHttpService.postP2TLLM(window.dropfileContent, this.apiKey, this.prompt, this.selectedModel).subscribe(
+        this.p2tHttpService.postP2TLLM(
+          window.dropfileContent, 
+          this.apiKey, 
+          this.prompt, 
+          this.selectedModel,
+          this.selectedProvider,
+          this.useRag // Set rag to false as default value
+        ).subscribe(
           (response: any) => {
             this.spinnerService.hide();
             this.displayText(response);
@@ -126,10 +196,16 @@ export class P2tComponent implements OnInit {
    */
   onToggleChange(event: MatSlideToggleChange) {
     if (event.checked) {
-      this.enterApiKey(event);
+      this.useLLM = true;
+      this.toggleText = 'LLM';
+      this.showPromptInput = true;
+      this.isApiKeyEntered = false;
+      this.selectedProvider = '';
     } else {
       this.useLLM = false;
       this.toggleText = 'Algorithm';
+      this.selectedModel = '';
+      this.selectedProvider = '';
       this.showPromptInput = false;
       this.isApiKeyEntered = false; // Reset API key flag
     }
@@ -139,37 +215,63 @@ export class P2tComponent implements OnInit {
    * Prompts the user to enter their API key and updates the state accordingly.
    * @param event The toggle change event.
    */
-  enterApiKey(event: MatSlideToggleChange) {
-    let apiKey = window.prompt('Please enter your API key');
-    while (apiKey !== null && !apiKey.startsWith('sk-proj-')) {
-      window.alert('Invalid API key');
-      apiKey = window.prompt('Please enter your API key');
-    }
-    if (apiKey !== null) {
-      this.apiKey = apiKey;
-      this.useLLM = true;
-      this.toggleText = 'LLM';
-      this.showPromptInput = true;
-      this.isApiKeyEntered = true; // Set API key flag to true
-      // Fetch models once API key is entered
-      this.p2tHttpService.getModels(apiKey).subscribe(models => {
-        this.models = models;
-      });
-    } else {
-      this.useLLM = false;
-      this.toggleText = 'Algorithm';
-      this.showPromptInput = false;
-      this.isApiKeyEntered = false; // Reset API key flag
-      event.source.checked = false;
+  enterApiKey() {
+ // If LMStudio is selected, no API key is needed
+  if (this.selectedProvider === 'lmStudio') {
+    this.useLLM = true;
+    this.toggleText = 'LLM';
+    this.showPromptInput = true;
+    this.isApiKeyEntered = true;
+    this.fetchModelsForProvider('lmStudio');
+    return;
+  }
+  
+  let apiKey = window.prompt(`Please enter your ${this.selectedProvider} API key`);
+  
+  // Different validation for different providers
+  let isValidKey = false;
+  if (this.selectedProvider === 'openAi' && apiKey?.startsWith('sk-proj-')) {
+    isValidKey = true;
+  } else if (this.selectedProvider === 'gemini' && apiKey?.length > 30) {
+    isValidKey = true;
+  }
+  
+  while (apiKey !== null && !isValidKey) {
+    window.alert(`Invalid ${this.selectedProvider} API key`);
+    apiKey = window.prompt(`Please enter your ${this.selectedProvider} API key again`);
+    
+    // Recheck validation
+    if (this.selectedProvider === 'openAi' && apiKey?.startsWith('sk-proj-')) {
+      isValidKey = true;
+    } else if (this.selectedProvider === 'gemini' && apiKey?.length > 30) {
+      isValidKey = true;
     }
   }
+  
+  if (apiKey !== null) {
+    this.apiKey = apiKey;
+    this.useLLM = true;
+    this.toggleText = 'LLM';
+    this.showPromptInput = true;
+    this.isApiKeyEntered = true;
+    this.fetchModelsForProvider(this.selectedProvider);
+  } else {
+    this.useLLM = false;
+    this.toggleText = 'Algorithm';
+    this.showPromptInput = false;
+    this.isApiKeyEntered = false;
+    if(this.llmToggle) {
+      this.llmToggle.checked = false; // Reset toggle state
+    }
+  }
+}
 
   /**
    * Prompts the user to enter the API key again.
    */
   promptForApiKey() {
     if (confirm('Would you like to enter the API key again?')) {
-      this.enterApiKey(null);
+      this.enterApiKey();
     }
   }
 
