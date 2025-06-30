@@ -92,7 +92,7 @@
         "deploy": {
           "builder": "angular-cli-ghpages:deploy",
           "options": {
-            "baseHref": "/woped-frontend/",
+            "baseHref": "/woped-web/",
             "name": "WoPeD Team",
             "email": "info@woped.org"
           }
