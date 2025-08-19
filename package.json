@@ -39,7 +39,7 @@
   "dependencies": {
     "@angular-ru/jest-utils": "^15.304.1",
     "@angular/animations": "^16.0.0",
-    "@angular/cdk": "^16.0.1",
+    "@angular/cdk": "^20.1.6",
     "@angular/common": "^16.0.0",
     "@angular/compiler": "^16.0.0",
     "@angular/core": "^16.0.0",
