@@ -16,8 +16,11 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class t2pHttpService {
-  private urlBPMN = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_BPMN';
-  private urlPetriNet = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_PNML';
+  private host = 'https://woped.dhbw-karlsruhe.de';
+  private classicUrlBPMN = this.host + '/t2p/generate_BPMN';
+  private classicUrlPetriNet = this.host + '/t2p/generate_PNML';
+  private llmUrlBPMN = this.host + '/t2p-2.0/generate_BPMN';
+  private llmUrlPetriNet = this.host + '/t2p-2.0/generate_PNML';
 
   private plainDocumentForDownload: string;
 
@@ -30,7 +33,7 @@ export class t2pHttpService {
     //Reset Model Container Div, so that only valid/current model will be displayed.
     document.getElementById('model-container')!.innerHTML = '';
     return this.t2phttpClient
-      .post<string>(this.urlBPMN, text, httpOptions)
+      .post<string>(this.classicUrlBPMN, text, httpOptions)
       .subscribe(
         (response: any) => {
           this.spinnerService.hide();
@@ -40,11 +43,16 @@ export class t2pHttpService {
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
-          console.log(error);
+          console.log('Error:', error);
           // Error Handling User Feedback
           this.spinnerService.hide();
-          document.getElementById('error-container-text')!.innerHTML =
-            error.status + ' ' + error.statusText + ' ' + error.error;
+          let errorMessage = '';
+          if (error.status === 0) {
+            errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
+          } else {
+            errorMessage = error.status + ' ' + error.statusText + (error.error ? ' ' + error.error : '');
+          }
+          document.getElementById('error-container-text')!.innerHTML = errorMessage;
           document.getElementById('error-container-text')!.style.display =
             'block';
         }
@@ -74,7 +82,7 @@ export class t2pHttpService {
     //Reset Model Container Div, so that only valid/current model will be displayed.
     document.getElementById('model-container')!.innerHTML = '';
     return this.t2phttpClient
-      .post<string>(this.urlPetriNet, text, httpOptions)
+      .post<string>(this.classicUrlPetriNet, text, httpOptions)
       .subscribe(
         (response: any) => {
           this.spinnerService.hide();
@@ -83,10 +91,16 @@ export class t2pHttpService {
           this.plainDocumentForDownload = response;
         },
         (error: any) => {
+          console.log('Error:', error);
           this.spinnerService.hide();
           // Error Handling User Feedback
-          document.getElementById('error-container-text')!.innerHTML =
-            error.status + ' ' + error.statusText + ' ' + error.error;
+          let errorMessage = '';
+          if (error.status === 0) {
+            errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
+          } else {
+            errorMessage = error.status + ' ' + error.statusText + (error.error ? ' ' + error.error : '');
+          }
+          document.getElementById('error-container-text')!.innerHTML = errorMessage;
           document.getElementById('error-container-text')!.style.display =
             'block';
         }
@@ -106,10 +120,10 @@ export class t2pHttpService {
     console.log('Model type:', modelType);
 
     if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
-      llmUrl = this.urlBPMN;
+      llmUrl = this.llmUrlBPMN;
       console.log('Using BPMN URL:', llmUrl);
     } else if (modelType.toLowerCase().includes('petri') || modelType.toLowerCase().includes('pnml') || modelType === 'petri') {
-      llmUrl = this.urlPetriNet;
+      llmUrl = this.llmUrlPetriNet;
       console.log('Using Petri Net URL:', llmUrl);
     } else {
       console.error('Unknown model type:', modelType);
@@ -155,9 +169,15 @@ export class t2pHttpService {
         callback(parsedResponse); // Call the callback function with the parsed response
       },
       (error: any) => {
+        console.log('Error:', error);
         this.spinnerService.hide();
-        document.getElementById('error-container-text')!.innerHTML =
-          error.status + ' ' + error.statusText + ' ' + error.error;
+        let errorMessage = '';
+        if (error.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check if the backend is running and accessible.';
+        } else {
+          errorMessage = error.status + ' ' + error.statusText + (error.error ? ' ' + error.error : '');
+        }
+        document.getElementById('error-container-text')!.innerHTML = errorMessage;
         document.getElementById('error-container-text')!.style.display =
           'block';
       }
