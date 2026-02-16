@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 /**
  * Service for handling HTTP requests related to process-to-text translation.
@@ -11,8 +12,8 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class p2tHttpService {
-  private apiUrl = '/p2t'; // This should match the proxy configuration
-  private gptModelsUrl = '/p2t/gptModels'; // This should also match the proxy configuration
+  private apiUrl = environment.p2tApiUrl || '/p2t';
+  private gptModelsUrl = `${this.apiUrl}/gptModels`;
 
   constructor(private http: HttpClient) {}
 
