@@ -11,7 +11,8 @@ jobs:
     uses: woped/devops/.github/workflows/validate-commit-msg.yaml@main
   testing_ts:
     uses: woped/devops/.github/workflows/testing_ts.yaml@main #tests are reported and updated as lcov
-  sonar_ts:
-    needs: testing_ts
-    uses: woped/devops/.github/workflows/sonar_ts.yaml@main
-    secrets: inherit
+  # sonar_ts deaktiviert (SONAR_TOKEN/403); bei Bedarf wieder einkommentieren
+  # sonar_ts:
+  #   needs: testing_ts
+  #   uses: woped/devops/.github/workflows/sonar_ts.yaml@main
+  #   secrets: inherit

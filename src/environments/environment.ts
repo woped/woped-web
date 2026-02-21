@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  /** P2T API base URL (e.g. https://woped.dhbw-karlsruhe.de/p2t). Empty = use relative /p2t with dev proxy. */
+  p2tApiUrl: ''
 };
 
 /*
