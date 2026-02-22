@@ -8,7 +8,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build -- --configuration=production
+RUN npm run build -- --configuration=production --base-href /woped-web/
 
 # Stage 2: Serve the application with Nginx
 FROM nginx:alpine
