@@ -31,9 +31,7 @@
     "docs:json": "compodoc -p ./tsconfig.json -e json -d .",
     "storybook": "npm run docs:json && start-storybook -p 6006",
     "build-storybook": "npm run docs:json && build-storybook",
-    "deploy-storybook": "npm run build-storybook && npx angular-cli-ghpages --dir=dist/woped-frontend",
-    "deploy_dependency": "ng add angular-cli-ghpages",
-    "deploy": "ng deploy"
+    "deploy-storybook": "npm run build-storybook && npx angular-cli-ghpages --dir=dist/woped-frontend"
   },
   "private": false,
   "dependencies": {
