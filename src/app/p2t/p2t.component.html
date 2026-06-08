@@ -1,125 +1,131 @@
-<!DOCTYPE html>
-<html>
+<div class="tool">
+  <!-- Left: model upload & configuration -->
+  <section class="panel panel--input">
+    <p class="panel__hint">
+      Upload a BPMN or PNML process model and generate a natural-language
+      description of it, either with the built-in algorithm or an LLM.
+    </p>
 
-<head>
-    <style>
-        .centered {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .full-width {
-            width: 100%;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="centered">
-        <!-- Stepper for guiding the user through different steps of the process -->
-        <mat-stepper orientation="vertical" #stepperRef>
-            <!-- Step 1: Explanation of P2T -->
-            <mat-step>
-                <ng-template matStepLabel>Explanation</ng-template>
-                <p><b>What is P2T?</b> <br>
-                    The process-to-text approach in the context of Business Process Management
-                    (BPM) and Natural Language Processing (NLP) refers to the automatic generation of text
-                    descriptions or documentations of business processes. Using BPM techniques and NLP algorithms,
-                    process models
-                    can be analyzed and translated into natural language. This allows the creation of detailed
-                    descriptions
-                    of processes that can be used for various purposes, such as training documentation, user
-                    documentation, or compliance reports.
-                </p>
-                <button mat-button matStepperNext class="card">Next</button>
-            </mat-step>
-
-            <!-- Step 2: Model input and configuration -->
-            <mat-step>
-                <ng-template matStepLabel>Insert your Model</ng-template>
-                <!-- prompt input fields -->
-                <div *ngIf="showPromptInput" class="centered full-width">
-                    <mat-form-field appearance="fill" class="full-width">
-                        <mat-label>Prompt</mat-label>
-                        <textarea matInput [(ngModel)]="prompt" name="prompt" [readonly]="isPromptReadonly"
-                            cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" (click)="editPrompt()">
-Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!
-                    </textarea>
-                    </mat-form-field>
-                </div>
-                <p>To upload your process model you can either select your file via a click in the Area in your
-                    explorer or drag and drop it into the right pane.<br></p>
-                <!-- Dropzone for file upload -->
-                <div class="insertModel">
-                    <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
-                        (click)="selectFiles()">
-                        <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn"
-                            (change)="onFileSelected($event)">
-                        <span *ngIf="isFileDropped">Uploaded file: {{ droppedFileName }}</span>
-                        <span *ngIf="!isFileDropped">Upload files via drag and drop or click into the textfield</span>
-                    </div>
-                </div>
-                <!-- Button to generate text from the process model -->
-                <button mat-button matStepperNext class="card" (click)="generateText()"
-                    [disabled]="isGenerateButtonDisabled()">Generate</button>
-                <!-- Toggle switch for selecting between algorithm and LLM, and dropdown for selecting GPT model -->
-                <div class="horizontal-center">
-                    <mat-slide-toggle #llmToggle (change)="onToggleChange($event)">{{toggleText}}</mat-slide-toggle>
-                    
-                    <!-- Provider selection appears when LLM is toggled on -->
-                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="useLLM">
-                        <mat-label>Select Provider</mat-label>
-                        <mat-select [(value)]="selectedProvider" (selectionChange)="onProviderChange($event.value)">
-                            <mat-option *ngFor="let provider of providers" [value]="provider">{{provider}}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    
-                    <!-- Model selection appears based on selected provider -->
-                    <mat-form-field appearance="fill" class="dropdown-field" *ngIf="isApiKeyEntered || selectedProvider === 'lmStudio'">
-                        <mat-label>Select Model</mat-label>
-                        <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
-                            <mat-option *ngFor="let model of models" [value]="model">{{model}}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    
-                    <!-- RAG toggle switch (optional) -->
-                    <mat-slide-toggle *ngIf="useLLM" (change)="onRagToggleChange($event)" class="rag-toggle">
-                        {{useRag ? 'RAG Enabled' : 'RAG Disabled'}}
-                    </mat-slide-toggle>
-                </div>
-
-                <!-- API key input field shows only for providers that need it -->
-                <div *ngIf="useLLM && selectedProvider !== 'LMStudio'" class="api-key-container">
-                    <mat-form-field appearance="fill" class="full-width">
-                        <mat-label>{{selectedProvider}} API Key</mat-label>
-                        <input matInput [value]="getDisplayApiKey()" readonly (click)="promptForApiKey()" name="apiKey">
-                    </mat-form-field>
-                </div>
-            </mat-step>
-
-            <!-- Step 3: Display the generated text and any errors -->
-            <mat-step>
-                <ng-template matStepLabel>Text (Done)</ng-template>
-                <div id="loading">
-                    <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async"></mat-spinner>
-                </div>
-                <div id="error-box" *ngIf="error">
-                    <p id="error-content">{{error}}</p>
-                </div>
-            </mat-step>
-        </mat-stepper>
-
-        <!-- Section to display the user's input and generated text -->
-        <div>
-            <label><b>Your input: <br></b></label>
-            <div id="model-container"></div>
-            <label><b>Your text: <br></b></label>
-            <div id="result"></div>
-            <button class="card" (click)="downloadText()">Download Text as .txt</button>
-        </div>
+    <div
+      class="dropzone"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (click)="openFilePicker()">
+      <input type="file" hidden #fileInput accept=".bpmn,.pnml" (change)="onFileSelected($event)" />
+      <mat-icon>upload_file</mat-icon>
+      <span *ngIf="fileName; else noFile">{{ fileName }}</span>
+      <ng-template #noFile>Drop a .bpmn or .pnml file or click to upload</ng-template>
     </div>
-</body>
 
-</html>
+    <mat-button-toggle-group
+      class="mode-toggle"
+      [(ngModel)]="mode"
+      name="mode"
+      aria-label="Generation mode">
+      <mat-button-toggle value="algorithm">Algorithm</mat-button-toggle>
+      <mat-button-toggle value="llm">LLM</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <ng-container *ngIf="isLLM">
+      <div class="config-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Provider</mat-label>
+          <mat-select [(value)]="selectedProvider" (selectionChange)="onProviderChange()">
+            <mat-option *ngFor="let p of providers" [value]="p">{{ p }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Model</mat-label>
+          <mat-select [(value)]="selectedModel" [disabled]="!models.length">
+            <mat-option *ngFor="let m of models" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="needsApiKey" appearance="outline" class="config-grid__full">
+          <mat-label>{{ selectedProvider }} API key</mat-label>
+          <input
+            matInput
+            [type]="showApiKey ? 'text' : 'password'"
+            [(ngModel)]="apiKey"
+            name="p2tApiKey"
+            autocomplete="off"
+            (change)="onApiKeyChange()" />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="showApiKey = !showApiKey"
+            [attr.aria-label]="showApiKey ? 'Hide key' : 'Show key'">
+            <mat-icon>{{ showApiKey ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <div class="llm-options">
+        <mat-slide-toggle [(ngModel)]="useRag" name="useRag">
+          Use RAG
+        </mat-slide-toggle>
+        <button mat-button type="button" (click)="togglePromptEditable()">
+          <mat-icon>{{ promptEditable ? 'lock_open' : 'lock' }}</mat-icon>
+          {{ promptEditable ? 'Lock prompt' : 'Edit prompt' }}
+        </button>
+      </div>
+
+      <mat-form-field appearance="outline" class="text-field">
+        <mat-label>Prompt</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="prompt"
+          name="prompt"
+          [readonly]="!promptEditable"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="3"
+          cdkAutosizeMaxRows="12"></textarea>
+      </mat-form-field>
+
+      <p *ngIf="loadingModels" class="muted">Loading models…</p>
+    </ng-container>
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="generate-btn"
+      [disabled]="!canGenerate"
+      (click)="generate()">
+      <mat-icon>description</mat-icon>
+      Generate text
+    </button>
+
+    <div *ngIf="errorMessage" class="banner banner--error">{{ errorMessage }}</div>
+  </section>
+
+  <!-- Right: rendered model + generated text -->
+  <section class="panel panel--result">
+    <div class="result__toolbar">
+      <span class="result__title">Model &amp; text</span>
+      <span class="spacer"></span>
+      <button mat-icon-button matTooltip="Download text" [disabled]="!resultText" (click)="downloadText()">
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+
+    <div class="result__canvas">
+      <div #diagram class="diagram" [class.diagram--empty]="!fileName"></div>
+      <div *ngIf="!fileName" class="result__placeholder">
+        <mat-icon>account_tree</mat-icon>
+        <p>Upload a model to preview it here.</p>
+      </div>
+    </div>
+
+    <div class="result__text">
+      <div *ngIf="loading" class="text-loading">
+        <mat-spinner [diameter]="40"></mat-spinner>
+      </div>
+      <p *ngIf="resultText" class="generated-text">{{ resultText }}</p>
+      <p *ngIf="!resultText && !loading" class="muted">
+        The generated description will appear here.
+      </p>
+    </div>
+  </section>
+</div>

@@ -1,125 +1,119 @@
-<mat-vertical-stepper [linear]="false" #stepper [animationDuration]="200">
-  <!-- Step 1: Explanation + LLM-Konfiguration -->
-  <mat-step>
-    <form>
-      <ng-template matStepLabel>Explanation</ng-template>
-      <p>
-        <b>What is T2P?</b><br />
-        The text-to-process approach deals with the conversion of a text test
-        into a model within the framework of business process management (BPM)
-        and natural language processing (NLP).
-      </p>
+<div class="tool">
+  <!-- Left: configuration & input -->
+  <section class="panel panel--input">
+    <p class="panel__hint">
+      Describe a process in natural language and generate a BPMN diagram or a
+      Petri net from it using a large language model.
+    </p>
 
-      <label>
-        <input type="checkbox" [checked]="isLLMEnabled" (change)="isLLMEnabled = $event.target.checked" />
-        Use LLM
-      </label>
+    <div *ngIf="modelsError" class="banner banner--error">{{ modelsError }}</div>
 
-      <div *ngIf="isLLMEnabled">
-        <!-- API Key Input -->
-        <mat-form-field appearance="outline" class="w-100 mt-2">
-          <mat-label>API Key</mat-label>
-          <input matInput #apiKeyInput [(ngModel)]="apiKey" name="apiKey" placeholder="Enter your LLM API key" />
-        </mat-form-field>
-
-        <!-- LLM Provider Auswahl -->
-        <div class="mt-2">
-          <label class="d-block mb-1"><strong>LLM Provider</strong></label>
-          <mat-radio-group [(ngModel)]="selectedLLMProvider" name="llmProvider">
-            <mat-radio-button value="openai" class="mr-4">OpenAI</mat-radio-button>
-            <mat-radio-button value="gemini">Gemini</mat-radio-button>
-          </mat-radio-group>
-        </div>
-
-        <!-- Prompting Strategy Auswahl -->
-        <div class="mt-2">
-          <label class="d-block mb-1"><strong>Prompting Strategy</strong></label>
-          <mat-radio-group [(ngModel)]="promptingStrategy" name="promptingStrategy">
-            <mat-radio-button value="few_shot" class="mr-4">Few-Shot</mat-radio-button>
-            <mat-radio-button value="zero_shot">Zero-Shot</mat-radio-button>
-          </mat-radio-group>
-        </div>
-      </div>
-    </form>
-    <br />
-    <button mat-button matStepperNext class="card">Next</button>
-  </mat-step>
-
-  <!-- Step 2: Text Input -->
-  <mat-step>
-    <form>
-      <ng-template matStepLabel>Insert your Text</ng-template>
-      <mat-form-field appearance="fill" [style.width.%]="50">
-        <mat-label>Enter Text to Transform</mat-label>
-        <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
-          cdkAutosizeMaxRows="100" id="text-input" #modelInput>{{ text }}</textarea>
+    <div class="config-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Provider</mat-label>
+        <mat-select [(value)]="selectedProvider" (selectionChange)="onProviderChange()">
+          <mat-option *ngFor="let p of providers" [value]="p">{{ p }}</mat-option>
+        </mat-select>
       </mat-form-field>
 
-      <!-- File Upload via Drag & Drop -->
-      <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
-        (click)="selectFiles()">
-        <input type="file" style="display: none" #fileInputRef accept=".txt" (change)="onFileSelected($event)" />
-        <span *ngIf="isFiledDropped">Uploaded file: {{ droppedFileName }}</span>
-        <span *ngIf="!isFiledDropped">
-          Upload file via drag-and-drop or click here
-        </span>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Model</mat-label>
+        <mat-select [(value)]="selectedModel">
+          <mat-option *ngFor="let m of modelsForProvider" [value]="m.model">
+            {{ m.model }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <div>
-        <button mat-button matStepperPrevious class="card">Back</button>
-        <button type="button" mat-button matStepperNext class="card">
-          Next
+      <mat-form-field appearance="outline" class="config-grid__full">
+        <mat-label>API key</mat-label>
+        <input
+          matInput
+          [type]="showApiKey ? 'text' : 'password'"
+          [(ngModel)]="apiKey"
+          name="apiKey"
+          autocomplete="off"
+          placeholder="Bearer token for the selected provider" />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="showApiKey = !showApiKey"
+          [attr.aria-label]="showApiKey ? 'Hide key' : 'Show key'">
+          <mat-icon>{{ showApiKey ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
-      </div>
-    </form>
-  </mat-step>
-
-  <!-- Step 3: Select Model -->
-  <mat-step>
-    <form>
-      <ng-template matStepLabel>Choose Your Model</ng-template>
-      <mat-radio-group aria-label="Select an option" (click)="onSelectedDiagram($event)">
-        <mat-radio-button value="bpmn">BPMN</mat-radio-button>
-        <mat-radio-button value="petri-net">Petri-Net</mat-radio-button>
-      </mat-radio-group>
-
-      <div>
-        <button type="button" mat-button matStepperPrevious class="card">Back</button>
-        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess(modelInput.value)">
-          Generate
-        </button>
-      </div>
-    </form>
-  </mat-step>
-
-  <!-- Step 4: Output -->
-  <mat-step>
-    <form>
-      <ng-template matStepLabel>Process (Done)</ng-template>
-      <p>You are now done.</p>
-      <div>
-        <button mat-button matStepperPrevious class="card">Back</button>
-      </div>
-    </form>
-
-    <div id="loading">
-      <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async">
-      </mat-spinner>
+      </mat-form-field>
     </div>
-  </mat-step>
-</mat-vertical-stepper>
 
-<!-- Output -->
-<div>
-  <label><b>Your Input:</b> {{ textResult }}</label>
+    <mat-button-toggle-group
+      class="diagram-toggle"
+      [(ngModel)]="diagramType"
+      name="diagramType"
+      aria-label="Diagram type">
+      <mat-button-toggle value="bpmn">BPMN</mat-button-toggle>
+      <mat-button-toggle value="pnml">Petri net</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field appearance="outline" class="text-field">
+      <mat-label>Process description</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="text"
+        name="text"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="6"
+        cdkAutosizeMaxRows="20"
+        placeholder="e.g. The customer places an order. If the item is in stock it is shipped, otherwise the customer is notified."></textarea>
+    </mat-form-field>
+
+    <div
+      class="dropzone"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (click)="openFilePicker()">
+      <input type="file" hidden #fileInput accept=".txt" (change)="onFileSelected($event)" />
+      <mat-icon>upload_file</mat-icon>
+      <span *ngIf="droppedFileName; else noFile">{{ droppedFileName }}</span>
+      <ng-template #noFile>Drop a .txt file or click to upload</ng-template>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="generate-btn"
+      [disabled]="!canGenerate"
+      (click)="generate()">
+      <mat-icon>auto_awesome</mat-icon>
+      Generate
+    </button>
+
+    <div *ngIf="errorMessage" class="banner banner--error">{{ errorMessage }}</div>
+  </section>
+
+  <!-- Right: rendered diagram -->
+  <section class="panel panel--result">
+    <div class="result__toolbar">
+      <span class="result__title">Result</span>
+      <span class="spacer"></span>
+      <button mat-icon-button matTooltip="Download as PNG" [disabled]="!hasResult" (click)="downloadImage()">
+        <mat-icon>image</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Download source file" [disabled]="!hasResult" (click)="downloadFile()">
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+
+    <div class="result__canvas">
+      <div #diagram class="diagram" [class.diagram--empty]="!hasResult"></div>
+
+      <div *ngIf="!hasResult && !loading" class="result__placeholder">
+        <mat-icon>account_tree</mat-icon>
+        <p>Your generated diagram will appear here.</p>
+      </div>
+
+      <div *ngIf="loading" class="result__overlay">
+        <mat-spinner [diameter]="64"></mat-spinner>
+      </div>
+    </div>
+  </section>
 </div>
-<button (click)="onDownloadImage()" class="card">Download Process as .png</button>
-<button (click)="onDownloadText()" class="card">Download Process as File</button>
-
-<!-- Error Handling -->
-<div id="error-container">
-  <p id="error-container-text"></p>
-</div>
-
-<!-- BPMN Container -->
-<div id="model-container"></div>

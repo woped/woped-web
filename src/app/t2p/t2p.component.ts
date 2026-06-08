@@ -1,150 +1,207 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { MatStepper } from '@angular/material/stepper';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import html2canvas from 'html2canvas';
-import { t2pHttpService } from '../Services/t2pHttpService';
-import { SpinnerService } from '../utilities/SpinnerService';
+import {
+  DiagramType,
+  ProviderModel,
+  t2pHttpService,
+} from '../Services/t2pHttpService';
+import { ModelDisplayer } from '../utilities/modelDisplayer';
 
 @Component({
   selector: 'app-t2p',
   templateUrl: './t2p.component.html',
   styleUrls: ['./t2p.component.css'],
 })
-export class T2PComponent {
-  protected text = '';
-  protected selectedDiagram = 'bpmn';
-  protected textResult = '';
-  protected isLLMEnabled = false;
+export class T2PComponent implements OnInit {
+  /** Provider/model pairs advertised by `GET /v2/models`. */
+  protected providerModels: ProviderModel[] = [];
+  protected providers: string[] = [];
+  protected selectedProvider = '';
+  protected selectedModel = '';
+
   protected apiKey = '';
-  protected responseText = '';
-  protected promptingStrategy = 'few_shot'; // NEW
-  protected selectedLLMProvider = 'openai'; // (optional, not used yet)
+  protected showApiKey = false;
 
-  @ViewChild('stepperRef') stepper!: MatStepper;
-  @ViewChild('dropZone', { static: true }) dropZone!: ElementRef<HTMLDivElement>;
-  protected isFiledDropped = false;
+  protected diagramType: DiagramType = 'bpmn';
+  protected text = '';
   protected droppedFileName = '';
-  @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
-  isFileDropped = false;
-  @ViewChild('apiKeyInput') apiKeyInput!: ElementRef;
-  @ViewChild('llmSwitch') llmSwitch!: ElementRef;
 
-  constructor(
-    private http: t2pHttpService,
-    public spinnerService: SpinnerService
-  ) { }
+  protected loading = false;
+  protected modelsError = '';
+  protected errorMessage = '';
+  protected hasResult = false;
 
-  protected generateProcess(inputText: string) {
-    document.getElementById('error-container-text')!.style.display = 'none';
-    this.spinnerService.show();
-    let text = this.replaceUmlaut(inputText);
+  private resultXml = '';
 
-    if (this.isLLMEnabled) {
-      this.apiKey = this.apiKeyInput.nativeElement.value;
-      this.http.postT2PWithLLM(
-        text,
-        this.apiKey,
-        this.promptingStrategy,
-        this.selectedDiagram, // Add the missing modelType parameter
-        this.selectedLLMProvider, // Add the selected LLM provider
-        (response: any) => {
-          this.responseText = JSON.stringify(response, null, 2);
-          this.setTextResult(text);
+  @ViewChild('diagram', { static: true }) diagram!: ElementRef<HTMLDivElement>;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  constructor(private http: t2pHttpService) {}
+
+  ngOnInit(): void {
+    this.http.getModels().subscribe({
+      next: (models) => {
+        this.providerModels = models;
+        this.providers = [...new Set(models.map((m) => m.provider))];
+        const initial = models[0];
+        if (initial) {
+          this.selectedProvider = initial.provider;
+          this.selectedModel = initial.model;
         }
-      );
-    } else {
-      if (this.selectedDiagram === 'bpmn') {
-        this.http.postT2PBPMN(text);
-        this.setTextResult(text);
-      }
-      if (this.selectedDiagram === 'petri-net') {
-        this.http.postT2PPetriNet(text);
-        this.setTextResult(text);
-      }
-    }
-  }
-
-  protected replaceUmlaut(text: string): string {
-    return text
-      .replace('ä', 'ae')
-      .replace('ö', 'oe')
-      .replace('ü', 'ue')
-      .replace('ß', 'ss')
-      .replace('Ä', 'Ae')
-      .replace('Ö', 'Oe')
-      .replace('Ü', 'Ue');
-  }
-
-  protected onSelectedDiagram(event: any) {
-    switch (event.target.value) {
-      case 'bpmn':
-        this.selectedDiagram = 'bpmn';
-        break;
-      case 'petri-net':
-        this.selectedDiagram = 'petri-net';
-        break;
-    }
-  }
-
-  protected onDrop(event: DragEvent) {
-    event.preventDefault();
-    const files = event.dataTransfer?.files;
-    this.processDroppedFiles(files!);
-    this.isFiledDropped = true;
-    this.droppedFileName = files![0].name;
-  }
-
-  protected onDragOver(event: DragEvent) {
-    event.preventDefault();
-  }
-
-  processDroppedFiles(files: FileList) {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        window.dropfileContent = reader.result as string;
-        this.setTextInTextBox(window.dropfileContent);
-      };
-      reader.readAsText(file);
-    }
-  }
-
-  protected setTextInTextBox(text: string) {
-    this.text = text;
-  }
-
-  protected setTextResult(text: string) {
-    this.textResult = text;
-  }
-
-  protected selectFiles() {
-    this.fileInputRef.nativeElement.click();
-  }
-
-  protected onFileSelected(event: Event) {
-    const fileInput = event.target as HTMLInputElement;
-    const files = fileInput.files;
-    if (files && files.length > 0) {
-      this.processDroppedFiles(files);
-      this.isFileDropped = true;
-      this.droppedFileName = files[0].name;
-    }
-  }
-
-  protected onDownloadText() {
-    this.http.downloadModelAsText();
-  }
-
-  onDownloadImage() {
-    const element = document.getElementById('model-container')!;
-    html2canvas(element).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = imgData;
-      link.download = 't2p.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      },
+      error: () => {
+        this.modelsError =
+          'Could not load available models. Is the t2p backend running?';
+      },
     });
+  }
+
+  protected get modelsForProvider(): ProviderModel[] {
+    return this.providerModels.filter(
+      (m) => m.provider === this.selectedProvider
+    );
+  }
+
+  protected onProviderChange(): void {
+    const models = this.modelsForProvider;
+    this.selectedModel = models.length ? models[0].model : '';
+  }
+
+  protected get canGenerate(): boolean {
+    return (
+      !this.loading &&
+      this.text.trim().length > 0 &&
+      this.apiKey.trim().length > 0 &&
+      this.selectedProvider !== '' &&
+      this.selectedModel !== ''
+    );
+  }
+
+  protected generate(): void {
+    if (!this.canGenerate) {
+      return;
+    }
+    this.errorMessage = '';
+    this.loading = true;
+    const text = this.replaceUmlaut(this.text.trim());
+
+    this.http
+      .generate(
+        this.diagramType,
+        text,
+        this.apiKey.trim(),
+        this.selectedProvider,
+        this.selectedModel
+      )
+      .subscribe({
+        next: (xml) => this.renderResult(xml),
+        error: (err) => {
+          this.loading = false;
+          this.hasResult = false;
+          this.errorMessage = this.formatError(err);
+        },
+      });
+  }
+
+  private async renderResult(xml: string): Promise<void> {
+    this.resultXml = xml;
+    try {
+      if (this.diagramType === 'bpmn') {
+        await ModelDisplayer.displayBPMN(this.diagram.nativeElement, xml);
+      } else {
+        ModelDisplayer.displayPNML(this.diagram.nativeElement, xml);
+      }
+      this.hasResult = true;
+    } catch {
+      this.hasResult = false;
+      this.errorMessage =
+        'The backend returned a model that could not be rendered.';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private formatError(err: any): string {
+    const apiMessage = err?.error?.error?.message || err?.error?.error;
+    if (apiMessage) {
+      return apiMessage;
+    }
+    if (err?.status === 0) {
+      return 'Could not reach the t2p backend.';
+    }
+    return `Request failed (${err?.status ?? 'unknown'}).`;
+  }
+
+  /** Some downstream tooling chokes on umlauts; transliterate before sending. */
+  private replaceUmlaut(text: string): string {
+    return text
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .replace(/Ä/g, 'Ae')
+      .replace(/Ö/g, 'Oe')
+      .replace(/Ü/g, 'Ue');
+  }
+
+  // --- File input -----------------------------------------------------------
+
+  protected onDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  protected onDrop(event: DragEvent): void {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      this.readFile(file);
+    }
+  }
+
+  protected onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.readFile(file);
+    }
+  }
+
+  protected openFilePicker(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  private readFile(file: File): void {
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.text = reader.result as string;
+      this.droppedFileName = file.name;
+    };
+    reader.readAsText(file);
+  }
+
+  // --- Downloads ------------------------------------------------------------
+
+  protected downloadImage(): void {
+    html2canvas(this.diagram.nativeElement).then((canvas) => {
+      this.triggerDownload(
+        canvas.toDataURL('image/png'),
+        `t2p-${this.diagramType}.png`
+      );
+    });
+  }
+
+  protected downloadFile(): void {
+    const extension = this.diagramType === 'bpmn' ? 'bpmn' : 'pnml';
+    const href =
+      'data:text/xml;charset=utf-8,' + encodeURIComponent(this.resultXml);
+    this.triggerDownload(href, `t2p.${extension}`);
+  }
+
+  private triggerDownload(href: string, filename: string): void {
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

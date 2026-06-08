@@ -1,15 +1,18 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
-import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatStepperModule } from '@angular/material/stepper';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
@@ -22,8 +25,6 @@ import { T2PComponent } from './t2p/t2p.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
-  { path: 't2p', component: T2PComponent },
-  { path: 'p2t', component: P2tComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
 ];
 
@@ -34,17 +35,20 @@ const routes: Routes = [
     BrowserAnimationsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TextFieldModule,
     MatTabsModule,
-    MatStepperModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatIconModule,
     MatSlideToggleModule,
     MatFormFieldModule,
     MatInputModule,
-    MatGridListModule,
     MatSelectModule,
-    MatRadioModule,
     MatProgressSpinnerModule,
-    FormsModule,
-    ReactiveFormsModule,
+    MatTooltipModule,
   ],
   providers: [
     {

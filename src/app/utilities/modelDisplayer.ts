@@ -1,279 +1,209 @@
 import * as vis from 'vis';
-import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
+import * as BpmnViewer from 'bpmn-js/dist/bpmn-navigated-viewer.production.min.js';
 
-// Model Display Class
+/**
+ * Renders generated models into a host element.
+ *
+ * Both renderers take the target container element explicitly (instead of a
+ * global `getElementById`) so the T2P and P2T tabs can each own their own
+ * canvas without colliding on a shared DOM id.
+ */
 export class ModelDisplayer {
-  // Preprocessing of the Petri net model. The model is converted into a format (domparser) that can be displayed by the library.
-  public static async generatePetriNet(modelAsPetriNet: string) {
-    try {
-      let domparser = new DOMParser();
-      const xmlDoc = domparser.parseFromString(modelAsPetriNet, 'text/xml');
-      ModelDisplayer.displayPNMLModel(xmlDoc);
-    } catch (err) {
-      console.log(err);
-    }
+  /**
+   * Render BPMN XML read-only with bpmn-js.
+   *
+   * Uses the NavigatedViewer (zoom/scroll/drag, but no editing palette or
+   * context pad) since the result is for viewing, not editing. `importXML` is
+   * asynchronous: the canvas only exists once it resolves, so the viewport is
+   * fitted afterwards. (The previous code used the full Modeler and zoomed
+   * synchronously while swallowing every error; without the diagram-js
+   * stylesheet its palette/canvas rendered as black bars.)
+   */
+  public static async displayBPMN(
+    container: HTMLElement,
+    bpmnXml: string
+  ): Promise<void> {
+    container.innerHTML = '';
+    const viewer = new BpmnViewer({ container });
+    await viewer.importXML(bpmnXml);
+    viewer.get('canvas').zoom('fit-viewport');
   }
 
-  // Displays the BPMN model. Sets the representation in the HTML element "model-container".
-  public static displayPNMLModel(petrinet: any) {
-    let generateWorkFlowNet = false; //Determines wether WoPeD specific Elements like XOR Split are created
-    const prettyPetriNet = getPetriNet(petrinet);
-    let gateways = [];
-
-    generatePetrinetConfig(prettyPetriNet);
-    function generatePetrinetConfig(petrinet) {
-      const data = getVisElements(petrinet);
-
-      // create a network
-      const container = document.getElementById('model-container');
-
-      const options = {
-        layout: {
-          randomSeed: undefined,
-          improvedLayout: true,
-          hierarchical: {
-            enabled: true,
-            levelSeparation: 150,
-            nodeSpacing: 100,
-            treeSpacing: 200,
-            blockShifting: true,
-            edgeMinimization: true,
-            parentCentralization: true,
-            direction: 'LR', // UD, DU, LR, RL
-            sortMethod: 'directed', // hubsize, directed
-          },
-        },
-        groups: {
-          places: {
-            color: { background: '#4DB6AC', border: '#00695C' },
-            borderWidth: 3,
-            shape: 'circle',
-          },
-          transitions: {
-            color: { background: '#FFB74D', border: '#FB8C00' },
-            shape: 'square',
-            borderWidth: 3,
-          },
-          andJoin: {
-            color: { background: '#DCE775', border: '#9E9D24' },
-            shape: 'square',
-            borderWidth: 3,
-          },
-          andSplit: {
-            color: { background: '#DCE775', border: '#9E9D24' },
-            shape: 'square',
-            borderWidth: 3,
-          },
-          xorSplit: {
-            color: { background: '#9575CD', border: '#512DA8' },
-            shape: 'square',
-            borderWidth: 3,
-            image: '/img/and_split.svg',
-          },
-          xorJoin: {
-            color: { background: '#9575CD', border: '#512DA8' },
-            shape: 'square',
-            borderWidth: 3,
-          },
-        },
-        interaction: {
-          zoomView: true,
-          dragView: true,
-        },
-      };
-      // initialize your network!
-      const network = new vis.Network(container, data, options);
-    }
-
-    function getPetriNet(PNML) {
-      const places = PNML.getElementsByTagName('place');
-      const transitions = PNML.getElementsByTagName('transition');
-      const arcs = PNML.getElementsByTagName('arc');
-
-      const petrinet = {
-        places: [],
-        transitions: [],
-        arcs: [],
-      };
-
-      for (let x = 0; x < arcs.length; x++) {
-        const arc = arcs[x];
-        petrinet.arcs.push({
-          id: arc.getAttribute('id'),
-          source: arc.getAttribute('source'),
-          target: arc.getAttribute('target'),
-        });
-      }
-
-      for (let x = 0; x < places.length; x++) {
-        const place = places[x];
-        petrinet.places.push({
-          id: place.getAttribute('id'),
-          label: place.getElementsByTagName('text')[0].textContent,
-        });
-      }
-
-      for (let x = 0; x < transitions.length; x++) {
-        const transition = transitions[x];
-        const isGateway =
-          transition.getElementsByTagName('operator').length > 0;
-        let gatewayType = undefined;
-        let gatewayID = undefined;
-        if (isGateway) {
-          gatewayType = transition
-            .getElementsByTagName('operator')[0]
-            .getAttribute('type');
-          gatewayID = transition
-            .getElementsByTagName('operator')[0]
-            .getAttribute('id');
-        }
-        petrinet.transitions.push({
-          id: transition.getAttribute('id'),
-          label: transition.getElementsByTagName('text')[0].textContent,
-          isGateway: isGateway,
-          gatewayType: gatewayType,
-          gatewayID: gatewayID,
-        });
-      }
-      return petrinet;
-    }
-
-    function resetGatewayLog() {
-      gateways = [];
-    }
-
-    function logContainsGateway(transition) {
-      for (let x = 0; x < gateways.length; x++) {
-        if (gateways[x].gatewayID === transition.gatewayID) return true;
-      }
-      return false;
-    }
-    // Identifies the Gateways
-    function logGatewayTransition(transition) {
-      if (logContainsGateway(transition) === true) {
-        for (let x = 0; x < gateways.length; x++) {
-          if (gateways[x].gatewayID === transition.gatewayID)
-            gateways[x].transitionIDs.push({ transitionID: transition.id });
-        }
-      } else {
-        gateways.push({
-          gatewayID: transition.gatewayID,
-          transitionIDs: [{ transitionID: transition.id }],
-        });
-      }
-    }
-
-    function getGatewayIDsforReplacement(arc) {
-      const replacement = { source: null, target: null };
-      for (let x = 0; x < gateways.length; x++) {
-        for (let i = 0; i < gateways[x].transitionIDs.length; i++) {
-          if (arc.source === gateways[x].transitionIDs[i].transitionID) {
-            replacement.source = gateways[x].gatewayID;
-          }
-          if (arc.target === gateways[x].transitionIDs[i].transitionID) {
-            replacement.target = gateways[x].gatewayID;
-          }
-        }
-      }
-      return replacement;
-    }
-
-    function replaceGatewayArcs(arcs) {
-      for (let x = 0; x < arcs.length; x++) {
-        const replacement = getGatewayIDsforReplacement(arcs[x]);
-        if (replacement.source !== null) {
-          arcs[x].source = replacement.source;
-        }
-        if (replacement.target !== null) {
-          arcs[x].target = replacement.target;
-        }
-      }
-    }
-
-    function getVisElements(PetriNet) {
-      // provide the data in the vis format
-      const edges = new vis.DataSet([]);
-      const nodes = new vis.DataSet([]);
-      for (let x = 0; x < PetriNet.places.length; x++) {
-        nodes.add({
-          id: PetriNet.places[x].id,
-          group: 'places',
-          label: PetriNet.places[x].label,
-        });
-      }
-
-      for (let x = 0; x < PetriNet.transitions.length; x++) {
-        if (
-          !PetriNet.transitions[x].isGateway ||
-          generateWorkFlowNet === false
-        ) {
-          nodes.add({
-            id: PetriNet.transitions[x].id,
-            group: 'transitions',
-            label: PetriNet.transitions[x].id,
-            title: PetriNet.transitions[x].label,
-          });
-        } else {
-          let gatewayGroup = '';
-          const label = '';
-          switch (PetriNet.transitions[x].gatewayType) {
-            case '101':
-              gatewayGroup = 'andSplit';
-              break;
-            case '102':
-              gatewayGroup = 'andJoin';
-              break;
-            case '104':
-              gatewayGroup = 'xorSplit';
-              break;
-            case '105':
-              gatewayGroup = 'xorJoin';
-              break;
-          }
-          if (!logContainsGateway(PetriNet.transitions[x])) {
-            nodes.add({
-              id: PetriNet.transitions[x].gatewayID,
-              group: gatewayGroup,
-              label: label,
-              title: PetriNet.transitions[x].label,
-            });
-          }
-          logGatewayTransition(PetriNet.transitions[x]);
-        }
-      }
-
-      if (generateWorkFlowNet === true) {
-        replaceGatewayArcs(PetriNet.arcs);
-      }
-
-      for (let x = 0; x < PetriNet.arcs.length; x++) {
-        edges.add({
-          from: PetriNet.arcs[x].source,
-          to: PetriNet.arcs[x].target,
-          arrows: 'to',
-        });
-      }
-      resetGatewayLog();
-      return { nodes: nodes, edges: edges };
-    }
+  /** Parse PNML text and render it as a Petri net with vis-network. */
+  public static displayPNML(container: HTMLElement, pnmlXml: string): void {
+    const xmlDoc = new DOMParser().parseFromString(pnmlXml, 'text/xml');
+    const petrinet = ModelDisplayer.parsePNML(xmlDoc);
+    ModelDisplayer.renderPetriNet(container, petrinet);
   }
 
-  public static displayBPMNModel(modelAsBPMN: string) {
-    // Empty the Container
-    document.getElementById('model-container').innerHTML = '';
+  private static parsePNML(PNML: Document) {
+    const petrinet: {
+      places: { id: string; label: string; x?: number; y?: number }[];
+      transitions: { id: string; label: string; x?: number; y?: number }[];
+      arcs: { id: string; source: string; target: string }[];
+    } = { places: [], transitions: [], arcs: [] };
 
-    // Create a new Viewer
-    const viewer = new BpmnJS({
-      container: '#model-container',
-      keyboard: {
-        bindTo: window,
+    const arcs = PNML.getElementsByTagName('arc');
+    for (let x = 0; x < arcs.length; x++) {
+      petrinet.arcs.push({
+        id: arcs[x].getAttribute('id') || 'arc_' + x,
+        source: arcs[x].getAttribute('source') || '',
+        target: arcs[x].getAttribute('target') || '',
+      });
+    }
+
+    const places = PNML.getElementsByTagName('place');
+    for (let x = 0; x < places.length; x++) {
+      // Transformer PNML often has label-less nodes (no <text>); fall back to
+      // id, then a placeholder, so a missing label never aborts rendering.
+      const placeText = places[x].getElementsByTagName('text')[0];
+      petrinet.places.push({
+        id: places[x].getAttribute('id') || 'place_' + x,
+        label:
+          (placeText && placeText.textContent) ||
+          places[x].getAttribute('id') ||
+          'place_' + x,
+        ...ModelDisplayer.ownPosition(places[x]),
+      });
+    }
+
+    const transitions = PNML.getElementsByTagName('transition');
+    for (let x = 0; x < transitions.length; x++) {
+      const transitionText = transitions[x].getElementsByTagName('text')[0];
+      petrinet.transitions.push({
+        id: transitions[x].getAttribute('id') || 'transition_' + x,
+        label:
+          (transitionText && transitionText.textContent) ||
+          transitions[x].getAttribute('id') ||
+          'transition_' + x,
+        ...ModelDisplayer.ownPosition(transitions[x]),
+      });
+    }
+    return petrinet;
+  }
+
+  /**
+   * Read a node's OWN layout coordinate: the `<position>` under its
+   * *direct-child* `<graphics>`, NOT the nested `<name>`/`<trigger>` sub-graphics.
+   * The backend (t2p-2.0 `assign_pnml_coordinates`) writes the PNML `<position>`
+   * as a centre point, which is exactly how vis-network interprets a node's
+   * x/y — so they map directly.
+   */
+  private static ownPosition(el: Element): { x?: number; y?: number } {
+    const graphics = Array.from(el.children).find(
+      (c) => c.localName === 'graphics'
+    );
+    const position = graphics
+      ? Array.from(graphics.children).find((c) => c.localName === 'position')
+      : undefined;
+    if (!position) return {};
+    const x = parseFloat(position.getAttribute('x') || '');
+    const y = parseFloat(position.getAttribute('y') || '');
+    return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : {};
+  }
+
+  private static renderPetriNet(
+    container: HTMLElement,
+    petrinet: ReturnType<typeof ModelDisplayer.parsePNML>
+  ) {
+    const nodes = new vis.DataSet([]);
+    const edges = new vis.DataSet([]);
+
+    // If the backend supplied coordinates for every node, honour them (render
+    // the layout the backend computed). Otherwise fall back to vis-network's
+    // own hierarchical auto-layout.
+    const allNodes = [...petrinet.places, ...petrinet.transitions];
+    const useBackendCoords =
+      allNodes.length > 0 &&
+      allNodes.every((n) => typeof n.x === 'number' && typeof n.y === 'number');
+
+    for (const place of petrinet.places) {
+      // Places are unlabeled dots (a long id as a label would balloon the
+      // circle); the id stays available as a hover tooltip.
+      nodes.add({
+        id: place.id,
+        group: 'places',
+        label: '',
+        title: place.label,
+        ...(useBackendCoords ? { x: place.x, y: place.y } : {}),
+      });
+    }
+    for (const transition of petrinet.transitions) {
+      const label = ModelDisplayer.cleanLabel(transition.label);
+      nodes.add({
+        id: transition.id,
+        group: 'transitions',
+        label,
+        title: transition.label,
+        ...(useBackendCoords ? { x: transition.x, y: transition.y } : {}),
+      });
+    }
+    for (const arc of petrinet.arcs) {
+      edges.add({ from: arc.source, to: arc.target });
+    }
+
+    const options = {
+      layout: useBackendCoords
+        ? // Coordinates come from the backend; don't let vis re-arrange them.
+          { improvedLayout: false }
+        : {
+            improvedLayout: true,
+            hierarchical: {
+              enabled: true,
+              // A petri net is bipartite (place -> transition -> place ...), so a
+              // left-to-right "directed" ranking reads as a process flow. Generous
+              // separation keeps the (variable-width) transition boxes from
+              // colliding with the arcs.
+              levelSeparation: 180,
+              nodeSpacing: 130,
+              treeSpacing: 220,
+              blockShifting: true,
+              edgeMinimization: true,
+              parentCentralization: true,
+              direction: 'LR',
+              sortMethod: 'directed',
+            },
+          },
+      nodes: {
+        font: { size: 13, color: '#1d2939', face: 'Roboto, sans-serif' },
+        borderWidth: 2,
       },
-    });
+      edges: {
+        color: { color: '#98a2b3', highlight: '#1976d2' },
+        width: 1.5,
+        arrows: { to: { enabled: true, scaleFactor: 0.8 } },
+        smooth: { enabled: true, type: 'cubicBezier', roundness: 0.5 },
+      },
+      groups: {
+        // Places: open white circles (classic petri-net notation).
+        places: {
+          shape: 'dot',
+          size: 14,
+          color: { background: '#ffffff', border: '#00695C' },
+        },
+        // Transitions: labelled boxes; wrap long names instead of growing wide.
+        transitions: {
+          shape: 'box',
+          color: {
+            background: '#FFF3E0',
+            border: '#FB8C00',
+            highlight: { background: '#FFE0B2', border: '#FB8C00' },
+          },
+          widthConstraint: { maximum: 140 },
+          margin: 10,
+          shapeProperties: { borderRadius: 4 },
+        },
+      },
+      interaction: { zoomView: true, dragView: true, hover: true },
+      physics: { enabled: false },
+    };
 
-    try {
-      // Display the BPMN Model
-      viewer.importXML(modelAsBPMN);
-      viewer.get('canvas').zoom('fit-viewport');
-    } catch (err) {}
+    container.innerHTML = '';
+    new vis.Network(container, { nodes, edges }, options);
+  }
+
+  /** Strip a leading bracketed type tag, e.g. "[ServiceTask] Ship Item" -> "Ship Item". */
+  private static cleanLabel(label: string): string {
+    return label.replace(/^\s*\[[^\]]*\]\s*/, '').trim() || label;
   }
 }

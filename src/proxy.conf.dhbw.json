@@ -1,0 +1,15 @@
+{
+  "/p2t": {
+    "target": "https://woped.dhbw-karlsruhe.de",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/t2p-api": {
+    "target": "https://woped.dhbw-karlsruhe.de",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": { "^/t2p-api": "/t2p-2.0" }
+  }
+}
