@@ -66,8 +66,8 @@ export class ModelDisplayer {
 
   private static parsePNML(PNML: Document) {
     const petrinet: {
-      places: { id: string; label: string; x?: number; y?: number }[];
-      transitions: { id: string; label: string; x?: number; y?: number }[];
+      places: { id: string; label: string; x?: number; y?: number; lx?: number; ly?: number }[];
+      transitions: { id: string; label: string; x?: number; y?: number; lx?: number; ly?: number }[];
       operators: { id: string; symbol: string; name: string; x?: number; y?: number }[];
       arcs: { source: string; target: string; weight?: string }[];
     } = { places: [], transitions: [], operators: [], arcs: [] };
@@ -84,6 +84,7 @@ export class ModelDisplayer {
           places[x].getAttribute('id') ||
           'place_' + x,
         ...ModelDisplayer.ownPosition(places[x]),
+        ...ModelDisplayer.nameOffset(places[x]),
       });
     }
 
@@ -119,6 +120,7 @@ export class ModelDisplayer {
         id,
         label: (transitionText && transitionText.textContent) || id,
         ...pos,
+        ...ModelDisplayer.nameOffset(t),
       });
     }
 
@@ -185,6 +187,55 @@ export class ModelDisplayer {
     return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : {};
   }
 
+  /**
+   * Read the node NAME's label coordinate from `<name><graphics><offset>`.
+   * The WoPeD fat client treats this offset as the ABSOLUTE canvas position of
+   * the label (not relative to the node). We mirror that here so the test view
+   * reflects the same principle: the label is positioned by the offset and is
+   * decoupled from its node box. A constant offset (e.g. all (20,20)) therefore
+   * visibly stacks every label — the very class of bug woped-web used to hide
+   * by drawing the label inside the box. Returns {} when absent.
+   */
+  private static nameOffset(el: Element): { lx?: number; ly?: number } {
+    const name = Array.from(el.children).find((c) => c.localName === 'name');
+    const graphics =
+      name && Array.from(name.children).find((c) => c.localName === 'graphics');
+    const offset =
+      graphics &&
+      Array.from(graphics.children).find((c) => c.localName === 'offset');
+    if (!offset) return {};
+    const lx = parseFloat(offset.getAttribute('x') || '');
+    const ly = parseFloat(offset.getAttribute('y') || '');
+    return Number.isFinite(lx) && Number.isFinite(ly) ? { lx, ly } : {};
+  }
+
+  /**
+   * Add a node's name as a FREE-FLOATING text node (no box, no edges),
+   * positioned by the PNML name `<offset>` (absolute) like the fat client —
+   * falling back to just below the node when no offset is given. Only used when
+   * the backend supplied real coordinates; otherwise vis-network auto-layout
+   * owns placement and an absolute offset would be meaningless.
+   */
+  private static addLabelNode(
+    nodes: any,
+    nodeId: string,
+    label: string,
+    node: { x?: number; y?: number; lx?: number; ly?: number }
+  ): void {
+    if (!label) return;
+    const x = typeof node.lx === 'number' ? node.lx : node.x;
+    const y = typeof node.ly === 'number' ? node.ly : (node.y ?? 0) + 28;
+    nodes.add({
+      id: nodeId + '__lbl',
+      shape: 'text',
+      label,
+      x,
+      y,
+      physics: false,
+      font: { size: 13, color: '#1d2939', face: 'Roboto, sans-serif' },
+    });
+  }
+
   private static renderPetriNet(
     container: HTMLElement,
     petrinet: ReturnType<typeof ModelDisplayer.parsePNML>
@@ -214,16 +265,32 @@ export class ModelDisplayer {
         title: place.label,
         ...(useBackendCoords ? { x: place.x, y: place.y } : {}),
       });
+      // A place that carries its own name offset (e.g. a named place) gets the
+      // same free-floating label treatment as in the fat client.
+      if (useBackendCoords && typeof place.lx === 'number') {
+        ModelDisplayer.addLabelNode(
+          nodes,
+          place.id,
+          ModelDisplayer.cleanLabel(place.label),
+          place
+        );
+      }
     }
     for (const transition of petrinet.transitions) {
       const label = ModelDisplayer.cleanLabel(transition.label);
       nodes.add({
         id: transition.id,
         group: 'transitions',
-        label,
+        // With a real layout the name is drawn as a free-floating label
+        // positioned by its offset (fat-client principle); the box itself stays
+        // empty. Without backend coords we keep the name inside the box.
+        label: useBackendCoords ? '' : label,
         title: transition.label,
         ...(useBackendCoords ? { x: transition.x, y: transition.y } : {}),
       });
+      if (useBackendCoords) {
+        ModelDisplayer.addLabelNode(nodes, transition.id, label, transition);
+      }
     }
     for (const operator of petrinet.operators) {
       // Operator nodes (the regrouped WOPED split/join transitions) show their
