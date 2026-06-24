@@ -223,7 +223,7 @@ export class ModelDisplayer {
   }
 
   private static readonly SVG_NS = 'http://www.w3.org/2000/svg';
-  private static readonly PLACE_R = 20;
+  private static readonly PLACE_R = 25;
   private static readonly NODE_H = 34;
   // Transitions/operators are fixed-size boxes (like the WoPeD fat client); the
   // name is drawn OUTSIDE, below the box, so it never inflates the node.
