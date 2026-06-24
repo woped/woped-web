@@ -1,4 +1,3 @@
-import * as vis from 'vis';
 import * as BpmnViewer from 'bpmn-js/dist/bpmn-navigated-viewer.production.min.js';
 import svgPanZoom from 'svg-pan-zoom';
 
@@ -30,7 +29,7 @@ export class ModelDisplayer {
     viewer.get('canvas').zoom('fit-viewport');
   }
 
-  /** Parse PNML text and render it as a Petri net with vis-network. */
+  /** Parse PNML text and render it as a Petri net with the native SVG renderer. */
   public static displayPNML(container: HTMLElement, pnmlXml: string): void {
     const xmlDoc = new DOMParser().parseFromString(pnmlXml, 'text/xml');
     const petrinet = ModelDisplayer.parsePNML(xmlDoc);
@@ -49,27 +48,11 @@ export class ModelDisplayer {
     '109': 'XOR-join/AND-split',
   };
 
-  /**
-   * Symbol drawn inside the operator node: '×' = XOR, '∧' = AND (no '+').
-   * Split vs. join is already conveyed by the arc direction, so the glyph only
-   * encodes the branching logic; mixed join/split operators show both sides.
-   */
-  private static readonly OPERATOR_SYMBOLS: Record<string, string> = {
-    '101': '∧',
-    '102': '∧',
-    '104': '×',
-    '105': '×',
-    '106': '×',
-    '107': '∧',
-    '108': '∧×',
-    '109': '×∧',
-  };
-
   private static parsePNML(PNML: Document) {
     const petrinet: {
-      places: { id: string; label: string; x?: number; y?: number; lx?: number; ly?: number }[];
-      transitions: { id: string; label: string; x?: number; y?: number; lx?: number; ly?: number }[];
-      operators: { id: string; symbol: string; name: string; x?: number; y?: number }[];
+      places: { id: string; label: string; x?: number; y?: number }[];
+      transitions: { id: string; label: string; x?: number; y?: number }[];
+      operators: { id: string; name: string; x?: number; y?: number }[];
       arcs: {
         source: string;
         target: string;
@@ -80,17 +63,17 @@ export class ModelDisplayer {
 
     const places = PNML.getElementsByTagName('place');
     for (let x = 0; x < places.length; x++) {
+      // A node without a real id can't be referenced by an arc, so skip it
+      // rather than inventing a placeholder id that wires up to nothing.
+      const id = places[x].getAttribute('id');
+      if (!id) continue;
       // Transformer PNML often has label-less nodes (no <text>); fall back to
-      // id, then a placeholder, so a missing label never aborts rendering.
+      // the id so a missing label never aborts rendering.
       const placeText = places[x].getElementsByTagName('text')[0];
       petrinet.places.push({
-        id: places[x].getAttribute('id') || 'place_' + x,
-        label:
-          (placeText && placeText.textContent) ||
-          places[x].getAttribute('id') ||
-          'place_' + x,
+        id,
+        label: (placeText && placeText.textContent) || id,
         ...ModelDisplayer.ownPosition(places[x]),
-        ...ModelDisplayer.nameOffset(places[x]),
       });
     }
 
@@ -105,7 +88,8 @@ export class ModelDisplayer {
     const transitions = PNML.getElementsByTagName('transition');
     for (let x = 0; x < transitions.length; x++) {
       const t = transitions[x];
-      const id = t.getAttribute('id') || 'transition_' + x;
+      const id = t.getAttribute('id');
+      if (!id) continue; // unreferenceable without a real id (see places above)
       const pos = ModelDisplayer.ownPosition(t);
       const operator = t.getElementsByTagName('operator')[0];
 
@@ -126,7 +110,6 @@ export class ModelDisplayer {
         id,
         label: (transitionText && transitionText.textContent) || id,
         ...pos,
-        ...ModelDisplayer.nameOffset(t),
       });
     }
 
@@ -137,7 +120,6 @@ export class ModelDisplayer {
       const y = avg(acc.ys);
       petrinet.operators.push({
         id: opId,
-        symbol: ModelDisplayer.OPERATOR_SYMBOLS[acc.type] || '?',
         name: ModelDisplayer.OPERATOR_LABELS[acc.type] || `operator ${acc.type}`,
         ...(x !== undefined && y !== undefined ? { x, y } : {}),
       });
@@ -187,8 +169,7 @@ export class ModelDisplayer {
    * Read a node's OWN layout coordinate: the `<position>` under its
    * *direct-child* `<graphics>`, NOT the nested `<name>`/`<trigger>` sub-graphics.
    * The backend (t2p-2.0 `assign_pnml_coordinates`) writes the PNML `<position>`
-   * as a centre point, which is exactly how vis-network interprets a node's
-   * x/y — so they map directly.
+   * as a centre point; `renderSvg` draws the node centred on it.
    */
   private static ownPosition(el: Element): { x?: number; y?: number } {
     const graphics = Array.from(el.children).find(
@@ -225,85 +206,28 @@ export class ModelDisplayer {
   }
 
   /**
-   * Read the node NAME's label coordinate from `<name><graphics><offset>`.
-   * The WoPeD fat client treats this offset as the ABSOLUTE canvas position of
-   * the label (not relative to the node). We mirror that here so the test view
-   * reflects the same principle: the label is positioned by the offset and is
-   * decoupled from its node box. A constant offset (e.g. all (20,20)) therefore
-   * visibly stacks every label — the very class of bug woped-web used to hide
-   * by drawing the label inside the box. Returns {} when absent.
-   */
-  private static nameOffset(el: Element): { lx?: number; ly?: number } {
-    const name = Array.from(el.children).find((c) => c.localName === 'name');
-    const graphics =
-      name && Array.from(name.children).find((c) => c.localName === 'graphics');
-    const offset =
-      graphics &&
-      Array.from(graphics.children).find((c) => c.localName === 'offset');
-    if (!offset) return {};
-    const lx = parseFloat(offset.getAttribute('x') || '');
-    const ly = parseFloat(offset.getAttribute('y') || '');
-    return Number.isFinite(lx) && Number.isFinite(ly) ? { lx, ly } : {};
-  }
-
-  /**
-   * Add a node's name as a FREE-FLOATING text node (no box, no edges),
-   * positioned by the PNML name `<offset>` (absolute) like the fat client —
-   * falling back to just below the node when no offset is given. Only used when
-   * the backend supplied real coordinates; otherwise vis-network auto-layout
-   * owns placement and an absolute offset would be meaningless.
-   */
-  private static addLabelNode(
-    nodes: any,
-    nodeId: string,
-    label: string,
-    node: { x?: number; y?: number; lx?: number; ly?: number }
-  ): void {
-    if (!label) return;
-    const x = typeof node.lx === 'number' ? node.lx : node.x;
-    const y = typeof node.ly === 'number' ? node.ly : (node.y ?? 0) + 28;
-    nodes.add({
-      id: nodeId + '__lbl',
-      shape: 'text',
-      label,
-      x,
-      y,
-      physics: false,
-      font: { size: 13, color: '#1d2939', face: 'Roboto, sans-serif' },
-    });
-  }
-
-  /**
-   * Render a parsed Petri net into the container.
+   * Render a parsed Petri net into the container with the native SVG renderer:
+   * node positions and arc bend points come from the backend layout (places as
+   * circles, transitions/operators as rectangles, B&W, fat-client notation).
    *
-   * When the backend supplied a full layout (a coordinate on every node) we own
-   * the drawing with a native SVG renderer that honours BOTH node positions and
-   * arc bend points (`renderSvg`). Only when coordinates are missing do we fall
-   * back to vis-network's hierarchical auto-layout (`renderWithVis`), which has
-   * no waypoint concept anyway.
+   * There is no auto-layout fallback: the backend owns the layout and always
+   * supplies a coordinate on every node. A node that nonetheless arrives without
+   * coordinates is omitted by `renderSvg` (along with any arc touching it) rather
+   * than collapsing the whole net into an invented layout — see `renderSvg`.
    */
   private static renderPetriNet(
     container: HTMLElement,
     petrinet: ReturnType<typeof ModelDisplayer.parsePNML>
   ) {
-    const allNodes = [
-      ...petrinet.places,
-      ...petrinet.transitions,
-      ...petrinet.operators,
-    ];
-    const haveLayout =
-      allNodes.length > 0 &&
-      allNodes.every((n) => typeof n.x === 'number' && typeof n.y === 'number');
-    if (haveLayout) {
-      ModelDisplayer.renderSvg(container, petrinet);
-    } else {
-      ModelDisplayer.renderWithVis(container, petrinet);
-    }
+    ModelDisplayer.renderSvg(container, petrinet);
   }
 
   private static readonly SVG_NS = 'http://www.w3.org/2000/svg';
   private static readonly PLACE_R = 20;
   private static readonly NODE_H = 34;
+  // Transitions/operators are fixed-size boxes (like the WoPeD fat client); the
+  // name is drawn OUTSIDE, below the box, so it never inflates the node.
+  private static readonly TRANSITION_W = 40;
 
   /** Create an SVG element in the SVG namespace with the given attributes. */
   private static svgNode(
@@ -335,10 +259,15 @@ export class ModelDisplayer {
     };
     const boxes = new Map<string, Box>();
 
+    // Only nodes the backend actually placed get a box. A node without numeric
+    // coordinates is left out entirely (no invented position) -- arcs touching
+    // it are skipped below, and the view box only spans real boxes, so a missing
+    // coordinate can never produce a NaN geometry.
     for (const p of petrinet.places) {
+      if (typeof p.x !== 'number' || typeof p.y !== 'number') continue;
       boxes.set(p.id, {
-        cx: p.x as number,
-        cy: p.y as number,
+        cx: p.x,
+        cy: p.y,
         shape: 'circle',
         r: ModelDisplayer.PLACE_R,
         w: 0,
@@ -355,12 +284,13 @@ export class ModelDisplayer {
         h: ModelDisplayer.NODE_H,
       });
     for (const t of petrinet.transitions) {
-      const label = ModelDisplayer.cleanLabel(t.label);
-      addRect(t.id, t.x as number, t.y as number, ModelDisplayer.rectWidth(label));
+      if (typeof t.x !== 'number' || typeof t.y !== 'number') continue;
+      addRect(t.id, t.x, t.y, ModelDisplayer.TRANSITION_W);
     }
     // Operators render as a plain unlabeled routing box (native notation).
     for (const o of petrinet.operators) {
-      addRect(o.id, o.x as number, o.y as number, 40);
+      if (typeof o.x !== 'number' || typeof o.y !== 'number') continue;
+      addRect(o.id, o.x, o.y, ModelDisplayer.TRANSITION_W);
     }
 
     // View box spanning every node extent and every arc bend point.
@@ -382,6 +312,15 @@ export class ModelDisplayer {
     }
     for (const arc of petrinet.arcs) {
       for (const wp of arc.waypoints ?? []) grow(wp.x, wp.y);
+    }
+    // Transition names sit below their box; widen the view box so a long name
+    // (centred under a fixed-width box) is not clipped at the diagram edges.
+    for (const t of petrinet.transitions) {
+      const b = boxes.get(t.id);
+      if (!b) continue;
+      const halfW = (ModelDisplayer.cleanLabel(t.label).length * 7) / 2;
+      grow(b.cx - halfW, b.cy + b.h / 2 + 20);
+      grow(b.cx + halfW, b.cy + b.h / 2 + 20);
     }
     if (!Number.isFinite(minX)) {
       minX = minY = 0;
@@ -451,7 +390,8 @@ export class ModelDisplayer {
     }
 
     for (const p of petrinet.places) {
-      const b = boxes.get(p.id) as Box;
+      const b = boxes.get(p.id);
+      if (!b) continue;
       const circle = ModelDisplayer.svgNode('circle', {
         cx: b.cx,
         cy: b.cy,
@@ -466,7 +406,8 @@ export class ModelDisplayer {
       svg.appendChild(circle);
     }
     const drawRect = (id: string, label: string, hover: string) => {
-      const b = boxes.get(id) as Box;
+      const b = boxes.get(id);
+      if (!b) return;
       const rect = ModelDisplayer.svgNode('rect', {
         x: b.cx - b.w / 2,
         y: b.cy - b.h / 2,
@@ -481,11 +422,13 @@ export class ModelDisplayer {
       rect.appendChild(title);
       svg.appendChild(rect);
       if (!label) return;
+      // Name BELOW the box (fat-client convention), not inside it -- so the box
+      // stays a fixed size and the text never sits on top of the shape.
       const text = ModelDisplayer.svgNode('text', {
         x: b.cx,
-        y: b.cy,
+        y: b.cy + b.h / 2 + 6,
         'text-anchor': 'middle',
-        'dominant-baseline': 'central',
+        'dominant-baseline': 'hanging',
         'font-size': 12,
         fill: '#111',
       });
@@ -511,11 +454,6 @@ export class ModelDisplayer {
     });
   }
 
-  /** Estimated rectangle width that fits a single-line label (no wrapping). */
-  private static rectWidth(label: string): number {
-    return Math.max(46, Math.min(200, label.length * 7 + 16));
-  }
-
   /**
    * Point on node `b`'s border in the direction of (px, py) — where an arc
    * touching that node should start/end so the line meets the shape edge.
@@ -536,156 +474,6 @@ export class ModelDisplayer {
     const sy = dy !== 0 ? b.h / 2 / Math.abs(dy) : Infinity;
     const s = Math.min(sx, sy);
     return { x: b.cx + dx * s, y: b.cy + dy * s };
-  }
-
-  private static renderWithVis(
-    container: HTMLElement,
-    petrinet: ReturnType<typeof ModelDisplayer.parsePNML>
-  ) {
-    const nodes = new vis.DataSet([]);
-    const edges = new vis.DataSet([]);
-
-    // If the backend supplied coordinates for every node, honour them (render
-    // the layout the backend computed). Otherwise fall back to vis-network's
-    // own hierarchical auto-layout.
-    const allNodes = [
-      ...petrinet.places,
-      ...petrinet.transitions,
-      ...petrinet.operators,
-    ];
-    const useBackendCoords =
-      allNodes.length > 0 &&
-      allNodes.every((n) => typeof n.x === 'number' && typeof n.y === 'number');
-
-    for (const place of petrinet.places) {
-      // Places are unlabeled dots (a long id as a label would balloon the
-      // circle); the id stays available as a hover tooltip.
-      nodes.add({
-        id: place.id,
-        group: 'places',
-        label: '',
-        title: place.label,
-        ...(useBackendCoords ? { x: place.x, y: place.y } : {}),
-      });
-      // A place that carries its own name offset (e.g. a named place) gets the
-      // same free-floating label treatment as in the fat client.
-      if (useBackendCoords && typeof place.lx === 'number') {
-        ModelDisplayer.addLabelNode(
-          nodes,
-          place.id,
-          ModelDisplayer.cleanLabel(place.label),
-          place
-        );
-      }
-    }
-    for (const transition of petrinet.transitions) {
-      const label = ModelDisplayer.cleanLabel(transition.label);
-      nodes.add({
-        id: transition.id,
-        group: 'transitions',
-        // With a real layout the name is drawn as a free-floating label
-        // positioned by its offset (fat-client principle); the box itself stays
-        // empty. Without backend coords we keep the name inside the box.
-        label: useBackendCoords ? '' : label,
-        title: transition.label,
-        ...(useBackendCoords ? { x: transition.x, y: transition.y } : {}),
-      });
-      if (useBackendCoords) {
-        ModelDisplayer.addLabelNode(nodes, transition.id, label, transition);
-      }
-    }
-    for (const operator of petrinet.operators) {
-      // Operator nodes (the regrouped WOPED split/join transitions) show their
-      // branching glyph (× = XOR, ∧ = AND); the full type stays in the tooltip.
-      nodes.add({
-        id: operator.id,
-        group: 'operators',
-        label: operator.symbol,
-        title: `${operator.name} (${operator.id})`,
-        ...(useBackendCoords ? { x: operator.x, y: operator.y } : {}),
-      });
-    }
-    for (const arc of petrinet.arcs) {
-      edges.add({
-        from: arc.source,
-        to: arc.target,
-        ...(arc.weight ? { label: arc.weight } : {}),
-      });
-    }
-
-    const options = {
-      layout: useBackendCoords
-        ? // Coordinates come from the backend; don't let vis re-arrange them.
-          { improvedLayout: false }
-        : {
-            improvedLayout: true,
-            hierarchical: {
-              enabled: true,
-              // A petri net is bipartite (place -> transition -> place ...), so a
-              // left-to-right "directed" ranking reads as a process flow. Generous
-              // separation keeps the (variable-width) transition boxes from
-              // colliding with the arcs.
-              levelSeparation: 180,
-              nodeSpacing: 130,
-              treeSpacing: 220,
-              blockShifting: true,
-              edgeMinimization: true,
-              parentCentralization: true,
-              direction: 'LR',
-              sortMethod: 'directed',
-            },
-          },
-      nodes: {
-        font: { size: 13, color: '#1d2939', face: 'Roboto, sans-serif' },
-        borderWidth: 2,
-      },
-      edges: {
-        color: { color: '#98a2b3', highlight: '#1976d2' },
-        width: 1.5,
-        arrows: { to: { enabled: true, scaleFactor: 0.8 } },
-        smooth: { enabled: true, type: 'cubicBezier', roundness: 0.5 },
-        // Arc weights (only shown when != 1) sit on the edge.
-        font: { size: 11, color: '#475467', align: 'middle' },
-      },
-      groups: {
-        // Places: open white circles (classic petri-net notation).
-        places: {
-          shape: 'dot',
-          size: 14,
-          color: { background: '#ffffff', border: '#00695C' },
-        },
-        // Transitions: labelled boxes; wrap long names instead of growing wide.
-        transitions: {
-          shape: 'box',
-          color: {
-            background: '#FFF3E0',
-            border: '#FB8C00',
-            highlight: { background: '#FFE0B2', border: '#FB8C00' },
-          },
-          widthConstraint: { maximum: 140 },
-          margin: 10,
-          shapeProperties: { borderRadius: 4 },
-        },
-        // Operators: WOPED split/join nodes, set apart in purple so they read
-        // as routing logic rather than ordinary task transitions.
-        operators: {
-          shape: 'box',
-          color: {
-            background: '#EDE7F6',
-            border: '#5E35B1',
-            highlight: { background: '#D1C4E9', border: '#5E35B1' },
-          },
-          font: { color: '#311B92', size: 22, face: 'Roboto, sans-serif' },
-          margin: 10,
-          shapeProperties: { borderRadius: 2 },
-        },
-      },
-      interaction: { zoomView: true, dragView: true, hover: true },
-      physics: { enabled: false },
-    };
-
-    container.innerHTML = '';
-    new vis.Network(container, { nodes, edges }, options);
   }
 
   /** Strip a leading bracketed type tag, e.g. "[ServiceTask] Ship Item" -> "Ship Item". */
