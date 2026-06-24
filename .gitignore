@@ -42,6 +42,7 @@ speed-measure-plugin*.json
 npm-debug.log
 yarn-error.log
 testem.log
+woped.log
 /typings
 
 # System Files
