@@ -94,6 +94,27 @@
   border: 1px solid #f6c9c4;
 }
 
+.banner__details {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.banner__details li {
+  margin: 2px 0;
+}
+
+.banner__request-id {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.banner__request-id code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 /* --- Result panel --- */
 .panel--result {
   padding: 0;

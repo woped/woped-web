@@ -29,6 +29,10 @@ export class T2PComponent implements OnInit {
   protected loading = false;
   protected modelsError = '';
   protected errorMessage = '';
+  /** Concrete problems behind a `model_unprocessable` (422); empty otherwise. */
+  protected errorDetails: string[] = [];
+  /** Correlation id of a failed request, for the user to quote when reporting. */
+  protected errorRequestId = '';
   protected hasResult = false;
 
   private resultXml = '';
@@ -82,6 +86,8 @@ export class T2PComponent implements OnInit {
       return;
     }
     this.errorMessage = '';
+    this.errorDetails = [];
+    this.errorRequestId = '';
     this.loading = true;
     const text = this.replaceUmlaut(this.text.trim());
 
@@ -99,6 +105,14 @@ export class T2PComponent implements OnInit {
           this.loading = false;
           this.hasResult = false;
           this.errorMessage = this.formatError(err);
+          // The connector ships the concrete validation problems and a
+          // correlation id; surface both so the failure is actionable and
+          // traceable. The id is also on the X-Request-ID response header.
+          this.errorDetails = err?.error?.error?.details ?? [];
+          this.errorRequestId =
+            err?.error?.error?.request_id ||
+            err?.headers?.get?.('X-Request-ID') ||
+            '';
         },
       });
   }

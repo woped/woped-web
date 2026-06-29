@@ -87,7 +87,15 @@
       Generate
     </button>
 
-    <div *ngIf="errorMessage" class="banner banner--error">{{ errorMessage }}</div>
+    <div *ngIf="errorMessage" class="banner banner--error">
+      <div class="banner__message">{{ errorMessage }}</div>
+      <ul *ngIf="errorDetails.length" class="banner__details">
+        <li *ngFor="let detail of errorDetails">{{ detail }}</li>
+      </ul>
+      <div *ngIf="errorRequestId" class="banner__request-id">
+        Reference ID: <code>{{ errorRequestId }}</code>
+      </div>
+    </div>
   </section>
 
   <!-- Right: rendered diagram -->
