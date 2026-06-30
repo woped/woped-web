@@ -36,18 +36,6 @@ export class ModelDisplayer {
     ModelDisplayer.renderPetriNet(container, petrinet);
   }
 
-  /** WOPED workflow-operator type codes (PNML `<operator type=..>`) -> names. */
-  private static readonly OPERATOR_LABELS: Record<string, string> = {
-    '101': 'AND-split',
-    '102': 'AND-join',
-    '104': 'XOR-split',
-    '105': 'XOR-join',
-    '106': 'XOR-join/split',
-    '107': 'AND-join/split',
-    '108': 'AND-join/XOR-split',
-    '109': 'XOR-join/AND-split',
-  };
-
   private static parsePNML(PNML: Document) {
     const petrinet: {
       places: { id: string; label: string; x?: number; y?: number }[];
@@ -77,78 +65,39 @@ export class ModelDisplayer {
       });
     }
 
-    // A WOPED workflow operator (AND/XOR split/join) is exported as several
-    // `<id>_op_<n>` transitions that share one `<operator id=.. type=..>`.
-    // Regroup those siblings into a single operator node (keyed by the shared
-    // operator id) so the net reads the way WOPED draws it, instead of as N
-    // anonymous transition boxes. Their positions are averaged for the group.
-    const opAccum = new Map<string, { type: string; xs: number[]; ys: number[] }>();
-    const memberToOperator = new Map<string, string>();
-
+    // Render every transition at its own backend position -- including WOPED
+    // operator members (`<id>_op_<n>`). Collapsing one operator's members into a
+    // single averaged node detaches the backend's per-member arc waypoints:
+    // members of one operator can sit thousands of px apart (a split and its
+    // matching join), so the averaged node is nowhere near the routed waypoints
+    // and every operator arc is drawn as a diagonal. The backend owns layout and
+    // routing; the client follows it verbatim. Native Petri-net notation is plain
+    // transition boxes anyway -- no operator glyph (see renderSvg).
     const transitions = PNML.getElementsByTagName('transition');
     for (let x = 0; x < transitions.length; x++) {
       const t = transitions[x];
       const id = t.getAttribute('id');
       if (!id) continue; // unreferenceable without a real id (see places above)
-      const pos = ModelDisplayer.ownPosition(t);
-      const operator = t.getElementsByTagName('operator')[0];
-
-      if (operator && operator.getAttribute('id')) {
-        const opId = operator.getAttribute('id') as string;
-        memberToOperator.set(id, opId);
-        const acc =
-          opAccum.get(opId) ||
-          { type: operator.getAttribute('type') || '', xs: [], ys: [] };
-        if (typeof pos.x === 'number') acc.xs.push(pos.x);
-        if (typeof pos.y === 'number') acc.ys.push(pos.y);
-        opAccum.set(opId, acc);
-        continue;
-      }
-
       const transitionText = t.getElementsByTagName('text')[0];
       petrinet.transitions.push({
         id,
-        label: (transitionText && transitionText.textContent) || id,
-        ...pos,
+        label: (transitionText && transitionText.textContent) || '',
+        ...ModelDisplayer.ownPosition(t),
       });
     }
 
-    const avg = (vals: number[]) =>
-      vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : undefined;
-    for (const [opId, acc] of opAccum) {
-      const x = avg(acc.xs);
-      const y = avg(acc.ys);
-      petrinet.operators.push({
-        id: opId,
-        name: ModelDisplayer.OPERATOR_LABELS[acc.type] || `operator ${acc.type}`,
-        ...(x !== undefined && y !== undefined ? { x, y } : {}),
-      });
-    }
-
-    // Rewire arcs that touch an operator member onto its group node, then drop
-    // the duplicates that collapsing produces (e.g. two `_op_n` siblings fed by
-    // the same place). Arc weight comes from `<inscription>`; '1' is the
-    // default and is omitted to avoid cluttering every edge.
+    // Each arc keeps its own source/target and the backend's bend points. Arc
+    // weight comes from `<inscription>`; '1' is the default and is omitted to
+    // avoid cluttering every edge. Exact duplicates (same source->target) are
+    // dropped defensively.
     const seen = new Set<string>();
     const arcs = PNML.getElementsByTagName('arc');
     for (let x = 0; x < arcs.length; x++) {
-      const rawSource = arcs[x].getAttribute('source') || '';
-      const rawTarget = arcs[x].getAttribute('target') || '';
-      const source = memberToOperator.get(rawSource) || rawSource;
-      const target = memberToOperator.get(rawTarget) || rawTarget;
+      const source = arcs[x].getAttribute('source') || '';
+      const target = arcs[x].getAttribute('target') || '';
       const key = source + '->' + target;
       const waypoints = ModelDisplayer.arcWaypoints(arcs[x]);
-      if (!source || !target || seen.has(key)) {
-        // Collapsing operator members onto one group node can merge several raw
-        // arcs into one edge. The first wins; warn only if that discards real
-        // routing (a rare case where a back-edge lands on an operator member).
-        if (seen.has(key) && waypoints.length) {
-          console.warn(
-            `PNML: dropping waypoints of merged arc ${rawSource}->${rawTarget}`
-          );
-        }
-        continue;
-      }
+      if (!source || !target || seen.has(key)) continue;
       seen.add(key);
       const inscription = arcs[x].getElementsByTagName('inscription')[0];
       const weight = inscription
@@ -444,14 +393,30 @@ export class ModelDisplayer {
 
     container.innerHTML = '';
     container.appendChild(svg);
-    svgPanZoom(svg, {
+    const pz = svgPanZoom(svg, {
       zoomEnabled: true,
       controlIconsEnabled: true,
+      dblClickZoomEnabled: true,
+      mouseWheelZoomEnabled: true,
       fit: true,
       center: true,
-      minZoom: 0.2,
-      maxZoom: 10,
+      minZoom: 0.1,
+      maxZoom: 50,
     });
+    // A layered Petri net is long and thin (~2x its BPMN, often 20:1), so the
+    // default fit-to-WIDTH shrinks it to an unreadable sliver. Re-zoom to fit the
+    // HEIGHT instead and pan to the start, so shapes render full size and the
+    // user scrolls along the flow. The controls/wheel still zoom freely, and a
+    // net that is not wider than tall keeps the normal fit.
+    const sizes = pz.getSizes();
+    const widthFit = sizes.width / sizes.viewBox.width;
+    const heightFit = sizes.height / sizes.viewBox.height;
+    if (widthFit > 0 && heightFit > widthFit) {
+      pz.zoomBy(heightFit / widthFit); // width-fit -> height-fit (clamped by maxZoom)
+      const z = pz.getSizes();
+      const overflow = z.viewBox.width * z.realZoom - z.width;
+      if (overflow > 0) pz.panBy({ x: overflow / 2, y: 0 }); // reveal the left edge
+    }
   }
 
   /**
