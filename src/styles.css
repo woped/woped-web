@@ -3,13 +3,26 @@
 @import "bpmn-js/dist/assets/diagram-js.css";
 @import "bpmn-js/dist/assets/bpmn-font/css/bpmn.css";
 
+/* ===================== WoPeD brand tokens ===================== */
+:root {
+  --color-primary: #ff8a00;
+  --color-primary-dark: #e67a00;
+  --color-secondary: #ffb347;
+  --color-dark: #1f2328;
+  --color-gray: #5a6169;
+  --color-light: #f2f4f7;
+  --color-white: #ffffff;
+  --font-brand: "Poppins", Roboto, "Helvetica Neue", sans-serif;
+}
+
 html,
 body {
   height: 100%;
 }
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: var(--font-brand);
+  background-color: var(--color-light);
 }
 
 .centered {
@@ -35,17 +48,17 @@ body {
 }
 
 .djs-palette {
-  background: #fff;
+  background: var(--color-white);
   border: 1px solid #c7cbd1;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .djs-palette .entry {
-  color: #30343b;
+  color: var(--color-dark);
 }
 
 .djs-palette .entry:hover {
-  background: #e8f1fb;
-  color: #0b5cab;
+  background: #fff3e0;
+  color: var(--color-primary-dark);
 }

@@ -33,7 +33,9 @@
       "zeroShot": "Zero-Shot",
       "textareaLabel": "Text zur Umwandlung eingeben",
       "uploadedFile": "Hochgeladene Datei: {{name}}",
-      "dropzoneText": "Datei per Drag-and-Drop hochladen oder hier klicken"
+      "dropzoneText": "Datei per Drag-and-Drop hochladen oder hier klicken",
+      "selectModel": "Modell auswählen",
+      "noModelForProvider": "Für den Anbieter \"{{provider}}\" ist aktuell kein Modell im T2P-Backend registriert. Bitte wählen Sie in Schritt 1 einen anderen Anbieter."
     },
     "step4": {
       "label": "Modell wählen"

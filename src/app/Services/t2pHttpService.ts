@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { SpinnerService } from '../utilities/SpinnerService';
 import { ModelDisplayer } from '../utilities/modelDisplayer';
 import { TransformerService } from './transformerService';
@@ -12,12 +14,39 @@ const httpOptions = {
   responseType: 'text' as 'json',
 };
 
+export interface T2PModelOption {
+  provider: string;
+  model: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class t2pHttpService {
+  // Legacy endpoints. Deprecated per docs/api-contract.md (sunset 1 Dec 2026);
+  // still used only by the dead/UI-unreachable non-LLM paths below
+  // (postT2PBPMN/postT2PPetriNet). The live LLM path uses the v2 endpoints.
   private urlBPMN = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_BPMN';
   private urlPetriNet = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/generate_PNML';
+
+  // Current (v2) endpoints — confirmed against the live openapi.json
+  // (2026-07-03). Require `Authorization: Bearer <api_key>` and a JSON body
+  // of { text, provider, model, prompting_strategy? }; response is
+  // { result: string }. /v2/generate/pnml performs the BPMN->PNML transform
+  // and layout assignment server-side.
+  //
+  // KNOWN BACKEND ISSUE (2026-07-05, reported to backend team, kept
+  // deliberately on the frontend anyway — see backend info list): live
+  // testing showed /v2/generate/pnml hangs indefinitely (no error, no result,
+  // 5+ minutes) whenever the underlying LLM call succeeds, while
+  // /v2/generate/bpmn with an identical prompt returns normally. This isolates
+  // the hang to /v2/generate/pnml's own post-generation transform/layout step
+  // server-side. We keep calling /v2/generate/pnml anyway (per product
+  // decision) since that's the architecturally correct endpoint and the
+  // backend team owns the fix; do not silently route around it client-side.
+  private urlV2BPMN = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/v2/generate/bpmn';
+  private urlV2PNML = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/v2/generate/pnml';
+  private urlV2Models = 'https://woped.dhbw-karlsruhe.de/t2p-2.0/v2/models';
 
   private plainDocumentForDownload: string;
 
@@ -106,6 +135,13 @@ export class t2pHttpService {
       );
   }
 
+  /** Fetches the connector's actually-registered provider/model pairs for T2P. */
+  public getV2Models(): Observable<T2PModelOption[]> {
+    return this.t2phttpClient
+      .get<{ models: T2PModelOption[] }>(this.urlV2Models)
+      .pipe(map((res) => res.models || []));
+  }
+
   public postT2PWithLLM(
     text: string,
     apiKey: string,
@@ -115,21 +151,13 @@ export class t2pHttpService {
     callback: (response: any) => void,
     model?: string
   ) {
-    let llmUrl: string;
-    console.log('Approach value:', approach);
-    console.log('Model type:', modelType);
-
-    if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
-      llmUrl = this.urlBPMN;
-      console.log('Using BPMN URL:', llmUrl);
-    } else if (
+    const isBpmn = modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn';
+    const isPetri =
       modelType.toLowerCase().includes('petri') ||
       modelType.toLowerCase().includes('pnml') ||
-      modelType === 'petri'
-    ) {
-      llmUrl = this.urlBPMN;
-      console.log('Using BPMN URL for Petri-Net (LLM path):', llmUrl);
-    } else {
+      modelType === 'petri';
+
+    if (!isBpmn && !isPetri) {
       console.error('Unknown model type:', modelType);
       this.spinnerService.hide();
       document.getElementById('error-container-text')!.innerHTML =
@@ -138,17 +166,24 @@ export class t2pHttpService {
       return;
     }
 
+    const llmUrl = isBpmn ? this.urlV2BPMN : this.urlV2PNML;
+
+    const normalizedModel = (model || '').startsWith('models/')
+      ? (model as string).slice('models/'.length)
+      : model;
+
     const body: any = {
       text,
-      api_key: apiKey,
-      approach,
-      llm_provider: llmProvider,
+      provider: llmProvider,
+      model: normalizedModel,
+      prompting_strategy: approach,
     };
-    if (model) {
-      body.model = model.startsWith('models/')
-        ? model.slice('models/'.length)
-        : model;
-    }
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    });
+    const v2HttpOptions = { headers, responseType: 'text' as 'json' };
 
     const modelContainer = document.getElementById('model-container');
     if (modelContainer) modelContainer.innerHTML = '';
@@ -166,39 +201,20 @@ export class t2pHttpService {
       const xmlContent = parsedResponse.result || parsedResponse;
       this.plainDocumentForDownload = xmlContent;
 
-      if (modelType.toLowerCase().includes('bpmn') || modelType === 'bpmn') {
+      if (isBpmn) {
         ModelDisplayer.displayBPMNModel(xmlContent);
-        callback(parsedResponse);
-      } else if (
-        modelType.toLowerCase().includes('petri') ||
-        modelType.toLowerCase().includes('pnml') ||
-        modelType === 'petri'
-      ) {
-        this.transformerService.bpmnToPnml(xmlContent).subscribe({
-          next: (pnml: string) => {
-            this.plainDocumentForDownload = pnml;
-            // Render into the off-screen container so vis.js can capture a
-            // PNG snapshot (ModelDisplayer.lastPetriNetDataUrl) for the
-            // "Download Process as .png" button. This was never wired up
-            // before, so Petri-net PNG downloads silently did nothing.
-            ModelDisplayer.generatePetriNet(pnml, 'petri-render-container');
-            callback(parsedResponse);
-          },
-          error: (err: any) => {
-            this.spinnerService.hide();
-            const errorEl = document.getElementById('error-container-text');
-            if (errorEl) {
-              errorEl.innerHTML = 'BPMN to PNML transformation failed: ' + err.status;
-              errorEl.style.display = 'block';
-            }
-          }
-        });
+      } else {
+        // Render into the off-screen container so vis.js can capture a PNG
+        // snapshot (ModelDisplayer.lastPetriNetDataUrl) for the "Download
+        // Process as .png" button.
+        ModelDisplayer.generatePetriNet(xmlContent, 'petri-render-container');
       }
+      callback(parsedResponse);
     };
 
     const handleError = (error: any, attempt: number) => {
       if (error.status === 500 && attempt < 3) {
-        this.t2phttpClient.post<string>(llmUrl, body, httpOptions).subscribe(
+        this.t2phttpClient.post<string>(llmUrl, body, v2HttpOptions).subscribe(
           (response: any) => handleSuccess(response),
           (retryError: any) => handleError(retryError, attempt + 1)
         );
@@ -210,25 +226,48 @@ export class t2pHttpService {
       }
     };
 
-    return this.t2phttpClient.post<string>(llmUrl, body, httpOptions).subscribe(
+    return this.t2phttpClient.post<string>(llmUrl, body, v2HttpOptions).subscribe(
       (response: any) => handleSuccess(response),
       (error: any) => handleError(error, 0)
     );
   }
 
   private formatError(error: any): string {
+    // v2 error shape: { error: { code: string, message: string } }. Since
+    // requests use responseType 'text', a non-2xx body arrives as a raw
+    // string in error.error and needs parsing first.
+    let parsedBody: any = error?.error;
+    if (typeof parsedBody === 'string') {
+      try {
+        parsedBody = JSON.parse(parsedBody);
+      } catch {
+        // not JSON — fall through, treated as a plain string message below
+      }
+    }
+
+    const code = parsedBody?.error?.code;
+    const message = parsedBody?.error?.message;
+
+    const codeHints: Record<string, string> = {
+      invalid_model:
+        'The AI’s response could not be parsed into a valid process model. Try again, or use a shorter/simpler description.',
+      invalid_provider: 'This provider/model combination is not supported by the backend right now.',
+      transform_error:
+        'The Petri net transformer could not convert this process. Please use a simpler description without lanes, message flows, timers, errors, or subprocesses.',
+      upstream_error: 'The LLM provider could not be reached or returned an error.',
+      unauthorized: 'The API key was rejected by the backend.',
+      invalid_request: 'The request was malformed or missing required fields.',
+      internal_error: 'An unexpected backend error occurred.',
+    };
+
+    if (code && codeHints[code]) {
+      return `${error?.status || ''} ${code}: ${codeHints[code]}${message ? ' (' + message + ')' : ''}`.trim();
+    }
+
     const backendError =
       typeof error?.error === 'string'
         ? error.error
-        : error?.error?.error || error?.message || 'Unknown error';
-
-    if (
-      backendError.includes('BPMN to PNML transformation failed') ||
-      backendError.includes('TransformerServiceError') ||
-      backendError.includes('transformation service responded with an error')
-    ) {
-      return `${error?.status || ''} ${error?.statusText || ''} The Petri net transformer could not convert this process. Please use a simpler Petri-net description without lanes, message flows, timers, errors, or subprocesses.`;
-    }
+        : message || error?.error?.error || error?.message || 'Unknown error';
 
     return `${error?.status || ''} ${error?.statusText || ''} ${backendError}`.trim();
   }

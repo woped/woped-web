@@ -13,7 +13,7 @@
       <!-- LLM Provider Auswahl -->
       <div class="mt-2">
         <label class="d-block mb-1"><strong>{{ 'step1.providerLabel' | transloco }}</strong></label>
-        <mat-radio-group [(ngModel)]="selectedLLMProvider" name="llmProvider">
+        <mat-radio-group [ngModel]="selectedLLMProvider" (ngModelChange)="onProviderChange($event)" name="llmProvider">
           <mat-radio-button value="openai" class="mr-4">{{ 'step1.openai' | transloco }}</mat-radio-button>
           <mat-radio-button value="gemini" class="mr-4">{{ 'step1.gemini' | transloco }}</mat-radio-button>
           <mat-radio-button value="lmstudio">{{ 'step1.lmstudio' | transloco }}</mat-radio-button>
@@ -92,6 +92,20 @@
         </mat-radio-group>
       </div>
 
+      <!-- Model selection (nur wenn LLM aktiv) — uses the connector's own
+           registry so whatever is selected here is guaranteed to work. -->
+      <div *ngIf="isLLMEnabled" class="mt-2 mb-2">
+        <mat-form-field appearance="fill" class="dropdown-field" *ngIf="!t2pModelUnavailable">
+          <mat-label>{{ 't2p.step3.selectModel' | transloco }}</mat-label>
+          <mat-select [(value)]="t2pSelectedModel">
+            <mat-option *ngFor="let model of t2pModelOptions" [value]="model">{{ model }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <p style="color: #b00;" *ngIf="t2pModelUnavailable">
+          {{ 't2p.step3.noModelForProvider' | transloco: { provider: selectedLLMProvider } }}
+        </p>
+      </div>
+
       <mat-form-field appearance="fill" [style.width.%]="50">
         <mat-label>{{ 't2p.step3.textareaLabel' | transloco }}</mat-label>
         <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
@@ -127,7 +141,7 @@
       <div>
         <button type="button" mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
         <button type="button" mat-button matStepperNext class="card" (click)="generateProcess()"
-          [disabled]="!text.trim()">
+          [disabled]="!text.trim() || (isLLMEnabled && !t2pSelectedModel)">
           {{ 'common.generate' | transloco }}
         </button>
       </div>

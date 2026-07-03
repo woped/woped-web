@@ -3,7 +3,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { TranslocoService } from '@ngneat/transloco';
 import html2canvas from 'html2canvas';
 import { p2tHttpService } from '../Services/p2tHttpService';
-import { t2pHttpService } from '../Services/t2pHttpService';
+import { t2pHttpService, T2PModelOption } from '../Services/t2pHttpService';
 import { TransformerService } from '../Services/transformerService';
 import { SpinnerService } from '../utilities/SpinnerService';
 import { ModelDisplayer } from '../utilities/modelDisplayer';
@@ -51,6 +51,15 @@ export class CombinedComponent {
   apiKeyValid: boolean | null = null;
   apiKeyChecking = false;
 
+  // T2P calls the t2p-2.0 connector directly, which currently only supports
+  // a small, explicit registry of provider/model pairs (fetched live from
+  // /v2/generate's /v2/models) — distinct from and usually smaller than the
+  // full provider catalog used for P2T's `models`/`selectedModel` below.
+  // Keeping this list separate guarantees whatever is selected here is
+  // actually accepted by the T2P backend.
+  protected t2pModels: T2PModelOption[] = [];
+  protected t2pSelectedModel = '';
+
   // ─── T2P state ────────────────────────────────────────────────────────────
   protected text = '';
   protected selectedDiagram = 'bpmn';
@@ -95,10 +104,48 @@ export class CombinedComponent {
     private transformerService: TransformerService,
     public spinnerService: SpinnerService,
     public translocoService: TranslocoService
-  ) { }
+  ) {
+    this.loadT2PModels();
+  }
 
   setLanguage(lang: string): void {
     this.translocoService.setActiveLang(lang);
+  }
+
+  /** Provider/model pairs from t2pModels that match the current provider. */
+  protected get t2pModelOptions(): string[] {
+    return this.t2pModels
+      .filter((m) => m.provider === this.selectedLLMProvider)
+      .map((m) => m.model);
+  }
+
+  /** True once the registry has loaded and the current provider has no registered model. */
+  protected get t2pModelUnavailable(): boolean {
+    return this.t2pModels.length > 0 && this.t2pModelOptions.length === 0;
+  }
+
+  /**
+   * Loads the connector's actual provider/model registry (public, no API key
+   * needed) so the T2P model dropdown only ever offers choices the backend
+   * will accept.
+   */
+  private loadT2PModels(): void {
+    this.t2pHttpService.getV2Models().subscribe({
+      next: (models) => {
+        this.t2pModels = models;
+        this.t2pSelectedModel = this.t2pModelOptions[0] ?? '';
+      },
+      error: () => {
+        this.t2pModels = [];
+        this.t2pSelectedModel = '';
+      },
+    });
+  }
+
+  /** Keeps the T2P model selection in sync when the provider (Step 1) changes. */
+  protected onProviderChange(provider: string): void {
+    this.selectedLLMProvider = provider;
+    this.t2pSelectedModel = this.t2pModelOptions[0] ?? '';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -162,10 +209,15 @@ export class CombinedComponent {
     this.spinnerService.show();
 
     if (this.isLLMEnabled) {
-      // T2P backend prompts are tuned for gpt-4; prefer it over gpt-4o when available
-      const t2pModel = this.selectedLLMProvider === 'openai' && this.models.includes('gpt-4')
-        ? 'gpt-4'
-        : this.selectedModel;
+      if (!this.t2pSelectedModel) {
+        this.spinnerService.hide();
+        this.setErrorMessage(
+          this.t2pModelUnavailable
+            ? `No model registered for provider "${this.selectedLLMProvider}" — try a different provider in Step 1.`
+            : 'Loading available models, please try again in a moment.'
+        );
+        return;
+      }
       this.t2pHttpService.postT2PWithLLM(
         text,
         this.apiKey,
@@ -177,7 +229,7 @@ export class CombinedComponent {
           this.setTextResult(text);
           this.pushT2PHistory(text);
         },
-        t2pModel
+        this.t2pSelectedModel
       );
     } else {
       if (this.selectedDiagram === 'bpmn') {
@@ -352,8 +404,7 @@ export class CombinedComponent {
         this.models = models.filter(m =>
           !excluded.some(ex => m.toLowerCase().includes(ex))
         );
-        const preferred = this.models.find(m => m === 'gpt-4');
-        this.selectedModel = preferred ?? this.models[0];
+        this.selectedModel = this.models[0];
       },
       error: () => {
         const fallbacks: Record<string, string> = {

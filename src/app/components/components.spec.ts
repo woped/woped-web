@@ -134,14 +134,14 @@ describe('CombinedComponent', () => {
     expect(component.selectedModel).toEqual('gemini-pro');
   });
 
-  it('should fetch models for openai and prefer gpt-4 when available', () => {
-    const mockModels = ['gpt-3.5-turbo', 'gpt-4'];
+  it('should fetch models for openai and select the first one returned (no forced preference)', () => {
+    const mockModels = ['gpt-3.5-turbo', 'gpt-4o'];
     jest.spyOn(component['p2tHttpService'], 'getModels').mockReturnValue(of(mockModels));
     component.apiKey = 'sk-proj-123456';
     component.selectedLLMProvider = 'openai';
     component.fetchModelsForProvider('openai');
     expect(component.models).toEqual(mockModels);
-    expect(component.selectedModel).toEqual('gpt-4');
+    expect(component.selectedModel).toEqual('gpt-3.5-turbo');
   });
 
   it('should update selectedModel on onModelChange', () => {
@@ -259,6 +259,75 @@ describe('CombinedComponent', () => {
     expect((component as any).selectedDiagram).toEqual('petri-net');
     expect((component as any).textResult).toEqual('restored input');
     expect(setDownloadContentSpy).toHaveBeenCalledWith('<pnml/>');
+  });
+
+  // ─── T2P: model registry (v2 connector) ────────────────────────────────────
+  // T2P talks to the t2p-2.0 connector directly, which only supports a small,
+  // explicit registry of provider/model pairs — separate from P2T's much
+  // broader `models`/`selectedModel`. This guarantees whatever the T2P
+  // dropdown offers is actually accepted by the backend (2026-07-03 finding:
+  // the old code silently forced 'gpt-4' regardless of any selection).
+
+  it('should expose only the registered models for the current provider', () => {
+    (component as any).t2pModels = [
+      { provider: 'openai', model: 'gpt-5-mini' },
+      { provider: 'gemini', model: 'gemini-2.0-flash' },
+    ];
+    component.selectedLLMProvider = 'openai';
+    expect((component as any).t2pModelOptions).toEqual(['gpt-5-mini']);
+    component.selectedLLMProvider = 'gemini';
+    expect((component as any).t2pModelOptions).toEqual(['gemini-2.0-flash']);
+  });
+
+  it('should report t2pModelUnavailable when the provider has no registered model', () => {
+    (component as any).t2pModels = [{ provider: 'openai', model: 'gpt-5-mini' }];
+    component.selectedLLMProvider = 'lmstudio';
+    expect((component as any).t2pModelUnavailable).toBeTruthy();
+    component.selectedLLMProvider = 'openai';
+    expect((component as any).t2pModelUnavailable).toBeFalsy();
+  });
+
+  it('should not report t2pModelUnavailable before the registry has loaded', () => {
+    (component as any).t2pModels = [];
+    expect((component as any).t2pModelUnavailable).toBeFalsy();
+  });
+
+  it('onProviderChange should update the provider and re-pick the first matching T2P model', () => {
+    (component as any).t2pModels = [
+      { provider: 'openai', model: 'gpt-5-mini' },
+      { provider: 'gemini', model: 'gemini-2.0-flash' },
+    ];
+    (component as any).onProviderChange('gemini');
+    expect(component.selectedLLMProvider).toEqual('gemini');
+    expect((component as any).t2pSelectedModel).toEqual('gemini-2.0-flash');
+  });
+
+  it('loadT2PModels should populate t2pModels and default t2pSelectedModel from the connector', () => {
+    jest.spyOn(component['t2pHttpService'], 'getV2Models').mockReturnValue(
+      of([{ provider: 'openai', model: 'gpt-5-mini' }])
+    );
+    component.selectedLLMProvider = 'openai';
+    (component as any).loadT2PModels();
+    expect((component as any).t2pModels).toEqual([{ provider: 'openai', model: 'gpt-5-mini' }]);
+    expect((component as any).t2pSelectedModel).toEqual('gpt-5-mini');
+  });
+
+  it('generateProcess should refuse to call the backend when no T2P model is available', () => {
+    const postSpy = jest.spyOn(component['t2pHttpService'], 'postT2PWithLLM');
+    (component as any).text = 'Some process text';
+    (component as any).t2pSelectedModel = '';
+    (component as any).generateProcess();
+    expect(postSpy).not.toHaveBeenCalled();
+  });
+
+  it('generateProcess should call postT2PWithLLM with the T2P-specific selected model', () => {
+    const postSpy = jest.spyOn(component['t2pHttpService'], 'postT2PWithLLM').mockImplementation(() => undefined as any);
+    (component as any).text = 'Some process text';
+    (component as any).t2pSelectedModel = 'gpt-5-mini';
+    component.selectedLLMProvider = 'openai';
+    (component as any).generateProcess();
+    expect(postSpy).toHaveBeenCalled();
+    expect(postSpy.mock.calls[0][6]).toEqual('gpt-5-mini');
   });
 
   // ─── P2T: history ─────────────────────────────────────────────────────────
