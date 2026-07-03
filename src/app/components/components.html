@@ -229,7 +229,18 @@
     <p id="error-container-text"></p>
   </div>
 
+  <p class="edit-hint" *ngIf="selectedDiagram === 'bpmn'">{{ 't2p.output.editHint' | transloco }}</p>
   <div id="model-container" *ngIf="selectedDiagram === 'bpmn'"></div>
+
+  <div class="history-panel mt-btn-row" *ngIf="t2pHistory.length > 1">
+    <label><b>{{ 't2p.output.historyLabel' | transloco }}</b></label>
+    <ul class="history-list">
+      <li *ngFor="let entry of t2pHistory.slice(1)">
+        <span>{{ entry.timestamp | date:'HH:mm:ss' }} · {{ entry.diagramType }} · {{ entry.inputText.slice(0, 40) }}{{ entry.inputText.length > 40 ? '…' : '' }}</span>
+        <button mat-button class="card" (click)="restoreT2PHistory(entry)">{{ 't2p.output.historyRestore' | transloco }}</button>
+      </li>
+    </ul>
+  </div>
 </div>
 
 <!-- Off-screen container for Petri-Net vis.js rendering (never visible, always in DOM) -->
@@ -244,4 +255,14 @@
   <div class="mt-btn-row-2x"><label><b>{{ 'p2t.output.yourText' | transloco }}</b></label></div>
   <div id="result" class="mt-btn-row"></div>
   <button class="card mt-btn-row" (click)="downloadText()">{{ 'p2t.output.downloadText' | transloco }}</button>
+
+  <div class="history-panel mt-btn-row" *ngIf="p2tHistory.length > 1">
+    <label><b>{{ 'p2t.output.historyLabel' | transloco }}</b></label>
+    <ul class="history-list">
+      <li *ngFor="let entry of p2tHistory.slice(1)">
+        <span>{{ entry.timestamp | date:'HH:mm:ss' }} · {{ entry.fileName }}</span>
+        <button mat-button class="card" (click)="restoreP2THistory(entry)">{{ 'p2t.output.historyRestore' | transloco }}</button>
+      </li>
+    </ul>
+  </div>
 </div>

@@ -15,6 +15,19 @@ declare global {
   }
 }
 
+interface T2PHistoryEntry {
+  timestamp: Date;
+  diagramType: 'bpmn' | 'petri-net';
+  inputText: string;
+  xml: string;
+}
+
+interface P2THistoryEntry {
+  timestamp: Date;
+  fileName: string;
+  resultText: string;
+}
+
 @Component({
   selector: 'app-components',
   templateUrl: './components.html',
@@ -47,6 +60,9 @@ export class CombinedComponent {
   protected isFiledDropped = false;
   protected droppedFileName = '';
   private t2pUploadedFileType: 'text' | 'bpmn' | null = null;
+  // Newest entry first (index 0). Index 0 always mirrors what's currently
+  // displayed, so the history list in the UI shows .slice(1).
+  protected t2pHistory: T2PHistoryEntry[] = [];
 
   // ─── P2T state ────────────────────────────────────────────────────────────
   response: any;
@@ -62,6 +78,9 @@ export class CombinedComponent {
   modelFallbackWarning = '';
   hasPromptWarningShown = false;
   isApiKeyEntered = false;
+  // Newest entry first (index 0); see t2pHistory comment above.
+  protected p2tHistory: P2THistoryEntry[] = [];
+  private readonly maxHistoryEntries = 10;
 
   // ─── ViewChild refs ───────────────────────────────────────────────────────
   @ViewChild('stepper') stepper!: MatStepper;
@@ -156,21 +175,70 @@ export class CombinedComponent {
         (response: any) => {
           this.responseText = JSON.stringify(response, null, 2);
           this.setTextResult(text);
+          this.pushT2PHistory(text);
         },
         t2pModel
       );
     } else {
       if (this.selectedDiagram === 'bpmn') {
-        this.t2pHttpService.postT2PBPMN(text);
+        this.t2pHttpService.postT2PBPMN(text, () => this.pushT2PHistory(text));
       }
       if (this.selectedDiagram === 'petri-net') {
-        this.t2pHttpService.postT2PPetriNet(text);
+        this.t2pHttpService.postT2PPetriNet(text, () => this.pushT2PHistory(text));
       }
       this.setTextResult(text);
     }
   }
 
-  protected onDownloadText(): void {
+  /**
+   * Records a successfully generated T2P result in the in-memory history so
+   * users can go back to earlier results within the session (nothing is
+   * persisted across page reloads). Newest entry is always at index 0.
+   */
+  private pushT2PHistory(inputText: string): void {
+    const xml = this.t2pHttpService.getDownloadContent();
+    if (!xml) return;
+
+    this.t2pHistory.unshift({
+      timestamp: new Date(),
+      diagramType: this.selectedDiagram as 'bpmn' | 'petri-net',
+      inputText,
+      xml,
+    });
+    if (this.t2pHistory.length > this.maxHistoryEntries) {
+      this.t2pHistory.length = this.maxHistoryEntries;
+    }
+  }
+
+  /**
+   * Re-displays a past T2P result and points the download buttons at it
+   * again. Rendering is deferred with setTimeout so Angular has a chance to
+   * toggle the *ngIf on #model-container for the target diagram type first
+   * (same pattern already used by processP2TFiles() below).
+   */
+  restoreT2PHistory(entry: T2PHistoryEntry): void {
+    this.selectedDiagram = entry.diagramType;
+    this.textResult = entry.inputText;
+    this.t2pHttpService.setDownloadContent(entry.xml);
+
+    if (entry.diagramType === 'bpmn') {
+      setTimeout(() => ModelDisplayer.displayBPMNModel(entry.xml, { normalizeLayout: false }));
+    } else {
+      setTimeout(() => ModelDisplayer.generatePetriNet(entry.xml, 'petri-render-container'));
+    }
+  }
+
+  protected async onDownloadText(): Promise<void> {
+    // For BPMN, pull the current (possibly manually edited) diagram out of
+    // the canvas first, so the download reflects any corrections made in
+    // the editor rather than the originally generated version.
+    if (this.selectedDiagram === 'bpmn') {
+      const currentXml = await ModelDisplayer.getCurrentBpmnXml();
+      if (currentXml) {
+        this.t2pHttpService.setDownloadContent(currentXml);
+      }
+    }
+
     const filename = this.selectedDiagram === 'bpmn' ? 't2p.bpmn' : 't2p.pnml';
     this.t2pHttpService.downloadModelAsText(filename);
   }
@@ -508,10 +576,38 @@ export class CombinedComponent {
 
   private displayText(response: string): void {
     this.response = this.p2tHttpService.formText(response);
-    const container = document.getElementById('result')!;
+    this.renderResultText(this.response);
+    this.pushP2THistory(this.response);
+  }
+
+  private renderResultText(text: string): void {
+    const container = document.getElementById('result');
+    if (!container) return;
     const paragraph = document.createElement('p');
-    paragraph.textContent = this.response;
+    paragraph.textContent = text;
     if (container.firstChild) container.firstChild.remove();
     container.appendChild(paragraph);
+  }
+
+  /**
+   * Records a successfully generated P2T result in the in-memory history so
+   * users can go back to earlier results within the session. Newest entry
+   * is always at index 0.
+   */
+  private pushP2THistory(resultText: string): void {
+    this.p2tHistory.unshift({
+      timestamp: new Date(),
+      fileName: this.droppedFileNameP2T || 'model',
+      resultText,
+    });
+    if (this.p2tHistory.length > this.maxHistoryEntries) {
+      this.p2tHistory.length = this.maxHistoryEntries;
+    }
+  }
+
+  /** Re-displays a past P2T text result. */
+  restoreP2THistory(entry: P2THistoryEntry): void {
+    this.response = entry.resultText;
+    this.renderResultText(entry.resultText);
   }
 }

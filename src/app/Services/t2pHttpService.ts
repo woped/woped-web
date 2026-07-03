@@ -27,7 +27,7 @@ export class t2pHttpService {
     private transformerService: TransformerService
   ) { }
 
-  public postT2PBPMN(text: string) {
+  public postT2PBPMN(text: string, onSuccess?: () => void, onError?: (error: any) => void) {
     const modelContainer = document.getElementById('model-container');
     if (modelContainer) modelContainer.innerHTML = '';
 
@@ -38,6 +38,7 @@ export class t2pHttpService {
           this.spinnerService.hide();
           ModelDisplayer.displayBPMNModel(response);
           this.plainDocumentForDownload = response;
+          onSuccess?.();
         },
         (error: any) => {
           console.log(error);
@@ -46,8 +47,22 @@ export class t2pHttpService {
             error.status + ' ' + error.statusText + ' ' + error.error;
           document.getElementById('error-container-text')!.style.display =
             'block';
+          onError?.(error);
         }
       );
+  }
+
+  /** Current content that downloadModelAsText()/PNG capture operate on. */
+  public getDownloadContent(): string {
+    return this.plainDocumentForDownload;
+  }
+
+  /**
+   * Overrides the stored result, e.g. with a live-edited BPMN XML from the
+   * canvas or a restored history entry, so subsequent downloads reflect it.
+   */
+  public setDownloadContent(content: string): void {
+    this.plainDocumentForDownload = content;
   }
 
   public downloadModelAsText(filename = 't2p.pnml') {
@@ -66,7 +81,7 @@ export class t2pHttpService {
     document.body.removeChild(element);
   }
 
-  public postT2PPetriNet(text: string) {
+  public postT2PPetriNet(text: string, onSuccess?: () => void, onError?: (error: any) => void) {
     const modelContainer = document.getElementById('model-container');
     if (modelContainer) modelContainer.innerHTML = '';
     const petriContainer = document.getElementById('petri-render-container');
@@ -78,6 +93,7 @@ export class t2pHttpService {
         (response: any) => {
           this.spinnerService.hide();
           this.plainDocumentForDownload = response;
+          onSuccess?.();
         },
         (error: any) => {
           this.spinnerService.hide();
@@ -85,6 +101,7 @@ export class t2pHttpService {
             this.formatError(error);
           document.getElementById('error-container-text')!.style.display =
             'block';
+          onError?.(error);
         }
       );
   }
@@ -160,6 +177,11 @@ export class t2pHttpService {
         this.transformerService.bpmnToPnml(xmlContent).subscribe({
           next: (pnml: string) => {
             this.plainDocumentForDownload = pnml;
+            // Render into the off-screen container so vis.js can capture a
+            // PNG snapshot (ModelDisplayer.lastPetriNetDataUrl) for the
+            // "Download Process as .png" button. This was never wired up
+            // before, so Petri-net PNG downloads silently did nothing.
+            ModelDisplayer.generatePetriNet(pnml, 'petri-render-container');
             callback(parsedResponse);
           },
           error: (err: any) => {

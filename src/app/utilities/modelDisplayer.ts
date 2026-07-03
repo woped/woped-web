@@ -44,6 +44,7 @@ interface BpmnCanvas {
 interface BpmnViewer {
   importXML(xml: string): Promise<unknown>;
   get(service: 'canvas'): BpmnCanvas;
+  saveXML(options?: { format?: boolean }): Promise<{ xml: string }>;
 }
 
 interface BpmnBounds {
@@ -72,6 +73,11 @@ interface BpmnSequenceFlow {
 // Model Display Class
 export class ModelDisplayer {
   public static lastPetriNetDataUrl: string | null = null;
+  // Reference to the currently displayed BPMN modeler instance (bpmn-js ships
+  // the full Modeler bundle, so the diagram is already editable in the
+  // canvas — dragging shapes, renaming labels, adding/removing elements).
+  // This reference lets callers pull the *edited* XML back out again.
+  private static activeBpmnModeler: BpmnViewer | null = null;
   private static readonly bpmnElementNames = new Set([
     'startEvent',
     'endEvent',
@@ -508,8 +514,11 @@ export class ModelDisplayer {
     if (!container) return;
 
     container.innerHTML = '';
+    ModelDisplayer.activeBpmnModeler = null;
 
-    // Create a new Viewer
+    // Create a new Modeler (bundled as bpmn-modeler.production.min.js, so
+    // palette/context-pad/direct-editing are all included and interactive
+    // out of the box — no extra wiring needed for editing itself).
     const viewer: BpmnViewer = new BpmnJS({
       container: '#model-container',
       keyboard: {
@@ -527,7 +536,25 @@ export class ModelDisplayer {
       const canvas = viewer.get('canvas');
       canvas.resized();
       canvas.zoom('fit-viewport');
+      ModelDisplayer.activeBpmnModeler = viewer;
     } catch (err) {}
+  }
+
+  /**
+   * Reads back the current (possibly user-edited) XML from the live BPMN
+   * canvas, e.g. so downloads reflect manual corrections made in the
+   * editor rather than the originally generated diagram.
+   * Returns null if no BPMN model is currently displayed.
+   */
+  public static async getCurrentBpmnXml(): Promise<string | null> {
+    if (!ModelDisplayer.activeBpmnModeler) return null;
+    try {
+      const result = await ModelDisplayer.activeBpmnModeler.saveXML({ format: true });
+      return result.xml;
+    } catch (err) {
+      console.error('Failed to read edited BPMN XML:', err);
+      return null;
+    }
   }
 
   private static extractXml(response: string, rootTag: string): string {

@@ -190,6 +190,33 @@ p {
   border-radius: 4px;
 }
 
+.edit-hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* ===================== History ===================== */
+.history-panel {
+  width: 100%;
+}
+
+.history-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.history-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
 /* ===================== Error Handling ===================== */
 #error-container {
   width: 100%;

@@ -218,4 +218,76 @@ describe('CombinedComponent', () => {
   it('should return empty string for unknown file type', () => {
     expect(component.getFileType('data.xml')).toEqual('');
   });
+
+  // ─── T2P: history ─────────────────────────────────────────────────────────
+
+  it('should add a t2pHistory entry after a successful generation', () => {
+    jest.spyOn(component['t2pHttpService'], 'getDownloadContent').mockReturnValue('<xml/>');
+    (component as any).selectedDiagram = 'bpmn';
+    (component as any).pushT2PHistory('Some input text');
+    expect((component as any).t2pHistory.length).toEqual(1);
+    expect((component as any).t2pHistory[0]).toMatchObject({
+      diagramType: 'bpmn',
+      inputText: 'Some input text',
+      xml: '<xml/>',
+    });
+  });
+
+  it('should not add a t2pHistory entry when there is no download content yet', () => {
+    jest.spyOn(component['t2pHttpService'], 'getDownloadContent').mockReturnValue('');
+    (component as any).pushT2PHistory('Some input text');
+    expect((component as any).t2pHistory.length).toEqual(0);
+  });
+
+  it('should cap t2pHistory at 10 entries, newest first', () => {
+    jest.spyOn(component['t2pHttpService'], 'getDownloadContent').mockReturnValue('<xml/>');
+    for (let i = 0; i < 12; i++) {
+      (component as any).pushT2PHistory(`input ${i}`);
+    }
+    expect((component as any).t2pHistory.length).toEqual(10);
+    expect((component as any).t2pHistory[0].inputText).toEqual('input 11');
+  });
+
+  it('should restore a t2pHistory entry (diagram type, text result, download content)', () => {
+    const setDownloadContentSpy = jest.spyOn(component['t2pHttpService'], 'setDownloadContent');
+    component.restoreT2PHistory({
+      timestamp: new Date(),
+      diagramType: 'petri-net',
+      inputText: 'restored input',
+      xml: '<pnml/>',
+    });
+    expect((component as any).selectedDiagram).toEqual('petri-net');
+    expect((component as any).textResult).toEqual('restored input');
+    expect(setDownloadContentSpy).toHaveBeenCalledWith('<pnml/>');
+  });
+
+  // ─── P2T: history ─────────────────────────────────────────────────────────
+
+  it('should add a p2tHistory entry after displayText()', () => {
+    const result = document.createElement('div');
+    result.id = 'result';
+    document.body.appendChild(result);
+
+    component.droppedFileNameP2T = 'invoice.bpmn';
+    (component as any).displayText('Generated text');
+
+    expect((component as any).p2tHistory.length).toEqual(1);
+    expect((component as any).p2tHistory[0]).toMatchObject({
+      fileName: 'invoice.bpmn',
+      resultText: 'Generated text',
+    });
+
+    document.body.removeChild(result);
+  });
+
+  it('should restore a p2tHistory entry', () => {
+    const result = document.createElement('div');
+    result.id = 'result';
+    document.body.appendChild(result);
+
+    component.restoreP2THistory({ timestamp: new Date(), fileName: 'x', resultText: 'restored text' });
+    expect(component.response).toEqual('restored text');
+
+    document.body.removeChild(result);
+  });
 });

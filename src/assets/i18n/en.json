@@ -45,7 +45,10 @@
     "output": {
       "yourInput": "Your Input:",
       "downloadImage": "Download Process as .png",
-      "downloadFile": "Download Process as File"
+      "downloadFile": "Download Process as File",
+      "editHint": "💡 Tip: you can edit this diagram directly – drag elements, rename labels, or add/remove shapes before downloading.",
+      "historyLabel": "History of previous results:",
+      "historyRestore": "Show"
     }
   },
   "p2t": {
@@ -64,7 +67,9 @@
     "output": {
       "yourInput": "Your input:",
       "yourText": "Your text:",
-      "downloadText": "Download Text as .txt"
+      "downloadText": "Download Text as .txt",
+      "historyLabel": "History of previous results:",
+      "historyRestore": "Show"
     }
   }
 }

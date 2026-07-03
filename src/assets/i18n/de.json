@@ -45,7 +45,10 @@
     "output": {
       "yourInput": "Ihre Eingabe:",
       "downloadImage": "Prozess als .png herunterladen",
-      "downloadFile": "Prozess als Datei herunterladen"
+      "downloadFile": "Prozess als Datei herunterladen",
+      "editHint": "💡 Tipp: Sie können dieses Diagramm direkt bearbeiten – Elemente verschieben, Beschriftungen ändern oder Formen hinzufügen/entfernen, bevor Sie es herunterladen.",
+      "historyLabel": "Verlauf früherer Ergebnisse:",
+      "historyRestore": "Anzeigen"
     }
   },
   "p2t": {
@@ -64,7 +67,9 @@
     "output": {
       "yourInput": "Ihre Eingabe:",
       "yourText": "Ihr Text:",
-      "downloadText": "Text als .txt herunterladen"
+      "downloadText": "Text als .txt herunterladen",
+      "historyLabel": "Verlauf früherer Ergebnisse:",
+      "historyRestore": "Anzeigen"
     }
   }
 }
