@@ -1,1 +1,77 @@
-{}
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "generate": "Generate"
+  },
+  "step1": {
+    "label": "LLM Configuration",
+    "providerLabel": "LLM Provider",
+    "openai": "OpenAI",
+    "gemini": "Gemini",
+    "lmstudio": "LM Studio",
+    "apiKeyLabel": "API Key",
+    "apiKeyPlaceholder": "Enter your LLM API key",
+    "validateKey": "Validate Key",
+    "checking": "Checking...",
+    "apiKeyValid": "✔ API Key is valid.",
+    "apiKeyInvalid": "✘ Invalid API Key for {{provider}}.",
+    "lmStudioInfo": "✔ LM Studio runs locally – no API key required."
+  },
+  "step2": {
+    "label": "Choose Tool",
+    "t2pTitle": "Text → Process (T2P)",
+    "t2pDescription": "The text-to-process approach deals with the conversion of a text description into a model within the framework of business process management (BPM) and natural language processing (NLP).",
+    "p2tTitle": "Process → Text (P2T)",
+    "p2tDescription": "The process-to-text approach in the context of BPM and NLP refers to the automatic generation of text descriptions from business process models. Process models can be analyzed and translated into natural language for training documentation, user documentation, or compliance reports."
+  },
+  "t2p": {
+    "step3": {
+      "label": "Insert your Text",
+      "promptingStrategy": "Prompting Strategy",
+      "fewShot": "Few-Shot",
+      "zeroShot": "Zero-Shot",
+      "textareaLabel": "Enter Text to Transform",
+      "uploadedFile": "Uploaded file: {{name}}",
+      "dropzoneText": "Upload file via drag-and-drop or click here",
+      "selectModel": "Select Model",
+      "noModelForProvider": "No model is currently registered for provider \"{{provider}}\" on the T2P backend. Please choose a different provider in Step 1."
+    },
+    "step4": {
+      "label": "Choose Your Model"
+    },
+    "step5": {
+      "label": "Process (Done)",
+      "text": "You are now done."
+    },
+    "output": {
+      "yourInput": "Your Input:",
+      "downloadImage": "Download Process as .png",
+      "downloadFile": "Download Process as File",
+      "editHint": "💡 Tip: you can edit this diagram directly – drag elements, rename labels, or add/remove shapes before downloading.",
+      "historyLabel": "History of previous results:",
+      "historyRestore": "Show"
+    }
+  },
+  "p2t": {
+    "step3": {
+      "label": "Insert your Model",
+      "promptLabel": "Prompt",
+      "promptDefault": "Create a clearly structured and comprehensible continuous text from the given BPMN that is understandable for an uninformed reader. The text should be easy to read in the summary and contain all important content; if there are subdivided points, these are integrated into the text with suitable sentence beginnings in order to obtain a well-structured and easy-to-read text. Under no circumstances should the output contain sub-items or paragraphs, but should cover all processes in one piece!",
+      "uploadInstructions": "To upload your process model you can either select your file via a click in the area in your explorer or drag and drop it into the pane below.",
+      "uploadedFile": "Uploaded file: {{name}}",
+      "dropzoneText": "Upload files via drag and drop or click into the textfield",
+      "selectModel": "Select Model"
+    },
+    "step4": {
+      "label": "Text (Done)"
+    },
+    "output": {
+      "yourInput": "Your input:",
+      "yourText": "Your text:",
+      "downloadText": "Download Text as .txt",
+      "historyLabel": "History of previous results:",
+      "historyRestore": "Show"
+    }
+  }
+}

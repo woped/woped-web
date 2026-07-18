@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="WoPeD logo">
+  <defs>
+    <linearGradient id="woped-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A00" />
+      <stop offset="100%" stop-color="#FFB347" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#woped-logo-gradient)" />
+  <path d="M50 2 H62 A2 2 0 0 1 64 4 V16 Z" fill="#E67A00" opacity="0.55" />
+  <text x="32" y="43" text-anchor="middle" font-family="Poppins, Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="34" fill="#FFFFFF">W</text>
+</svg>

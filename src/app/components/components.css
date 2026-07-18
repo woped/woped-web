@@ -1,0 +1,336 @@
+:host {
+  font-family: var(--font-brand), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 14px;
+  color: var(--color-dark);
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 8px 0;
+}
+
+p {
+  margin: 0;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* ===================== Spacing utility ===================== */
+.mt-btn-row {
+  margin-top: 16px;
+}
+
+.mt-btn-row-2x {
+  margin-top: 32px;
+}
+
+/* ===================== Language Switcher ===================== */
+.lang-switcher {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.lang-switcher .card {
+  width: 60px;
+  height: 24px;
+  padding: 8px;
+  margin: 0;
+}
+
+.lang-switcher .card.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+/* ===================== Toolbar ===================== */
+.toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background-color: #404243;
+  color: white;
+  font-weight: 600;
+}
+
+.toolbar img {
+  margin: 0 16px;
+}
+
+/* ===================== Content ===================== */
+.content {
+  display: flex;
+  margin: 82px auto 32px;
+  padding: 0 16px;
+  max-width: 960px;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===================== Card ===================== */
+.card {
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  font-family: var(--font-brand);
+  font-weight: 500;
+  height: 40px;
+  width: 200px;
+  margin: 0 8px 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+.card:not(.highlight-card):hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  box-shadow: 0 4px 12px rgba(255, 138, 0, 0.18);
+}
+
+/* ===================== Tool Selection ===================== */
+.tool-selection {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.tool-card {
+  flex: 1;
+  min-width: 220px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-secondary);
+  box-shadow: 0 4px 17px rgba(255, 138, 0, 0.12);
+}
+
+.tool-card.selected {
+  border: 2px solid var(--color-primary);
+  background-color: #fff3e0;
+}
+
+.tool-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.tool-card.selected h3 {
+  color: var(--color-primary-dark);
+}
+
+.tool-card p {
+  font-size: 13px;
+  color: var(--color-gray);
+  line-height: 1.5;
+}
+
+.tool-card.selected p {
+  color: var(--color-dark);
+}
+
+/* ===================== Dropzone ===================== */
+.dropzone {
+  border: 2px dashed #c7cbd1;
+  border-radius: 8px;
+  height: 200px;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropzone:hover {
+  background-color: #fff3e0;
+  border-color: var(--color-primary);
+}
+
+.insertModel {
+  display: flex;
+}
+
+/* ===================== Spinner / Loading ===================== */
+#loading {
+  text-align: center;
+}
+
+/* ===================== Model Container ===================== */
+#model-container {
+  width: 100%;
+  min-height: 420px;
+  height: 60vh;
+  max-height: 760px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-white);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.edit-hint {
+  font-size: 0.85rem;
+  color: var(--color-gray);
+  margin-bottom: 8px;
+}
+
+/* ===================== History ===================== */
+.history-panel {
+  width: 100%;
+}
+
+.history-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.history-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+/* ===================== Error Handling ===================== */
+#error-container {
+  width: 100%;
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#error-container-text {
+  color: white;
+  padding: 20px;
+  border-color: #da0000;
+  border-style: solid;
+  background-color: #f7614e;
+  border-radius: 10px;
+  display: none;
+}
+
+#fallback-warning {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#fallback-content {
+  color: #856404;
+  padding: 12px 16px;
+  border: 1px solid #ffc107;
+  background-color: #fff3cd;
+  border-radius: 4px;
+  margin: 0;
+}
+
+#error-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#error-content {
+  color: white;
+  padding: 20px;
+  border-color: #da0000;
+  border-style: solid;
+  background-color: #f7614e;
+  border-radius: 10px;
+}
+
+/* ===================== Misc ===================== */
+.textfeld {
+  word-wrap: break-word;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.horizontal-center {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.dropdown-field {
+  min-width: 180px;
+}
+
+.rag-toggle {
+  margin-top: 4px;
+}
+
+a, a:visited, a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary);
+}
+
+/* ===================== Responsive ===================== */
+@media screen and (max-width: 767px) {
+  .dropzone {
+    width: 100%;
+  }
+
+  .tool-selection {
+    flex-direction: column;
+  }
+
+  .card {
+    width: 100%;
+    margin: 4px 0;
+  }
+}

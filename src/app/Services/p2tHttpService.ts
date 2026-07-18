@@ -59,7 +59,7 @@ export class p2tHttpService {
     let params = new HttpParams();
 
     // For LMStudio, the API key is not required
-    if (provider && provider === 'lmStudio') {
+    if (provider && provider.toLowerCase() === 'lmstudio') {
       params = params.set('prompt', prompt);
       params = params.set('gptModel', model);
       params = params.set('provider', provider);
@@ -72,7 +72,9 @@ export class p2tHttpService {
         params = params.set('prompt', prompt);
       }
       if (model) {
-        params = params.set('gptModel', model);
+        // Gemini API returns model names as "models/gemini-x"; backend expects just "gemini-x"
+        const normalizedModel = model.startsWith('models/') ? model.slice('models/'.length) : model;
+        params = params.set('gptModel', normalizedModel);
       }
       params = params.set('provider', provider);
       params = params.set('useRag', useRag.toString());
@@ -142,7 +144,7 @@ export class p2tHttpService {
           errorMessage = 'Text could not be parsed';
           break;
         default:
-          errorMessage = `Unknown Server Error: ${error.message}`;
+          errorMessage = `Server Error (${error.status}): ${error.error || error.statusText}`;
       }
     }
     return throwError(errorMessage);

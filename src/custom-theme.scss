@@ -8,11 +8,47 @@
 // Be sure that you only ever include this mixin once!
 @include mat.core();
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$woped-frontend-primary: mat.define-palette(mat.$indigo-palette);
-$woped-frontend-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+// WoPeD brand palette (#FF8A00 primary / #FFB347 secondary), built as a
+// Material-compatible color map so mat.define-palette() can use it like any
+// of the built-in palettes (see https://material.io/design/color/).
+$woped-orange: (
+  50: #fff3e0,
+  100: #ffe0b2,
+  200: #ffcc80,
+  300: #ffb347,
+  400: #ffa733,
+  500: #ff8a00,
+  600: #f57c00,
+  700: #ef6c00,
+  800: #e65100,
+  900: #bf360c,
+  A100: #ffd180,
+  A200: #ffab40,
+  A400: #ff9100,
+  A700: #ff6d00,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: white,
+  ),
+);
+
+// Define the palettes for your theme. Primary uses the WoPeD orange at its
+// base hue (500 = #FF8A00); accent reuses the same family at a lighter hue
+// (300 = #FFB347, the brand's secondary color) for a monochromatic look.
+$woped-frontend-primary: mat.define-palette($woped-orange, 500, 300, 700);
+$woped-frontend-accent: mat.define-palette($woped-orange, 300, 100, 500);
 
 // The warn palette is optional (defaults to red).
 $woped-frontend-warn: mat.define-palette(mat.$red-palette);

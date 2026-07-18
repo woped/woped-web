@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   /** P2T API base URL (e.g. https://woped.dhbw-karlsruhe.de/p2t). Empty = use relative /p2t with dev proxy. */
-  p2tApiUrl: ''
+  p2tApiUrl: 'https://woped.dhbw-karlsruhe.de/p2t'
 };
 
 /*

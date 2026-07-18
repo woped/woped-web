@@ -9,6 +9,14 @@ Navigate to <https://woped.github.io/woped-web/home> to use the WoPeD Webclient.
 
 After cloning this repository, it's essential to [set up git hooks](https://github.com/woped/woped-git-hooks/blob/main/README.md#activating-git-hooks-after-cloning-a-repository) to ensure project standards.
 
+### Prerequisites
+1. npm installed on your system
+2. npm install husky
+3. npm run prepare
+
+### Start the server
+1. npm start
+
 ## Docker Deployment
 
 ```bash

@@ -1,1 +1,77 @@
-{}
+{
+  "common": {
+    "back": "Zurück",
+    "next": "Weiter",
+    "generate": "Generieren"
+  },
+  "step1": {
+    "label": "LLM-Konfiguration",
+    "providerLabel": "LLM-Anbieter",
+    "openai": "OpenAI",
+    "gemini": "Gemini",
+    "lmstudio": "LM Studio",
+    "apiKeyLabel": "API-Schlüssel",
+    "apiKeyPlaceholder": "Geben Sie Ihren LLM-API-Schlüssel ein",
+    "validateKey": "Schlüssel prüfen",
+    "checking": "Wird geprüft...",
+    "apiKeyValid": "✔ API-Schlüssel ist gültig.",
+    "apiKeyInvalid": "✘ Ungültiger API-Schlüssel für {{provider}}.",
+    "lmStudioInfo": "✔ LM Studio läuft lokal – kein API-Schlüssel erforderlich."
+  },
+  "step2": {
+    "label": "Werkzeug wählen",
+    "t2pTitle": "Text → Prozess (T2P)",
+    "t2pDescription": "Der Text-to-Process-Ansatz beschäftigt sich mit der Umwandlung einer Textbeschreibung in ein Modell im Rahmen des Geschäftsprozessmanagements (BPM) und der natürlichen Sprachverarbeitung (NLP).",
+    "p2tTitle": "Prozess → Text (P2T)",
+    "p2tDescription": "Der Process-to-Text-Ansatz im Kontext von BPM und NLP bezieht sich auf die automatische Generierung von Textbeschreibungen aus Geschäftsprozessmodellen. Prozessmodelle können analysiert und in natürliche Sprache übersetzt werden, um Schulungsunterlagen, Benutzerdokumentationen oder Compliance-Berichte zu erstellen."
+  },
+  "t2p": {
+    "step3": {
+      "label": "Text eingeben",
+      "promptingStrategy": "Prompting-Strategie",
+      "fewShot": "Few-Shot",
+      "zeroShot": "Zero-Shot",
+      "textareaLabel": "Text zur Umwandlung eingeben",
+      "uploadedFile": "Hochgeladene Datei: {{name}}",
+      "dropzoneText": "Datei per Drag-and-Drop hochladen oder hier klicken",
+      "selectModel": "Modell auswählen",
+      "noModelForProvider": "Für den Anbieter \"{{provider}}\" ist aktuell kein Modell im T2P-Backend registriert. Bitte wählen Sie in Schritt 1 einen anderen Anbieter."
+    },
+    "step4": {
+      "label": "Modell wählen"
+    },
+    "step5": {
+      "label": "Prozess (Fertig)",
+      "text": "Sie sind nun fertig."
+    },
+    "output": {
+      "yourInput": "Ihre Eingabe:",
+      "downloadImage": "Prozess als .png herunterladen",
+      "downloadFile": "Prozess als Datei herunterladen",
+      "editHint": "💡 Tipp: Sie können dieses Diagramm direkt bearbeiten – Elemente verschieben, Beschriftungen ändern oder Formen hinzufügen/entfernen, bevor Sie es herunterladen.",
+      "historyLabel": "Verlauf früherer Ergebnisse:",
+      "historyRestore": "Anzeigen"
+    }
+  },
+  "p2t": {
+    "step3": {
+      "label": "Modell einfügen",
+      "promptLabel": "Prompt",
+      "promptDefault": "Erstelle einen klar strukturierten und verständlichen Fließtext aus dem gegebenen BPMN, der für einen uninformierten Leser verständlich ist. Der Text sollte in der Zusammenfassung leicht lesbar sein und alle wichtigen Inhalte enthalten; falls es unterteilte Punkte gibt, werden diese mit passenden Satzanfängen in den Text integriert, um einen gut strukturierten und leicht lesbaren Text zu erhalten. Die Ausgabe darf unter keinen Umständen Unterpunkte oder Absätze enthalten, sondern soll alle Prozesse in einem Stück abdecken!",
+      "uploadInstructions": "Um Ihr Prozessmodell hochzuladen, können Sie entweder Ihre Datei per Klick im Bereich im Explorer auswählen oder per Drag-and-Drop in das Feld unten ziehen.",
+      "uploadedFile": "Hochgeladene Datei: {{name}}",
+      "dropzoneText": "Dateien per Drag-and-Drop hochladen oder in das Textfeld klicken",
+      "selectModel": "Modell auswählen"
+    },
+    "step4": {
+      "label": "Text (Fertig)"
+    },
+    "output": {
+      "yourInput": "Ihre Eingabe:",
+      "yourText": "Ihr Text:",
+      "downloadText": "Text als .txt herunterladen",
+      "historyLabel": "Verlauf früherer Ergebnisse:",
+      "historyRestore": "Anzeigen"
+    }
+  }
+}

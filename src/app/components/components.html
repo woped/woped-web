@@ -1,0 +1,283 @@
+<div class="lang-switcher">
+  <button mat-button class="card" [class.active]="(translocoService.langChanges$ | async) === 'de'" (click)="setLanguage('de')">DE</button>
+  <button mat-button class="card" [class.active]="(translocoService.langChanges$ | async) === 'en'" (click)="setLanguage('en')">EN</button>
+</div>
+
+<mat-vertical-stepper [linear]="false" #stepper [animationDuration]="200">
+
+  <!-- Step 1: Configuration (LLM-Setup) -->
+  <mat-step>
+    <ng-template matStepLabel>{{ 'step1.label' | transloco }}</ng-template>
+    <form>
+
+      <!-- LLM Provider Auswahl -->
+      <div class="mt-2">
+        <label class="d-block mb-1"><strong>{{ 'step1.providerLabel' | transloco }}</strong></label>
+        <mat-radio-group [ngModel]="selectedLLMProvider" (ngModelChange)="onProviderChange($event)" name="llmProvider">
+          <mat-radio-button value="openai" class="mr-4">{{ 'step1.openai' | transloco }}</mat-radio-button>
+          <mat-radio-button value="gemini" class="mr-4">{{ 'step1.gemini' | transloco }}</mat-radio-button>
+          <mat-radio-button value="lmstudio">{{ 'step1.lmstudio' | transloco }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <!-- API Key Input (nur wenn nicht LM Studio) -->
+      <div *ngIf="selectedLLMProvider !== 'lmstudio'">
+        <mat-form-field appearance="outline" class="w-100 mt-2">
+          <mat-label>{{ 'step1.apiKeyLabel' | transloco }}</mat-label>
+          <input matInput #apiKeyInput [(ngModel)]="apiKey" name="apiKey"
+            [placeholder]="'step1.apiKeyPlaceholder' | transloco" />
+        </mat-form-field>
+        <button mat-button class="card" type="button" (click)="validateApiKey()" [disabled]="apiKeyChecking">
+          {{ (apiKeyChecking ? 'step1.checking' : 'step1.validateKey') | transloco }}
+        </button>
+        <p style="color: green;" *ngIf="apiKeyValid === true">{{ 'step1.apiKeyValid' | transloco }}</p>
+        <p style="color: red;" *ngIf="apiKeyValid === false">{{ 'step1.apiKeyInvalid' | transloco: { provider: selectedLLMProvider } }}</p>
+      </div>
+
+      <p *ngIf="selectedLLMProvider === 'lmstudio'" style="color: green;">
+        {{ 'step1.lmStudioInfo' | transloco }}
+      </p>
+
+    </form>
+    <br />
+    <button mat-button matStepperNext class="card"
+      [disabled]="selectedLLMProvider !== 'lmstudio' && apiKeyValid !== true">
+      {{ 'common.next' | transloco }}
+    </button>
+  </mat-step>
+
+  <!-- Step 2: Tool-Auswahl (T2P oder P2T) -->
+  <mat-step>
+    <ng-template matStepLabel>{{ 'step2.label' | transloco }}</ng-template>
+    <form>
+
+      <div class="tool-selection">
+        <!-- T2P Card -->
+        <div class="tool-card" [class.selected]="selectedTool === 't2p'" (click)="selectedTool = 't2p'">
+          <h3>{{ 'step2.t2pTitle' | transloco }}</h3>
+          <p>
+            {{ 'step2.t2pDescription' | transloco }}
+          </p>
+        </div>
+
+        <!-- P2T Card -->
+        <div class="tool-card" [class.selected]="selectedTool === 'p2t'" (click)="selectedTool = 'p2t'">
+          <h3>{{ 'step2.p2tTitle' | transloco }}</h3>
+          <p>
+            {{ 'step2.p2tDescription' | transloco }}
+          </p>
+        </div>
+      </div>
+
+    </form>
+    <br />
+    <button mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
+    <button mat-button matStepperNext class="card" [disabled]="!selectedTool">{{ 'common.next' | transloco }}</button>
+  </mat-step>
+
+
+  <!-- ======================== T2P STEPS ======================== -->
+
+  <!-- Step 3 (T2P): Insert your Text -->
+  <mat-step *ngIf="selectedTool === 't2p'">
+    <form>
+      <ng-template matStepLabel>{{ 't2p.step3.label' | transloco }}</ng-template>
+
+      <!-- Prompting Strategy (nur wenn LLM aktiv) -->
+      <div *ngIf="isLLMEnabled" class="mt-2 mb-2">
+        <label class="d-block mb-1"><strong>{{ 't2p.step3.promptingStrategy' | transloco }}</strong></label>
+        <mat-radio-group [(ngModel)]="promptingStrategy" name="promptingStrategy">
+          <mat-radio-button value="few_shot" class="mr-4">{{ 't2p.step3.fewShot' | transloco }}</mat-radio-button>
+          <mat-radio-button value="zero_shot">{{ 't2p.step3.zeroShot' | transloco }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <!-- Model selection (nur wenn LLM aktiv) — uses the connector's own
+           registry so whatever is selected here is guaranteed to work. -->
+      <div *ngIf="isLLMEnabled" class="mt-2 mb-2">
+        <mat-form-field appearance="fill" class="dropdown-field" *ngIf="!t2pModelUnavailable">
+          <mat-label>{{ 't2p.step3.selectModel' | transloco }}</mat-label>
+          <mat-select [(value)]="t2pSelectedModel">
+            <mat-option *ngFor="let model of t2pModelOptions" [value]="model">{{ model }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <p style="color: #b00;" *ngIf="t2pModelUnavailable">
+          {{ 't2p.step3.noModelForProvider' | transloco: { provider: selectedLLMProvider } }}
+        </p>
+      </div>
+
+      <mat-form-field appearance="fill" [style.width.%]="50">
+        <mat-label>{{ 't2p.step3.textareaLabel' | transloco }}</mat-label>
+        <textarea class="textfeld" [style.width.%]="100" matInput cdkTextareaAutosize cdkAutosizeMinRows="4"
+          cdkAutosizeMaxRows="100" id="text-input" [(ngModel)]="text" name="textInput"></textarea>
+      </mat-form-field>
+
+       <!-- File Upload via Drag & Drop -->
+       <div class="dropzone" #dropzoneRef (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+         (click)="selectT2PFiles()">
+         <input type="file" style="display: none" #t2pFileInputRef accept=".txt,.bpmn,.xml" (change)="onT2PFileSelected($event)" />
+         <span *ngIf="isFiledDropped">{{ 't2p.step3.uploadedFile' | transloco: { name: droppedFileName } }}</span>
+         <span *ngIf="!isFiledDropped">
+           {{ 't2p.step3.dropzoneText' | transloco }}
+         </span>
+       </div>
+
+      <div class="mt-btn-row">
+        <button mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
+        <button type="button" mat-button matStepperNext class="card">{{ 'common.next' | transloco }}</button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Step 4 (T2P): Choose Your Model -->
+  <mat-step *ngIf="selectedTool === 't2p'">
+    <form>
+      <ng-template matStepLabel>{{ 't2p.step4.label' | transloco }}</ng-template>
+      <mat-radio-group aria-label="Select an option" [(ngModel)]="selectedDiagram" name="selectedDiagram">
+        <mat-radio-button value="bpmn">BPMN</mat-radio-button>
+        <mat-radio-button value="petri-net">Petri-Net</mat-radio-button>
+      </mat-radio-group>
+
+      <div>
+        <button type="button" mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
+        <button type="button" mat-button matStepperNext class="card" (click)="generateProcess()"
+          [disabled]="!text.trim() || (isLLMEnabled && !t2pSelectedModel)">
+          {{ 'common.generate' | transloco }}
+        </button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Step 5 (T2P): Process (Done) -->
+  <mat-step *ngIf="selectedTool === 't2p'">
+    <form>
+      <ng-template matStepLabel>{{ 't2p.step5.label' | transloco }}</ng-template>
+      <p>{{ 't2p.step5.text' | transloco }}</p>
+      <div class="mt-btn-row">
+        <button mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
+      </div>
+    </form>
+
+    <div id="loading">
+      <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async"></mat-spinner>
+    </div>
+  </mat-step>
+
+
+  <!-- ======================== P2T STEPS ======================== -->
+
+  <!-- Step 3 (P2T): Insert your Model -->
+  <mat-step *ngIf="selectedTool === 'p2t'">
+    <ng-template matStepLabel>{{ 'p2t.step3.label' | transloco }}</ng-template>
+
+    <!-- Prompt Input (nur wenn LLM aktiv) -->
+    <div *ngIf="isLLMEnabled && showPromptInput" class="centered full-width">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>{{ 'p2t.step3.promptLabel' | transloco }}</mat-label>
+        <textarea matInput [(ngModel)]="prompt" name="prompt" [readonly]="isPromptReadonly"
+          cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="100" (click)="editPrompt()">{{ 'p2t.step3.promptDefault' | transloco }}</textarea>
+      </mat-form-field>
+    </div>
+
+    <p class="mt-btn-row">{{ 'p2t.step3.uploadInstructions' | transloco }}<br /></p>
+
+     <!-- Dropzone for file upload -->
+     <div class="insertModel mt-btn-row">
+       <div class="dropzone" #dropzoneRef (drop)="onP2TDrop($event)" (dragover)="onP2TDragOver($event)"
+         (click)="selectP2TFiles()">
+         <input type="file" style="display: none" #fileInputRef accept=".pnml, .bpmn"
+           (change)="onP2TFileSelected($event)">
+         <span *ngIf="isFileDropped">{{ 'p2t.step3.uploadedFile' | transloco: { name: droppedFileNameP2T } }}</span>
+         <span *ngIf="!isFileDropped">{{ 'p2t.step3.dropzoneText' | transloco }}</span>
+       </div>
+     </div>
+
+    <!-- Model-Auswahl (nur wenn LLM aktiv) -->
+    <div *ngIf="isLLMEnabled" class="horizontal-center mt-2">
+      <mat-form-field appearance="fill" class="dropdown-field">
+        <mat-label>{{ 'p2t.step3.selectModel' | transloco }}</mat-label>
+        <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
+          <mat-option *ngFor="let model of models" [value]="model">{{ model }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <button mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
+    <button mat-button matStepperNext class="card" (click)="generateText()"
+      [disabled]="isGenerateButtonDisabled()">{{ 'common.generate' | transloco }}</button>
+  </mat-step>
+
+  <!-- Step 4 (P2T): Text (Done) -->
+  <mat-step *ngIf="selectedTool === 'p2t'">
+    <ng-template matStepLabel>{{ 'p2t.step4.label' | transloco }}</ng-template>
+
+    <div id="loading">
+      <mat-spinner [diameter]="100" *ngIf="spinnerService.visibility | async"></mat-spinner>
+    </div>
+    <div id="fallback-warning" *ngIf="modelFallbackWarning">
+      <p id="fallback-content">⚠ {{ modelFallbackWarning }}</p>
+    </div>
+    <div id="error-box" *ngIf="error">
+      <p id="error-content">{{ error }}</p>
+    </div>
+
+    <button mat-button matStepperPrevious class="card">{{ 'common.back' | transloco }}</button>
+  </mat-step>
+
+</mat-vertical-stepper>
+
+
+<!-- ======================== OUTPUT BEREICHE ======================== -->
+
+<!-- T2P Output -->
+<div *ngIf="selectedTool === 't2p'">
+  <div>
+    <label><b>{{ 't2p.output.yourInput' | transloco }}</b> {{ textResult }}</label>
+  </div>
+  <div class="card-container mt-btn-row">
+    <button (click)="onDownloadImage()" class="card download-card">{{ 't2p.output.downloadImage' | transloco }}</button>
+    <button (click)="onDownloadText()" class="card download-card">{{ 't2p.output.downloadFile' | transloco }}</button>
+  </div>
+
+  <div id="error-container">
+    <p id="error-container-text"></p>
+  </div>
+
+  <p class="edit-hint" *ngIf="selectedDiagram === 'bpmn'">{{ 't2p.output.editHint' | transloco }}</p>
+  <!-- Shared canvas: bpmn-js editor for BPMN, vis.js rendering for Petri nets -->
+  <div id="model-container"></div>
+
+  <div class="history-panel mt-btn-row" *ngIf="t2pHistory.length > 1">
+    <label><b>{{ 't2p.output.historyLabel' | transloco }}</b></label>
+    <ul class="history-list">
+      <li *ngFor="let entry of t2pHistory.slice(1)">
+        <span>{{ entry.timestamp | date:'HH:mm:ss' }} · {{ entry.diagramType }} · {{ entry.inputText.slice(0, 40) }}{{ entry.inputText.length > 40 ? '…' : '' }}</span>
+        <button mat-button class="card" (click)="restoreT2PHistory(entry)">{{ 't2p.output.historyRestore' | transloco }}</button>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Off-screen container for Petri-Net vis.js rendering (never visible, always in DOM) -->
+<div id="petri-render-container" style="position:fixed; top:-2000px; left:0; width:800px; height:600px; pointer-events:none;"></div>
+
+<!-- P2T Output -->
+<div *ngIf="selectedTool === 'p2t'">
+  <ng-container *ngIf="fileType === 'bpmn' || fileType === 'pnml'">
+    <label><b>{{ 'p2t.output.yourInput' | transloco }}</b></label>
+    <div id="model-container" class="mt-btn-row"></div>
+  </ng-container>
+  <div class="mt-btn-row-2x"><label><b>{{ 'p2t.output.yourText' | transloco }}</b></label></div>
+  <div id="result" class="mt-btn-row"></div>
+  <button class="card mt-btn-row" (click)="downloadText()">{{ 'p2t.output.downloadText' | transloco }}</button>
+
+  <div class="history-panel mt-btn-row" *ngIf="p2tHistory.length > 1">
+    <label><b>{{ 'p2t.output.historyLabel' | transloco }}</b></label>
+    <ul class="history-list">
+      <li *ngFor="let entry of p2tHistory.slice(1)">
+        <span>{{ entry.timestamp | date:'HH:mm:ss' }} · {{ entry.fileName }}</span>
+        <button mat-button class="card" (click)="restoreP2THistory(entry)">{{ 'p2t.output.historyRestore' | transloco }}</button>
+      </li>
+    </ul>
+  </div>
+</div>
