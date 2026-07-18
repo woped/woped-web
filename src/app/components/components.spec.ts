@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatStepperModule } from '@angular/material/stepper';
 import { CombinedComponent } from './components';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 describe('CombinedComponent', () => {
   let component: CombinedComponent;
@@ -134,14 +134,28 @@ describe('CombinedComponent', () => {
     expect(component.selectedModel).toEqual('gemini-pro');
   });
 
-  it('should fetch models for openai and select the first one returned (no forced preference)', () => {
-    const mockModels = ['gpt-3.5-turbo', 'gpt-4o'];
+  it('should fetch models for openai, filter backend-incompatible ones, and prefer gpt-4o as default', () => {
+    // o1/gpt-5/chatgpt/dall-e fail on the p2t backend (chat-completions with a
+    // fixed temperature of 0.7), so they must not be offered for P2T at all.
+    const mockModels = ['gpt-3.5-turbo', 'o1-mini', 'gpt-5-mini', 'chatgpt-4o-latest', 'dall-e-3', 'gpt-4o'];
     jest.spyOn(component['p2tHttpService'], 'getModels').mockReturnValue(of(mockModels));
     component.apiKey = 'sk-proj-123456';
     component.selectedLLMProvider = 'openai';
     component.fetchModelsForProvider('openai');
-    expect(component.models).toEqual(mockModels);
-    expect(component.selectedModel).toEqual('gpt-3.5-turbo');
+    expect(component.models).toEqual(['gpt-3.5-turbo', 'gpt-4o']);
+    expect(component.selectedModel).toEqual('gpt-4o');
+  });
+
+  it('should surface the real error instead of guessing a model when the P2T model list fails', () => {
+    jest.spyOn(component['p2tHttpService'], 'getModels').mockReturnValue(
+      new Observable((subscriber) => subscriber.error('Server Error (401): Invalid OpenAI API key'))
+    );
+    component.apiKey = 'sk-invalid';
+    component.selectedLLMProvider = 'openai';
+    component.fetchModelsForProvider('openai');
+    expect(component.models).toEqual([]);
+    expect(component.selectedModel).toBeUndefined();
+    expect(component.modelFallbackWarning).toContain('Invalid OpenAI API key');
   });
 
   it('should update selectedModel on onModelChange', () => {
@@ -328,6 +342,49 @@ describe('CombinedComponent', () => {
     (component as any).generateProcess();
     expect(postSpy).toHaveBeenCalled();
     expect(postSpy.mock.calls[0][6]).toEqual('gpt-5-mini');
+  });
+
+  // ─── T2P: live model discovery via the user's own API key ─────────────────
+  // The connector validates each request against a model list fetched live
+  // with the caller's key, so retired registry models (gemini-2.0-flash was
+  // shut down by Google on 2026-06-01) must be dropped and current models
+  // from the user's key offered instead.
+
+  it('should merge user-key-discovered models into the T2P options and drop retired registry models', () => {
+    (component as any).t2pModels = [{ provider: 'gemini', model: 'gemini-2.0-flash' }];
+    (component as any).discoveredProviderModels = {
+      gemini: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+    };
+    component.selectedLLMProvider = 'gemini';
+    // gemini-2.0-flash is not accessible with the user's key -> not offered
+    expect((component as any).t2pModelOptions).toEqual(['gemini-2.5-flash', 'gemini-2.5-pro']);
+    expect((component as any).pickDefaultT2pModel()).toEqual('gemini-2.5-flash');
+  });
+
+  it('should keep registry models that the user key can still access, listed first', () => {
+    (component as any).t2pModels = [{ provider: 'openai', model: 'gpt-5-mini' }];
+    (component as any).discoveredProviderModels = {
+      openai: ['gpt-4.1', 'gpt-4o', 'gpt-5-mini'],
+    };
+    component.selectedLLMProvider = 'openai';
+    expect((component as any).t2pModelOptions).toEqual(['gpt-5-mini', 'gpt-4.1', 'gpt-4o']);
+    expect((component as any).pickDefaultT2pModel()).toEqual('gpt-5-mini');
+  });
+
+  it('should fall back to the registry when no models were discovered yet', () => {
+    (component as any).t2pModels = [{ provider: 'openai', model: 'gpt-5-mini' }];
+    (component as any).discoveredProviderModels = {};
+    component.selectedLLMProvider = 'openai';
+    expect((component as any).t2pModelOptions).toEqual(['gpt-5-mini']);
+  });
+
+  it('should not offer non-chat OpenAI models for T2P', () => {
+    (component as any).t2pModels = [];
+    (component as any).discoveredProviderModels = {
+      openai: ['gpt-4o', 'gpt-4o-realtime-preview', 'gpt-4o-mini-tts', 'dall-e-3', 'o1-mini'],
+    };
+    component.selectedLLMProvider = 'openai';
+    expect((component as any).t2pModelOptions).toEqual(['gpt-4o']);
   });
 
   // ─── P2T: history ─────────────────────────────────────────────────────────

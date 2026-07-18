@@ -244,7 +244,8 @@
   </div>
 
   <p class="edit-hint" *ngIf="selectedDiagram === 'bpmn'">{{ 't2p.output.editHint' | transloco }}</p>
-  <div id="model-container" *ngIf="selectedDiagram === 'bpmn'"></div>
+  <!-- Shared canvas: bpmn-js editor for BPMN, vis.js rendering for Petri nets -->
+  <div id="model-container"></div>
 
   <div class="history-panel mt-btn-row" *ngIf="t2pHistory.length > 1">
     <label><b>{{ 't2p.output.historyLabel' | transloco }}</b></label>
@@ -262,7 +263,7 @@
 
 <!-- P2T Output -->
 <div *ngIf="selectedTool === 'p2t'">
-  <ng-container *ngIf="fileType === 'bpmn'">
+  <ng-container *ngIf="fileType === 'bpmn' || fileType === 'pnml'">
     <label><b>{{ 'p2t.output.yourInput' | transloco }}</b></label>
     <div id="model-container" class="mt-btn-row"></div>
   </ng-container>

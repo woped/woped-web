@@ -60,6 +60,16 @@ export class CombinedComponent {
   protected t2pModels: T2PModelOption[] = [];
   protected t2pSelectedModel = '';
 
+  // Models discovered directly from the provider with the user's own API key
+  // during validateApiKey(). Root cause found 2026-07-17: the T2P connector's
+  // fallback registry advertises models that providers have since retired
+  // (gemini-2.0-flash was shut down by Google on 2026-06-01), while its
+  // request validation checks against a LIVE model list fetched with the
+  // caller's key. So the only reliable source for offerable models is the
+  // user's own key — the registry alone can be stale and cause guaranteed
+  // upstream failures.
+  private discoveredProviderModels: Record<string, string[]> = {};
+
   // ─── T2P state ────────────────────────────────────────────────────────────
   protected text = '';
   protected selectedDiagram = 'bpmn';
@@ -112,16 +122,70 @@ export class CombinedComponent {
     this.translocoService.setActiveLang(lang);
   }
 
-  /** Provider/model pairs from t2pModels that match the current provider. */
+  /**
+   * Models offered in the T2P dropdown for the current provider: the
+   * connector registry merged with models discovered live via the user's own
+   * API key. Once the live list is known, registry entries the user's key
+   * cannot access (e.g. retired models such as gemini-2.0-flash) are dropped,
+   * because the connector validates each request against exactly that live
+   * list and would reject them anyway.
+   */
   protected get t2pModelOptions(): string[] {
-    return this.t2pModels
+    const registry = this.t2pModels
       .filter((m) => m.provider === this.selectedLLMProvider)
       .map((m) => m.model);
+    const discovered = (this.discoveredProviderModels[this.selectedLLMProvider] || [])
+      .filter((m) => this.isT2pCompatibleModel(m));
+
+    if (discovered.length === 0) {
+      return registry;
+    }
+
+    const aliveRegistry = registry.filter((m) => discovered.includes(m));
+    return Array.from(new Set([...aliveRegistry, ...discovered]));
   }
 
   /** True once the registry has loaded and the current provider has no registered model. */
   protected get t2pModelUnavailable(): boolean {
     return this.t2pModels.length > 0 && this.t2pModelOptions.length === 0;
+  }
+
+  /**
+   * Whether a user-key-discovered model is offerable for T2P. The connector
+   * (t2p-llm-api-connector) uses chat/generateContent APIs; for OpenAI it
+   * also handles the GPT-5 temperature quirk itself, so the gpt-* family is
+   * fine — but non-chat models (audio/realtime/image/etc.) are not.
+   */
+  private isT2pCompatibleModel(model: string): boolean {
+    const id = model.toLowerCase();
+    if (this.selectedLLMProvider === 'gemini') {
+      return id.startsWith('gemini-');
+    }
+    if (this.selectedLLMProvider === 'openai') {
+      const excluded = [
+        'audio', 'realtime', 'image', 'tts', 'transcribe', 'search',
+        'instruct', 'codex', 'embedding', 'moderation',
+      ];
+      return id.startsWith('gpt-') && !excluded.some((ex) => id.includes(ex));
+    }
+    return false;
+  }
+
+  /**
+   * Preferred default for the T2P dropdown: a registry-backed, known-good
+   * model when available, otherwise the first offerable one.
+   */
+  private pickDefaultT2pModel(): string {
+    const options = this.t2pModelOptions;
+    if (options.length === 0) return '';
+
+    const preferred = this.selectedLLMProvider === 'gemini'
+      ? ['gemini-2.5-flash', 'gemini-3-flash', 'gemini-2.5-pro']
+      : ['gpt-5-mini', 'gpt-4o', 'gpt-4.1'];
+    for (const candidate of preferred) {
+      if (options.includes(candidate)) return candidate;
+    }
+    return options[0];
   }
 
   /**
@@ -133,11 +197,11 @@ export class CombinedComponent {
     this.t2pHttpService.getV2Models().subscribe({
       next: (models) => {
         this.t2pModels = models;
-        this.t2pSelectedModel = this.t2pModelOptions[0] ?? '';
+        this.t2pSelectedModel = this.pickDefaultT2pModel();
       },
       error: () => {
         this.t2pModels = [];
-        this.t2pSelectedModel = '';
+        this.t2pSelectedModel = this.pickDefaultT2pModel();
       },
     });
   }
@@ -145,7 +209,7 @@ export class CombinedComponent {
   /** Keeps the T2P model selection in sync when the provider (Step 1) changes. */
   protected onProviderChange(provider: string): void {
     this.selectedLLMProvider = provider;
-    this.t2pSelectedModel = this.t2pModelOptions[0] ?? '';
+    this.t2pSelectedModel = this.pickDefaultT2pModel();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -164,11 +228,38 @@ export class CombinedComponent {
           headers: { Authorization: `Bearer ${this.apiKey}` },
         });
         this.apiKeyValid = response.ok;
+        if (response.ok) {
+          // Remember what this key can actually access — see the comment on
+          // discoveredProviderModels for why this matters.
+          try {
+            const data = await response.json();
+            this.discoveredProviderModels['openai'] = (data.data || [])
+              .map((m: any) => m.id as string)
+              .filter(Boolean)
+              .sort();
+          } catch {
+            // Validation succeeded; list parsing is best-effort only.
+          }
+        }
       } else if (this.selectedLLMProvider === 'gemini') {
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`
+          `https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000&key=${this.apiKey}`
         );
         this.apiKeyValid = response.ok;
+        if (response.ok) {
+          try {
+            const data = await response.json();
+            this.discoveredProviderModels['gemini'] = (data.models || [])
+              .filter((m: any) =>
+                (m.supportedGenerationMethods || []).includes('generateContent')
+              )
+              .map((m: any) => ((m.name as string) || '').replace(/^models\//, ''))
+              .filter(Boolean)
+              .sort();
+          } catch {
+            // Validation succeeded; list parsing is best-effort only.
+          }
+        }
       }
     } catch {
       this.apiKeyValid = false;
@@ -179,6 +270,9 @@ export class CombinedComponent {
     if (this.apiKeyValid) {
       this.isApiKeyEntered = true;
       this.fetchModelsForProvider(this.selectedLLMProvider);
+      // Re-pick the T2P default now that the live model list is known (the
+      // previous selection may reference a registry model this key can't use).
+      this.t2pSelectedModel = this.pickDefaultT2pModel();
     }
   }
 
@@ -276,7 +370,7 @@ export class CombinedComponent {
     if (entry.diagramType === 'bpmn') {
       setTimeout(() => ModelDisplayer.displayBPMNModel(entry.xml, { normalizeLayout: false }));
     } else {
-      setTimeout(() => ModelDisplayer.generatePetriNet(entry.xml, 'petri-render-container'));
+      setTimeout(() => ModelDisplayer.generatePetriNet(entry.xml, 'model-container'));
     }
   }
 
@@ -392,29 +486,77 @@ export class CombinedComponent {
     errorContainer.style.display = 'block';
   }
 
+  /**
+   * Whether a model can actually complete a P2T generation. The p2t backend
+   * (OpenAiProvider.java) always calls the chat-completions API with an
+   * explicit temperature of 0.7 — reasoning models (o1/o3/o4...), the GPT-5
+   * family (default-temperature-only) and non-chat models (dall-e,
+   * chatgpt-*-latest aliases, computer-use) therefore fail server-side with
+   * a 500 even though they appear in the /gptModels list. Offering them in
+   * the dropdown produced the "works in the fat client but not on the web"
+   * reports: the fat client remembers the user's last manually chosen
+   * (working) model, while the web client auto-picked the first list entry.
+   */
+  private isP2TCompatibleModel(model: string): boolean {
+    const id = model.toLowerCase();
+    if (this.selectedLLMProvider === 'openai') {
+      return id.startsWith('gpt-') && !id.startsWith('gpt-5');
+    }
+    if (this.selectedLLMProvider === 'gemini') {
+      const bare = id.replace(/^models\//, '');
+      return bare.startsWith('gemini-') || bare.startsWith('gemma-');
+    }
+    return true; // lmstudio: whatever is loaded locally
+  }
+
+  /** Known-good default for P2T; falls back to the first offered model. */
+  private pickDefaultP2TModel(): string {
+    const preferred = this.selectedLLMProvider === 'gemini'
+      ? ['models/gemini-2.5-flash', 'models/gemini-3-flash', 'models/gemini-2.5-pro']
+      : ['gpt-4o', 'gpt-4.1', 'gpt-4o-mini'];
+    for (const candidate of preferred) {
+      if (this.models.includes(candidate)) return candidate;
+    }
+    return this.models[0];
+  }
+
   fetchModelsForProvider(provider: string): void {
     const key = provider === 'lmstudio' ? '' : this.apiKey;
+    this.modelFallbackWarning = '';
     this.p2tHttpService.getModels(key, provider).subscribe({
       next: (models) => {
         const excluded = [
           'instruct', 'embedding', 'whisper', 'tts', 'davinci', 'babbage',
           'moderation', 'transcribe', 'image', 'sora', 'audio', 'realtime',
-          'search-preview', 'deep-research', 'diarize', 'codex', 'translate'
+          'search-preview', 'deep-research', 'diarize', 'codex', 'translate',
+          'aqa', 'imagen', 'veo'
         ];
         this.models = models.filter(m =>
-          !excluded.some(ex => m.toLowerCase().includes(ex))
+          !excluded.some(ex => m.toLowerCase().includes(ex)) &&
+          this.isP2TCompatibleModel(m)
         );
-        this.selectedModel = this.models[0];
+        if (this.models.length === 0) {
+          this.selectedModel = undefined;
+          this.modelFallbackWarning =
+            `No usable models were returned for ${provider}. Please verify your API key and try again.`;
+          return;
+        }
+        this.selectedModel = this.pickDefaultP2TModel();
       },
-      error: () => {
-        const fallbacks: Record<string, string> = {
-          openai: 'gpt-4o',
-          gemini: 'models/gemini-2.5-flash',
-          lmstudio: 'local-model',
-        };
-        this.selectedModel = fallbacks[this.selectedLLMProvider] ?? 'gpt-4o';
-        this.models = [this.selectedModel];
-        this.modelFallbackWarning = `Model list unavailable — using default: ${this.selectedModel}`;
+      // Previously this silently substituted a hardcoded guessed model
+      // (e.g. 'gpt-4o') whenever the model list failed to load, for any
+      // reason — hiding the real cause and then often failing a second time
+      // downstream with a confusing "Model is not available"/"Client Error"
+      // once generation was attempted with that guessed, possibly no-longer-
+      // supported model. We now surface the actual error (p2tHttpService
+      // already maps it to a readable string, e.g. "Invalid OpenAI API key")
+      // and leave no model selected, so isGenerateButtonDisabled() blocks
+      // generation until the user fixes the underlying problem instead of
+      // silently attempting one with an unverified model.
+      error: (err) => {
+        this.models = [];
+        this.selectedModel = undefined;
+        this.modelFallbackWarning = `Could not load model list: ${err}. Please check your API key and try again.`;
       }
     });
   }
@@ -453,7 +595,16 @@ export class CombinedComponent {
           error: (err: any) => {
             console.error('[Transformer] Status:', err.status, '| Body:', err.error);
             this.spinnerService.hide();
-            this.error = 'PNML→BPMN Transformation fehlgeschlagen: ' + (err.status ?? err);
+            // The transformer answers errors as plain text; Angular's JSON
+            // parse failure then wraps the raw body in err.error.text. Show
+            // the actual description (minus the "open an issue" boilerplate)
+            // instead of just a bare status code.
+            const rawBody: string | undefined =
+              typeof err?.error === 'string' ? err.error : err?.error?.text;
+            const description = rawBody
+              ? rawBody.split('Please open an issue')[0].replace('Error description:', '').trim()
+              : String(err?.status ?? err);
+            this.error = 'PNML→BPMN Transformation fehlgeschlagen: ' + description;
           },
         });
         return;
@@ -493,7 +644,9 @@ export class CombinedComponent {
   }
 
   private postLLMWithFallback(content: string): void {
-    const fallbackModel = this.selectedLLMProvider === 'gemini' ? 'models/gemini-2.0-flash' : 'gpt-4o';
+    // Note: gemini-2.0-flash was retired by Google on 2026-06-01 and must not
+    // be used as a retry target anymore.
+    const fallbackModel = this.selectedLLMProvider === 'gemini' ? 'models/gemini-2.5-flash' : 'gpt-4o';
     const effectivePrompt = this.getEffectivePrompt();
 
     // RAG support was removed at the PO's request; the backend endpoint still
@@ -621,8 +774,11 @@ export class CombinedComponent {
   private displayModel(): void {
     if (this.fileType === 'bpmn') {
       ModelDisplayer.displayBPMNModel(window.dropfileContent, { normalizeLayout: false });
+    } else if (this.fileType === 'pnml') {
+      // Render the uploaded Petri net via vis.js so P2T shows a preview for
+      // PNML uploads just like it does for BPMN uploads.
+      ModelDisplayer.generatePetriNet(window.dropfileContent, 'model-container');
     }
-    // PNML has no visual preview in P2T — transformer converts it on generate
   }
 
   private displayText(response: string): void {

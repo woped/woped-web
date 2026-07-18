@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, timeout } from 'rxjs/operators';
 import { SpinnerService } from '../utilities/SpinnerService';
 import { ModelDisplayer } from '../utilities/modelDisplayer';
 import { TransformerService } from './transformerService';
@@ -166,7 +166,14 @@ export class t2pHttpService {
       return;
     }
 
-    const llmUrl = isBpmn ? this.urlV2BPMN : this.urlV2PNML;
+    // TEMPORARY WORKAROUND (2026-07-18, decided due to the submission
+    // deadline): /v2/generate/pnml hangs server-side after a successful LLM
+    // response (documented backend issue, see Backend_Infos_T2P_v2.md #1).
+    // Until the backend is fixed, petri-net requests use /v2/generate/bpmn —
+    // identical LLM pipeline — and the extensively verified transformer
+    // service converts the result to PNML client-side (see handleSuccess).
+    // Revert to `isBpmn ? this.urlV2BPMN : this.urlV2PNML` once fixed.
+    const llmUrl = this.urlV2BPMN;
 
     const normalizedModel = (model || '').startsWith('models/')
       ? (model as string).slice('models/'.length)
@@ -203,21 +210,54 @@ export class t2pHttpService {
 
       if (isBpmn) {
         ModelDisplayer.displayBPMNModel(xmlContent);
+        this.warnIfDisconnected(/sequenceFlow/i.test(xmlContent));
+        callback(parsedResponse);
       } else {
-        // Render into the off-screen container so vis.js can capture a PNG
-        // snapshot (ModelDisplayer.lastPetriNetDataUrl) for the "Download
-        // Process as .png" button.
-        ModelDisplayer.generatePetriNet(xmlContent, 'petri-render-container');
+        // Part of the temporary workaround (see llmUrl above): the response
+        // is BPMN XML, so convert it to PNML client-side via the transformer
+        // service before rendering/downloading.
+        this.transformerService.bpmnToPnml(xmlContent).subscribe({
+          next: (pnml: string) => {
+            this.plainDocumentForDownload = pnml;
+            // Render visibly into the shared canvas; the vis.js afterDrawing
+            // hook also captures the PNG snapshot for the download button.
+            ModelDisplayer.generatePetriNet(pnml, 'model-container');
+            this.warnIfDisconnected(/<arc[\s>]/i.test(pnml));
+            callback(parsedResponse);
+          },
+          error: (err: any) => {
+            this.spinnerService.hide();
+            const errorEl = document.getElementById('error-container-text');
+            if (errorEl) {
+              // The transformer answers errors as plain text; Angular's JSON
+              // parse failure wraps that raw body in err.error.text.
+              const rawBody: string | undefined =
+                typeof err?.error === 'string' ? err.error : err?.error?.text;
+              const description = rawBody
+                ? rawBody.split('Please open an issue')[0].replace('Error description:', '').trim()
+                : String(err?.status ?? err);
+              errorEl.innerHTML = 'BPMN to PNML transformation failed: ' + description;
+              errorEl.style.display = 'block';
+            }
+          },
+        });
       }
-      callback(parsedResponse);
     };
+
+    // Without a client-side timeout the UI spins forever when the backend
+    // hangs — which /v2/generate/pnml currently does (documented backend
+    // issue: it stalls after a successful LLM response). 3 minutes leaves
+    // ample room for legitimate few-shot orchestration runs.
+    const requestTimeoutMs = 180000;
 
     const handleError = (error: any, attempt: number) => {
       if (error.status === 500 && attempt < 3) {
-        this.t2phttpClient.post<string>(llmUrl, body, v2HttpOptions).subscribe(
-          (response: any) => handleSuccess(response),
-          (retryError: any) => handleError(retryError, attempt + 1)
-        );
+        this.t2phttpClient.post<string>(llmUrl, body, v2HttpOptions)
+          .pipe(timeout(requestTimeoutMs))
+          .subscribe(
+            (response: any) => handleSuccess(response),
+            (retryError: any) => handleError(retryError, attempt + 1)
+          );
       } else {
         this.spinnerService.hide();
         document.getElementById('error-container-text')!.innerHTML =
@@ -226,13 +266,37 @@ export class t2pHttpService {
       }
     };
 
-    return this.t2phttpClient.post<string>(llmUrl, body, v2HttpOptions).subscribe(
-      (response: any) => handleSuccess(response),
-      (error: any) => handleError(error, 0)
-    );
+    return this.t2phttpClient.post<string>(llmUrl, body, v2HttpOptions)
+      .pipe(timeout(requestTimeoutMs))
+      .subscribe(
+        (response: any) => handleSuccess(response),
+        (error: any) => handleError(error, 0)
+      );
+  }
+
+  /**
+   * Shows a notice when the generated model has no connections between its
+   * elements (no sequence flows / no arcs). This happens when the LLM's
+   * process extraction misses the flows — observed especially with Gemini
+   * models. The diagram is still rendered; the notice tells users why it
+   * looks like a loose column of nodes and what to try instead.
+   */
+  private warnIfDisconnected(hasConnections: boolean): void {
+    if (hasConnections) return;
+    const errorEl = document.getElementById('error-container-text');
+    if (!errorEl) return;
+    errorEl.innerHTML =
+      'The generated model contains no connections between its elements. '
+      + 'This is a known weakness of some models — please generate again, '
+      + 'switch the prompting strategy (e.g. Few-Shot), or try a different model/provider.';
+    errorEl.style.display = 'block';
   }
 
   private formatError(error: any): string {
+    if (error?.name === 'TimeoutError') {
+      return 'The server did not respond within 3 minutes. Please try again — if the problem persists, the backend service may be unavailable.';
+    }
+
     // v2 error shape: { error: { code: string, message: string } }. Since
     // requests use responseType 'text', a non-2xx body arrives as a raw
     // string in error.error and needs parsing first.
